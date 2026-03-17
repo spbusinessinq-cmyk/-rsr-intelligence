@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import Layout from "@/components/Layout";
 import { files, type FileStatus } from "@/data/mockData";
 
@@ -33,8 +34,7 @@ function priorityDot(priority: string) {
 export default function Files() {
   const [activeFilter, setActiveFilter] = useState<FilterKey>("ALL");
 
-  const featured = files.find(f => f.status === "ACTIVE" && f.priority === "HIGH") ?? files[0];
-
+  const featured  = files.find(f => f.status === "ACTIVE" && f.priority === "HIGH") ?? files[0];
   const remaining = files
     .filter(f => f.id !== featured.id)
     .filter(f => {
@@ -65,14 +65,14 @@ export default function Files() {
           </div>
         </section>
 
-        {/* Featured investigation */}
+        {/* Featured investigation — outer div stays a div, button is a Link */}
         <section>
           <div className="flex items-center justify-between mb-4">
             <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-500">PRIORITY INVESTIGATION</div>
             <div className="font-mono text-[9px] tracking-widest text-zinc-700 border border-zinc-900 px-2 py-0.5">SAMPLE FILE</div>
           </div>
 
-          <div className="border border-emerald-500/25 bg-black/80 p-6 md:p-8 relative overflow-hidden">
+          <div className="border border-emerald-500/25 bg-black/80 p-6 md:p-8 relative overflow-hidden hover:border-emerald-500/40 transition-colors">
             <div className="absolute top-0 right-0 p-4 font-mono text-[100px] leading-none text-zinc-950 font-bold select-none">
               {featured.id.split("-")[1]}
             </div>
@@ -108,14 +108,17 @@ export default function Files() {
                 ))}
               </div>
 
-              <button className="border border-emerald-500/40 bg-emerald-500/5 px-6 py-2.5 text-emerald-300 font-mono text-[10px] tracking-[0.3em] hover:bg-emerald-500/10 transition-colors">
-                OPEN RECORD
-              </button>
+              <Link
+                href={`/files/${featured.id}`}
+                className="inline-block border border-emerald-500/40 bg-emerald-500/5 px-6 py-2.5 text-emerald-300 font-mono text-[10px] tracking-[0.3em] hover:bg-emerald-500/10 transition-colors"
+              >
+                OPEN RECORD →
+              </Link>
             </div>
           </div>
         </section>
 
-        {/* Filter bar — now functional */}
+        {/* Filter bar */}
         <div className="flex flex-wrap items-center gap-2 border-b border-zinc-900 pb-4">
           <span className="font-mono text-[10px] tracking-[0.3em] text-zinc-700 mr-1">FILTER:</span>
           {FILTERS.map(f => (
@@ -136,16 +139,17 @@ export default function Files() {
           </span>
         </div>
 
-        {/* File list */}
+        {/* File list — each row is a Link */}
         <section className="space-y-2">
           {remaining.length === 0 ? (
             <div className="border border-zinc-900 p-8 text-center font-mono text-[10px] tracking-widest text-zinc-700">
               NO RECORDS MATCH CURRENT FILTER
             </div>
           ) : remaining.map(file => (
-            <div
+            <Link
               key={file.id}
-              className="group flex flex-col md:flex-row gap-4 md:items-center justify-between border border-zinc-900 bg-black/40 px-5 py-4 hover:border-zinc-700 transition-colors cursor-pointer relative"
+              href={`/files/${file.id}`}
+              className="group flex flex-col md:flex-row gap-4 md:items-center justify-between border border-zinc-900 bg-black/40 px-5 py-4 hover:border-zinc-700 transition-colors relative block"
             >
               <span className="absolute top-2 right-3 font-mono text-[8px] tracking-widest text-zinc-800 opacity-0 group-hover:opacity-100 transition-opacity">
                 SAMPLE FILE
@@ -175,10 +179,10 @@ export default function Files() {
                   <div className="font-mono text-[10px] tracking-widest text-zinc-500">{file.updated}</div>
                 </div>
                 <span className="font-mono text-[10px] tracking-[0.2em] text-zinc-700 group-hover:text-emerald-400 transition-colors whitespace-nowrap">
-                  VIEW →
+                  OPEN →
                 </span>
               </div>
-            </div>
+            </Link>
           ))}
         </section>
 

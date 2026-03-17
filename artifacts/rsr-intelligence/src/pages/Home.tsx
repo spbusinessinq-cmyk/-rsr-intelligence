@@ -9,13 +9,10 @@ export default function Home() {
     <Layout>
       <div className="flex flex-col gap-20">
 
-        {/* ── HERO — arrival / front door ─────────────────────────────── */}
+        {/* ── HERO ─────────────────────────────────────────────────────── */}
         <section className="pt-4 pb-2 flex gap-8 lg:gap-16 items-center">
 
-          {/* Left: headline copy block */}
           <div className="flex-1 min-w-0">
-
-            {/* Network status micro-bar */}
             <div className="flex items-center gap-5 mb-10 font-mono text-[9px] tracking-[0.4em] text-zinc-700">
               <span className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -55,7 +52,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right: logo reveal — vertically centered against headline */}
           <div className="hidden lg:flex items-center justify-center shrink-0 pointer-events-none select-none">
             <img
               src="/logo.png"
@@ -66,7 +62,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── DIVIDER ──────────────────────────────────────────────────── */}
         <div className="border-t border-zinc-900" />
 
         {/* ── SYSTEM PREVIEW ───────────────────────────────────────────── */}
@@ -136,7 +131,7 @@ export default function Home() {
             <div className="mt-5 border border-zinc-900 bg-zinc-950/50 p-5">
               <div className="font-mono text-[9px] tracking-[0.35em] text-zinc-700 mb-1">ACCESS NODE</div>
               <p className="text-xs text-zinc-700 leading-relaxed mb-4 mt-2">
-                Partner, media, and institutional inquiries. Signal Room access for analysts.
+                Partner, media, and institutional inquiries. Analyst access to Signal Room and Investigation Room.
               </p>
               <div className="flex flex-col gap-2">
                 <button className="w-full border border-emerald-500/25 bg-emerald-500/5 py-2.5 text-emerald-500/80 font-mono text-[9px] tracking-[0.3em] hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/40 transition-colors text-left px-4">
@@ -147,6 +142,12 @@ export default function Home() {
                   className="w-full border border-zinc-800 py-2.5 text-zinc-500 font-mono text-[9px] tracking-[0.3em] hover:border-zinc-600 hover:text-zinc-300 transition-colors text-left px-4 block"
                 >
                   ENTER SIGNAL ROOM →
+                </Link>
+                <Link
+                  href="/investigation-room"
+                  className="w-full border border-zinc-900 py-2.5 text-zinc-700 font-mono text-[9px] tracking-[0.3em] hover:border-zinc-700 hover:text-zinc-400 transition-colors text-left px-4 block"
+                >
+                  INVESTIGATION ROOM →
                 </Link>
               </div>
             </div>

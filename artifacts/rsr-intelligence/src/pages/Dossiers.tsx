@@ -1,3 +1,4 @@
+import { Link } from "wouter";
 import Layout from "@/components/Layout";
 import { dossiers, type DossierStatus } from "@/data/mockData";
 
@@ -46,14 +47,15 @@ export default function Dossiers() {
           />
         </div>
 
-        {/* Dossier grid */}
+        {/* Dossier grid — each card is a Link */}
         <div className="grid md:grid-cols-2 gap-3">
           {dossiers.map(entity => (
-            <div
+            <Link
               key={entity.id}
-              className="group border border-zinc-900 bg-black/60 p-5 hover:border-zinc-700 transition-all flex flex-col relative cursor-pointer"
+              href={`/dossiers/${entity.id}`}
+              className="group border border-zinc-900 bg-black/60 p-5 hover:border-zinc-700 transition-all flex flex-col relative block"
             >
-              {/* Demo record label — subtle, appears on hover */}
+              {/* Demo record label */}
               <span className="absolute top-3 right-3 font-mono text-[8px] tracking-widest text-zinc-800 opacity-0 group-hover:opacity-100 transition-opacity">
                 DEMO RECORD
               </span>
@@ -98,18 +100,18 @@ export default function Dossiers() {
               {/* Notes */}
               <div className="flex-1">
                 <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-700 mb-2">ANALYST NOTES</div>
-                <p className="text-sm text-zinc-500 leading-relaxed group-hover:text-zinc-400 transition-colors">
+                <p className="text-sm text-zinc-500 leading-relaxed group-hover:text-zinc-400 transition-colors line-clamp-3">
                   {entity.notes}
                 </p>
               </div>
 
               {/* Expand hint */}
-              <div className="mt-4 pt-3 border-t border-zinc-900 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="font-mono text-[10px] tracking-[0.2em] text-emerald-500/70">
-                  EXPAND RECORD →
+              <div className="mt-4 pt-3 border-t border-zinc-900 flex justify-end">
+                <span className="font-mono text-[10px] tracking-[0.2em] text-zinc-700 group-hover:text-emerald-500 transition-colors">
+                  OPEN RECORD →
                 </span>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 

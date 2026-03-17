@@ -1,0 +1,274 @@
+Deep interaction + drill-down pass.
+
+Do NOT redesign the site.
+Do NOT weaken the homepage.
+Do NOT change the visual identity.
+
+Refine and expand the current build only.
+
+Main goal:
+Turn the site from a strong browsing experience into a deeper explorable intelligence environment where records open, connect, and support a more serious inner collaboration layer.
+
+Preserve:
+- black base
+- restrained emerald accents
+- thin borders
+- premium command-interface feel
+- monospace micro-labels
+- large clean headlines
+- serious intelligence-network tone
+
+CRITICAL RULES
+- No gimmicky cyberpunk effects
+- No full-screen blinking
+- No green wash overlays
+- No fake AI automation claims
+- No flattening homepage into another internal page
+- No generic social/chat app styling
+- Keep everything disciplined, premium, and controlled
+
+==================================================
+1. FILE RECORD DETAIL PAGES
+==================================================
+
+Right now Files are populated, but records need to open into actual detail pages.
+
+Implement clickable detail pages for file records.
+
+Create routes like:
+- /files/:id
+or another clean detail route if the current structure suggests something better
+
+Requirements:
+- Every file entry should open to its own file detail page
+- Detail page should feel like an intelligence case file / investigation record
+- It should be rich enough that users can spend time reading it
+
+Each file detail page should include:
+- file ID
+- title
+- category
+- status
+- classification
+- region
+- last updated
+- related systems
+- summary / overview
+- key findings or observations
+- associated entities / linked dossiers
+- related signals or related world areas if relevant
+- related file references if relevant
+
+Tone:
+- structured
+- factual
+- serious
+- believable
+- not blog-like
+- not startup-like
+
+This should feel like opening a real case file inside the system.
+
+==================================================
+2. DOSSIER DETAIL PAGES
+==================================================
+
+Right now Dossiers look populated, but clicking them needs to open something real.
+
+Implement clickable dossier detail pages.
+
+Create routes like:
+- /dossiers/:id
+or another clean detail route if better for the current router
+
+Requirements:
+- Every dossier card should open to its own detail page
+- Detail page should feel like opening the ATLAS layer around that entity
+
+Each dossier detail page should include:
+- dossier / entity ID
+- entity name
+- type
+- status
+- classification
+- region
+- network / role
+- analyst notes
+- linked files
+- linked systems
+- related entities / connected nodes
+- activity summary or relevance summary
+- last updated / current posture if helpful
+
+Goal:
+The dossiers should now feel like real entity records, not cards that stop at the surface.
+
+==================================================
+3. CROSS-LINK EVERYTHING
+==================================================
+
+This is a major priority.
+
+Make the site feel like one environment by adding drill-down and cross-links across pages.
+
+Examples:
+- Files should link to related Dossiers
+- Dossiers should link to related Files
+- World signals can link to a related File or System where useful
+- System detail pages should link to relevant Files / Dossiers / World areas
+- The Investigation Room should surface active files / dossiers / discussion threads
+
+This cross-connection should feel intentional and structural, not random.
+
+==================================================
+4. INVESTIGATION ROOM (TEAM WORKSPACE)
+==================================================
+
+Create or refine a private/team-style collaboration space called:
+
+INVESTIGATION ROOM
+or
+CASE ROOM
+
+Preferred route:
+- /investigation-room
+or
+- /case-room
+
+This is NOT a generic chat room.
+This is a collaboration layer for trusted team members to:
+- share investigation leads
+- discuss case development
+- build dossiers
+- review files
+- organize findings
+
+It should feel like:
+- a private case collaboration environment
+- tactical
+- structured
+- premium
+- consistent with the RSR world
+
+Suggested layout:
+A. Header / room descriptor
+- room name
+- current active case or active cycle
+- access/restriction note
+
+B. Case threads / discussion stream
+- threaded or feed-style entries
+- timestamps
+- handles / analyst labels / operator labels
+- notes tied to files or dossiers where useful
+
+C. Side panel or secondary panel
+- active investigations
+- referenced files
+- referenced dossiers
+- current room objective
+- analyst roster / status if useful
+
+D. Optional task / case progress strip
+- NEW
+- REVIEW
+- BUILDING
+- MONITORING
+- READY
+
+Important:
+This should NOT look like Discord, Slack, or a casual group chat.
+
+==================================================
+5. ACCESS FLOW EVOLUTION
+==================================================
+
+Refine the Access Node and related routes so they support the deeper layer.
+
+Current concept should become functional and coherent:
+- REQUEST BRIEFING
+- ENTER SIGNAL ROOM
+- ENTER INVESTIGATION ROOM (if it makes sense to surface this in the access area or through the Signal Room)
+
+Requirements:
+- no dead buttons
+- no fake login wall unless it routes meaningfully
+- the user should be able to move into the inner collaboration layer and understand what it is
+
+If auth is not yet implemented, it is acceptable to keep this in a premium “controlled access / preview / inquiry” mode.
+But all routes must still go somewhere real and meaningful.
+
+==================================================
+6. SIGNAL ROOM REFINEMENT
+==================================================
+
+If Signal Room already exists, refine it so it is more clearly distinct from Investigation Room.
+
+Suggested distinction:
+- Signal Room = monitored live analysis / observation / public-facing live channel feel
+- Investigation Room = internal collaboration / case development / dossier building environment
+
+Do not make them feel identical.
+
+Signal Room:
+- more observation-oriented
+- live-feed tone
+- monitored analysis channel
+
+Investigation Room:
+- more collaborative
+- deeper case-building feel
+- file/dossier workflow focus
+
+==================================================
+7. FILES / DOSSIERS CONTENT QUALITY UPGRADE
+==================================================
+
+As part of the detail pages, upgrade the underlying content quality where needed.
+
+Do not add filler.
+Instead:
+- deepen summaries
+- add believable findings
+- add linked relationships
+- make entries feel internally consistent
+
+The content should support clicking deeper and reading more.
+
+==================================================
+8. WORLD PAGE LINKING
+==================================================
+
+The World page is strong.
+
+Now make it more useful by allowing select signals, regions, or clusters to connect into the wider system when appropriate.
+
+Examples:
+- region cards can surface related files
+- signals can reference a related system or file
+- global cluster area can point toward relevant dossier/file content
+
+Do this tastefully.
+Do not turn it into a fake live ops engine.
+
+==================================================
+9. IMPLEMENTATION DELIVERABLES
+==================================================
+
+Please do all of the following:
+1. Explain the new routing for file detail pages and dossier detail pages
+2. Explain how Files and Dossiers now open into full records
+3. Explain the difference between Signal Room and Investigation Room
+4. Explain how the Access Node / inner-layer flow now works
+5. Implement clickable file and dossier drill-down pages
+6. Implement the Investigation Room
+7. Add cross-links between Files, Dossiers, Systems, and World where useful
+8. Preserve homepage identity and current visual hierarchy
+9. Keep the current visual language intact
+
+FINAL GUARDRAILS
+- Preserve homepage identity first
+- Preserve premium black + emerald command aesthetic second
+- Preserve clean structure third
+- Do not overwrite strong working sections
+- Complete and connect them
