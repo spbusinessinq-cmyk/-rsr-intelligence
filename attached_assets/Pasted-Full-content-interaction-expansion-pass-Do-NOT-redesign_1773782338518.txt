@@ -1,0 +1,305 @@
+Full content + interaction expansion pass.
+
+Do NOT redesign the site from scratch.
+Do NOT weaken the homepage.
+Refine and expand the current build only.
+
+Main goal:
+Turn the current RSR Intelligence Network build into a richer public-facing environment that people can explore, read through, learn from, and spend time in.
+
+This is not just a static demo.
+It is a public exploration layer for the RSR Intelligence Network.
+
+Preserve the current visual direction:
+- black base
+- restrained emerald accents
+- thin borders
+- premium command-interface feel
+- monospace micro-labels
+- large clean headlines
+- serious intelligence-network tone
+
+CRITICAL RULES
+- No gimmicky cyberpunk effects
+- No full-screen blinking
+- No green wash overlays
+- No fake AI automation claims
+- No flattening homepage into another internal page
+- Keep everything disciplined, premium, and controlled
+
+==================================================
+1. HOMEPAGE HERO COMPOSITION REFINEMENT
+==================================================
+
+The homepage is already strong. Keep it.
+
+But refine the hero composition:
+- keep the RSR seal/logo on the right side of the hero
+- align it visually with the hero copy block
+- center it against the “Mapping power / Tracking systems / Exposing reality” composition
+- make it feel intentionally paired with the headline, not floating off to the side
+- preserve the subtle reveal behavior if it already exists, but keep it controlled and premium
+- no constant flicker, no looping pulse, no noisy animation
+
+Do NOT weaken the hero.
+Do NOT shrink its presence.
+
+==================================================
+2. ACCESS NODE EVOLUTION
+==================================================
+
+Replace the generic access treatment.
+
+Current:
+- REQUEST ACCESS
+- LOGIN
+
+New concept:
+This site is meant to be explored and learned from, and it should also hint at participation.
+
+Refine Access Node into:
+- REQUEST BRIEFING
+- ENTER SIGNAL ROOM
+
+REQUEST BRIEFING should feel like:
+- public-facing serious inquiry
+- partner / media / institutional / analyst interest
+- a structured contact/briefing route
+
+ENTER SIGNAL ROOM should feel like:
+- a live discussion / analysis channel
+- controlled, premium, and in-world
+- not a casual chat room
+- not a Discord clone
+
+Keep the same design language.
+
+==================================================
+3. SIGNAL ROOM PAGE / EXPERIENCE
+==================================================
+
+Create a Signal Room page/route.
+
+This should feel like:
+- a live discussion and analysis environment
+- part of the RSR ecosystem
+- a place where users can read, observe, and conceptually participate
+
+Do NOT build it like a generic chat app.
+
+Instead, create:
+- a clear header
+- signal channel identity
+- message stream / discussion thread style layout
+- timestamps
+- user handles / analyst labels / system labels
+- maybe a side panel with channel description or active topic
+
+Tone:
+- controlled
+- monitored
+- intelligent
+- tactical
+- premium
+
+It can be semi-mock for now, but it should feel believable and consistent with the rest of the site.
+
+==================================================
+4. SYSTEM DETAIL PAGE EXPANSION
+==================================================
+
+Strengthen the system detail pages for:
+- AXION
+- ATLAS
+- ORION
+- BLACK DOG
+- WHITE WING
+
+These should feel like public infrastructure briefings / serious capability presentations.
+
+Each page should clearly communicate:
+- what the system is
+- what it does
+- why it exists
+- what role it plays inside RSR Intelligence Network
+- what makes it valuable
+
+Each page should include:
+- header block
+- status / metadata
+- overview
+- capabilities section
+- mission applications
+- operational preview / mock command panel
+- related routing / CTA
+
+Tone:
+- credible enough for outsiders
+- polished enough to present to serious visitors
+- not startup fluff
+- not app settings screens
+
+==================================================
+5. FILES PAGE — POPULATE HEAVILY
+==================================================
+
+The Files page needs much more content depth.
+
+Populate it with a richer set of believable mock intelligence records.
+At minimum, add enough entries so the page feels dense and worth exploring.
+
+Use categories such as:
+- corruption
+- influence
+- contractors
+- procurement
+- governance
+- budgets
+- policy
+- monitoring
+
+Statuses:
+- ACTIVE
+- MONITORING
+- CLOSED
+
+Use:
+- title
+- region
+- category
+- summary
+- tags
+- classification
+- last updated
+- systems involved if useful
+
+Goal:
+The Files page should feel like a serious archive / case file index.
+
+The filter bar must feel supported by actual content.
+If filters already exist, make sure there are enough entries in each category/status to make them meaningful.
+
+Use subtle labels like:
+- SAMPLE FILE
+- DEMO RECORD
+
+Only where appropriate and tastefully.
+
+==================================================
+6. DOSSIERS PAGE — POPULATE HEAVILY
+==================================================
+
+The Dossiers page also needs deeper content.
+
+Add more entity records so it feels like a real intelligence catalog.
+
+Include a range of entities:
+- contractor groups
+- advisory bodies
+- nonprofits / NGOs
+- media / influence entities
+- funding vehicles
+- programs
+- regional actors
+- financial nodes
+
+Each dossier should feel connected to the wider network.
+
+Use fields like:
+- entity name
+- type
+- status
+- region
+- network
+- classification
+- analyst notes
+- linked files if useful
+- linked systems if useful
+
+Goal:
+Dossiers should feel like the ATLAS layer is actually populated.
+
+Use subtle labels like:
+- EXAMPLE ENTITY
+- DEMO RECORD
+Where helpful, but do not overdo them.
+
+==================================================
+7. WORLD PAGE — POPULATE AND DENSIFY
+==================================================
+
+The World page layout is strong. Keep it.
+
+Now make it feel more populated:
+- more signals
+- more believable signal language
+- more active lanes
+- more posture variety
+- more region density
+- more meaningful world activity copy
+
+Keep it implied / representational, not fake-live military ops.
+
+Improve the signal items so they sound more specific and intelligence-like, not generic.
+For example, use more concrete phrasing around posture shifts, procurement watch, influence channels, policy movement, energy watch, contractor routing, etc.
+
+==================================================
+8. HOMEPAGE-TO-SYSTEMS FLOW
+==================================================
+
+Improve the sense of guided exploration.
+
+The homepage should feel like:
+- arrival
+- identity
+- invitation to explore
+
+The systems page should feel like:
+- deeper command layer
+
+Strengthen the transition by:
+- making “View all systems” feel more meaningful
+- making system cards feel like entry points into a bigger ecosystem
+- making files/dossiers/world feel like distinct but connected paths
+
+==================================================
+9. CONTENT TONE RULES
+==================================================
+
+All added mock content must feel:
+- structured
+- factual in tone
+- disciplined
+- believable
+- not overdramatic
+- not generic filler
+
+Avoid:
+- vague buzzwords
+- startup language
+- cheesy dramatic copy
+- random disconnected entries
+
+The content should feel like it belongs in one coherent intelligence network.
+
+==================================================
+10. IMPLEMENTATION DELIVERABLES
+==================================================
+
+Please do all of the following:
+1. Explain how you are evolving the Access Node
+2. Explain the Signal Room route/page you are adding
+3. Explain how you are increasing content density in Files, Dossiers, and World
+4. Preserve the current homepage and systems page hierarchy
+5. Refine the homepage hero logo alignment
+6. Populate Files, Dossiers, and World with many more strong mock entries
+7. Keep the current visual identity and page architecture intact
+
+IMPORTANT FINAL GUARDRAILS
+If anything conflicts:
+- preserve homepage identity first
+- preserve the premium black + emerald command aesthetic second
+- preserve clean structure third
+
+Do not overwrite the strong parts of the current build.
+Refine and expand them.

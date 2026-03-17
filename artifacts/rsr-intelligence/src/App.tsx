@@ -6,6 +6,7 @@ import SystemDetail from "@/pages/SystemDetail";
 import Files from "@/pages/Files";
 import Dossiers from "@/pages/Dossiers";
 import World from "@/pages/World";
+import SignalRoom from "@/pages/SignalRoom";
 
 function Router() {
   return (
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/files"           component={Files} />
       <Route path="/dossiers"        component={Dossiers} />
       <Route path="/world"           component={World} />
+      <Route path="/signal-room"     component={SignalRoom} />
       <Route component={NotFound} />
     </Switch>
   );

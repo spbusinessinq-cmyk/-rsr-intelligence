@@ -1,5 +1,22 @@
+import { useState } from "react";
 import Layout from "@/components/Layout";
 import { files, type FileStatus } from "@/data/mockData";
+
+type FilterKey = "ALL" | "ACTIVE" | "MONITORING" | "CLOSED" | string;
+
+const FILTERS: { label: string; key: FilterKey }[] = [
+  { label: "ALL",         key: "ALL" },
+  { label: "ACTIVE",      key: "ACTIVE" },
+  { label: "MONITORING",  key: "MONITORING" },
+  { label: "CLOSED",      key: "CLOSED" },
+  { label: "CORRUPTION",  key: "Corruption" },
+  { label: "INFLUENCE",   key: "Influence" },
+  { label: "CONTRACTORS", key: "Contractors" },
+  { label: "PROCUREMENT", key: "Procurement" },
+  { label: "GOVERNANCE",  key: "Governance" },
+  { label: "POLICY",      key: "Policy" },
+  { label: "BUDGETS",     key: "Budgets" },
+];
 
 function statusStyle(status: FileStatus): string {
   if (status === "ACTIVE")     return "text-emerald-400 bg-emerald-400/10 border-emerald-400/20";
@@ -8,14 +25,25 @@ function statusStyle(status: FileStatus): string {
 }
 
 function priorityDot(priority: string) {
-  if (priority === "HIGH")   return <span className="w-1.5 h-1.5 rounded-full bg-red-400/80 animate-pulse" />;
-  if (priority === "NORMAL") return <span className="w-1.5 h-1.5 rounded-full bg-zinc-600" />;
-  return <span className="w-1.5 h-1.5 rounded-full bg-zinc-800" />;
+  if (priority === "HIGH")   return <span className="w-1.5 h-1.5 rounded-full bg-red-400/80 animate-pulse shrink-0" />;
+  if (priority === "NORMAL") return <span className="w-1.5 h-1.5 rounded-full bg-zinc-600 shrink-0" />;
+  return <span className="w-1.5 h-1.5 rounded-full bg-zinc-800 shrink-0" />;
 }
 
 export default function Files() {
-  const featured  = files.find(f => f.status === "ACTIVE" && f.priority === "HIGH") ?? files[0];
-  const remaining = files.filter(f => f.id !== featured.id);
+  const [activeFilter, setActiveFilter] = useState<FilterKey>("ALL");
+
+  const featured = files.find(f => f.status === "ACTIVE" && f.priority === "HIGH") ?? files[0];
+
+  const remaining = files
+    .filter(f => f.id !== featured.id)
+    .filter(f => {
+      if (activeFilter === "ALL")        return true;
+      if (activeFilter === "ACTIVE")     return f.status === "ACTIVE";
+      if (activeFilter === "MONITORING") return f.status === "MONITORING";
+      if (activeFilter === "CLOSED")     return f.status === "CLOSED";
+      return f.category === activeFilter;
+    });
 
   return (
     <Layout>
@@ -87,44 +115,54 @@ export default function Files() {
           </div>
         </section>
 
-        {/* Filter bar */}
-        <div className="flex flex-wrap items-center gap-3 border-b border-zinc-900 pb-4">
-          <span className="font-mono text-[10px] tracking-[0.3em] text-zinc-700">FILTER:</span>
-          {["ALL", "ACTIVE", "MONITORING", "CLOSED", "CORRUPTION", "INFLUENCE", "CONTRACTORS"].map((f, i) => (
+        {/* Filter bar — now functional */}
+        <div className="flex flex-wrap items-center gap-2 border-b border-zinc-900 pb-4">
+          <span className="font-mono text-[10px] tracking-[0.3em] text-zinc-700 mr-1">FILTER:</span>
+          {FILTERS.map(f => (
             <button
-              key={f}
+              key={f.key}
+              onClick={() => setActiveFilter(f.key)}
               className={`font-mono text-[10px] tracking-[0.2em] px-2.5 py-1 border transition-colors ${
-                i === 0
+                activeFilter === f.key
                   ? "border-zinc-700 text-zinc-300 bg-zinc-900/50"
-                  : "border-transparent text-zinc-600 hover:text-zinc-300 hover:border-zinc-800"
+                  : "border-transparent text-zinc-600 hover:text-zinc-300 hover:border-zinc-900"
               }`}
             >
-              {f}
+              {f.label}
             </button>
           ))}
+          <span className="ml-auto font-mono text-[9px] tracking-widest text-zinc-700">
+            {remaining.length} RESULTS
+          </span>
         </div>
 
         {/* File list */}
         <section className="space-y-2">
-          {remaining.map(file => (
+          {remaining.length === 0 ? (
+            <div className="border border-zinc-900 p-8 text-center font-mono text-[10px] tracking-widest text-zinc-700">
+              NO RECORDS MATCH CURRENT FILTER
+            </div>
+          ) : remaining.map(file => (
             <div
               key={file.id}
               className="group flex flex-col md:flex-row gap-4 md:items-center justify-between border border-zinc-900 bg-black/40 px-5 py-4 hover:border-zinc-700 transition-colors cursor-pointer relative"
             >
-              {/* sample label — subtle, top-right */}
-              <span className="absolute top-2 right-3 font-mono text-[8px] tracking-widest text-zinc-800 hidden group-hover:inline">
+              <span className="absolute top-2 right-3 font-mono text-[8px] tracking-widest text-zinc-800 opacity-0 group-hover:opacity-100 transition-opacity">
                 SAMPLE FILE
               </span>
 
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-3 mb-2">
+                <div className="flex items-center gap-3 mb-2 flex-wrap">
                   {priorityDot(file.priority)}
                   <span className="font-mono text-[10px] tracking-widest text-zinc-600 shrink-0">{file.id}</span>
-                  <span className={`font-mono text-[9px] tracking-widest px-1.5 py-0.5 border uppercase ${statusStyle(file.status)}`}>
+                  <span className={`font-mono text-[9px] tracking-widest px-1.5 py-0.5 border uppercase shrink-0 ${statusStyle(file.status)}`}>
                     {file.status}
                   </span>
-                  <span className="font-mono text-[10px] tracking-[0.2em] text-zinc-600 uppercase truncate">
-                    {file.category} · {file.region}
+                  <span className="font-mono text-[9px] tracking-widest text-zinc-700 uppercase shrink-0 border border-zinc-900 px-1.5 py-0.5">
+                    {file.category}
+                  </span>
+                  <span className="font-mono text-[9px] text-zinc-700 truncate hidden sm:block">
+                    {file.region}
                   </span>
                 </div>
                 <h3 className="text-base text-zinc-200 group-hover:text-emerald-300 transition-colors">{file.title}</h3>
@@ -136,7 +174,7 @@ export default function Files() {
                   <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-700 mb-0.5">UPDATED</div>
                   <div className="font-mono text-[10px] tracking-widest text-zinc-500">{file.updated}</div>
                 </div>
-                <span className="font-mono text-[10px] tracking-[0.2em] text-zinc-700 group-hover:text-emerald-400 transition-colors">
+                <span className="font-mono text-[10px] tracking-[0.2em] text-zinc-700 group-hover:text-emerald-400 transition-colors whitespace-nowrap">
                   VIEW →
                 </span>
               </div>

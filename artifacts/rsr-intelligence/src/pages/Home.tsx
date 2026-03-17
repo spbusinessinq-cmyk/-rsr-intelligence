@@ -10,32 +10,23 @@ export default function Home() {
       <div className="flex flex-col gap-20">
 
         {/* ── HERO — arrival / front door ─────────────────────────────── */}
-        <section className="pt-4 pb-2 relative">
+        <section className="pt-4 pb-2 flex gap-8 lg:gap-16 items-center">
 
-          {/* Hero logo reveal — placed right side of hero, fades in on load */}
-          <div className="absolute right-0 top-0 pointer-events-none select-none hidden lg:block">
-            <img
-              src="/logo.png"
-              alt=""
-              aria-hidden="true"
-              className="h-64 w-auto object-contain animate-logo-reveal grayscale"
-            />
-          </div>
+          {/* Left: headline copy block */}
+          <div className="flex-1 min-w-0">
 
-          {/* Network status micro-bar */}
-          <div className="flex items-center gap-6 mb-10 font-mono text-[9px] tracking-[0.4em] text-zinc-700">
-            <span className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-zinc-600">NETWORK LIVE</span>
-            </span>
-            <span className="text-zinc-800">·</span>
-            <span>THREAT INDEX <span className="text-red-400/80">HIGH</span></span>
-            <span className="text-zinc-800">·</span>
-            <span>55 SIGNALS ACTIVE</span>
-          </div>
+            {/* Network status micro-bar */}
+            <div className="flex items-center gap-5 mb-10 font-mono text-[9px] tracking-[0.4em] text-zinc-700">
+              <span className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-zinc-600">NETWORK LIVE</span>
+              </span>
+              <span className="text-zinc-800">·</span>
+              <span>THREAT INDEX <span className="text-red-400/80">HIGH</span></span>
+              <span className="text-zinc-800">·</span>
+              <span>106 SIGNALS ACTIVE</span>
+            </div>
 
-          {/* Main headline */}
-          <div className="max-w-3xl">
             <h1 className="text-5xl md:text-7xl font-semibold text-white tracking-tight leading-[1.05]">
               Mapping power.<br />
               Tracking systems.<br />
@@ -63,12 +54,22 @@ export default function Home() {
               </Link>
             </div>
           </div>
+
+          {/* Right: logo reveal — vertically centered against headline */}
+          <div className="hidden lg:flex items-center justify-center shrink-0 pointer-events-none select-none">
+            <img
+              src="/logo.png"
+              alt=""
+              aria-hidden="true"
+              className="h-72 w-auto object-contain animate-logo-reveal grayscale"
+            />
+          </div>
         </section>
 
         {/* ── DIVIDER ──────────────────────────────────────────────────── */}
         <div className="border-t border-zinc-900" />
 
-        {/* ── SYSTEM PREVIEW — 3 of 5 systems, clearly a preview ───────── */}
+        {/* ── SYSTEM PREVIEW ───────────────────────────────────────────── */}
         <section>
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -107,7 +108,7 @@ export default function Home() {
                 WORLD MONITOR →
               </Link>
             </div>
-            <SignalFeed items={feedItems} />
+            <SignalFeed items={feedItems.slice(0, 7)} />
           </div>
 
           <div>
@@ -131,19 +132,22 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Access node */}
+            {/* Access node — evolved */}
             <div className="mt-5 border border-zinc-900 bg-zinc-950/50 p-5">
-              <div className="font-mono text-[9px] tracking-[0.35em] text-zinc-700 mb-3">ACCESS NODE</div>
-              <p className="text-xs text-zinc-700 leading-relaxed mb-4">
-                Deeper system access requires authorization.
+              <div className="font-mono text-[9px] tracking-[0.35em] text-zinc-700 mb-1">ACCESS NODE</div>
+              <p className="text-xs text-zinc-700 leading-relaxed mb-4 mt-2">
+                Partner, media, and institutional inquiries. Signal Room access for analysts.
               </p>
-              <div className="flex gap-2">
-                <button className="flex-1 border border-emerald-500/25 bg-emerald-500/5 py-2 text-emerald-500/70 font-mono text-[9px] tracking-[0.3em] hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors">
-                  REQUEST ACCESS
+              <div className="flex flex-col gap-2">
+                <button className="w-full border border-emerald-500/25 bg-emerald-500/5 py-2.5 text-emerald-500/80 font-mono text-[9px] tracking-[0.3em] hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/40 transition-colors text-left px-4">
+                  REQUEST BRIEFING
                 </button>
-                <button className="flex-1 border border-zinc-800 py-2 text-zinc-600 font-mono text-[9px] tracking-[0.3em] hover:border-zinc-600 hover:text-zinc-300 transition-colors">
-                  LOGIN
-                </button>
+                <Link
+                  href="/signal-room"
+                  className="w-full border border-zinc-800 py-2.5 text-zinc-500 font-mono text-[9px] tracking-[0.3em] hover:border-zinc-600 hover:text-zinc-300 transition-colors text-left px-4 block"
+                >
+                  ENTER SIGNAL ROOM →
+                </Link>
               </div>
             </div>
           </div>
