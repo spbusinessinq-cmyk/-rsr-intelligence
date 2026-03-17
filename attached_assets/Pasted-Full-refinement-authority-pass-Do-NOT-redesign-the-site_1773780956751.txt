@@ -1,0 +1,304 @@
+Full refinement + authority pass.
+
+Do NOT redesign the site from scratch.
+Do NOT flatten the homepage.
+Refine and strengthen the current build only.
+
+Use the existing visual direction as the authority:
+- black base
+- restrained emerald accents
+- thin borders
+- premium command-interface spacing
+- monospace micro-labels
+- large clean headlines
+- serious intelligence-network tone
+
+PRIMARY GOAL
+Make the site feel like a real, premium intelligence network front-end with:
+- a stronger homepage
+- a stronger header
+- a clearer navigation hierarchy
+- better live/system feel
+- better structured data for future backend work
+- stronger Files credibility
+- preserved distinction between Homepage and Systems page
+
+CRITICAL RULES
+- No gimmicky cyberpunk effects
+- No full-screen blinking
+- No green wash overlays
+- No heavy glitch effects
+- No fake “AI intelligence automation”
+- No flattening homepage into another systems page
+- Keep it premium, disciplined, and controlled
+
+==================================================
+1. HEADER / NAVIGATION AUTHORITY PASS
+==================================================
+
+Refine the header carefully.
+
+LOGO
+- The logo is still too small
+- Increase its visible size significantly so it feels like a quarter, not a dime
+- Use only a standalone img element
+- No circular container
+- No badge
+- No border
+- No glow ring
+- No background shape
+- Keep it crisp, centered, unclipped, and aspect-ratio correct
+- Reduce dead space around the image
+- The logo should feel like a dominant system emblem and brand anchor
+
+HEADER LAYOUT
+- Slightly increase header stability/presence if needed so the larger logo fits naturally
+- Keep the text block next to the logo
+- Tighten spacing between logo and text slightly
+- Preserve the premium black + emerald command aesthetic
+
+NAV
+- Add HOME as the first nav item
+- Final nav order:
+  HOME / SYSTEMS / FILES / DOSSIERS / WORLD
+- Keep active-state styling
+- Keep the nav minimal and sharp
+- If helpful, keep UTC clock in header, but make sure it does not compete with the logo or nav
+
+==================================================
+2. HOMEPAGE PROTECTION + RESTORATION
+==================================================
+
+This is critical.
+
+The homepage must remain the true front door to RSR Intelligence Network.
+
+Do NOT let the homepage become interchangeable with the Systems page.
+
+HOMEPAGE IDENTITY
+The homepage must preserve:
+- the large headline
+- the arrival / front-door feeling
+- the identity-first structure
+- the mission-first tone
+- the sense that the user is arriving at a real intelligence network
+
+Keep the current homepage hierarchy:
+- header
+- strong hero
+- systems preview
+- signal feed preview
+- network status
+- access/footer structure
+
+But refine it so it feels even stronger.
+
+Homepage must feel like:
+“arrival into the network”
+NOT:
+“already inside an internal module page”
+
+Strengthen:
+- hero presence
+- spacing rhythm
+- visual confidence
+- premium hierarchy
+
+Keep the systems on homepage as a PREVIEW, not the full OS layer.
+
+==================================================
+3. SYSTEMS PAGE = DEEPER OS LAYER
+==================================================
+
+Keep /systems as the deeper command layer.
+
+It should remain more tactical than the homepage.
+
+Make sure homepage and systems page are clearly different:
+
+Homepage:
+- identity
+- mission
+- arrival
+- system preview
+
+Systems page:
+- architecture
+- command layer
+- modules
+- diagnostics
+- logs
+- OS feel
+
+Do NOT collapse those pages into the same energy.
+
+==================================================
+4. LIVE + REAL FEEL (SUBTLE ONLY)
+==================================================
+
+Make the site feel more alive, but controlled.
+
+Allowed live/premium behaviors:
+- live UTC clock
+- relative timestamps like 1h ago / 2h ago / 3h ago
+- subtle status dots for LIVE / ACTIVE / CRITICAL
+- subtle signal ticker or rotating signal line
+- gentle hover activation on rows/cards
+- soft panel reveal transitions
+- small framer-motion fades/slides where tasteful
+- subtle active-state emphasis
+
+Not allowed:
+- flashing backgrounds
+- pulsing green full-screen overlays
+- heavy glitch effects
+- over-animated ticker chaos
+- gimmicky “hacker” effects
+
+Live elements should SUPPORT the site, not dominate it.
+
+==================================================
+5. STRUCTURED DATA LAYER FOR FUTURE BACKEND
+==================================================
+
+Refactor all content into structured mock data / typed data sources.
+
+I want the app future-ready for a backend.
+
+Create or refine a central data layer for:
+- systems
+- feed items
+- files
+- dossiers
+- world regions / signals / posture cards
+- statuses / classifications / categories where helpful
+
+Use:
+- typed interfaces/types if this is TypeScript
+- reusable rendering components
+- clear data object structure
+- comments showing where future backend/API fields could slot in
+
+Goal:
+The app should feel manually controlled now, but architected for real data later.
+
+==================================================
+6. FILES PAGE = CREDIBILITY ENGINE
+==================================================
+
+Strengthen the Files page further.
+
+This page is one of the most important pages on the site because it gives RSR authority.
+
+Keep the current direction but make it stronger:
+- featured investigation stays strong
+- list items feel more like intelligence records, less like generic content cards
+- metadata should feel serious and document-driven
+- categories, statuses, classifications, regions, tags, update dates should be clean and useful
+
+Some records may remain examples for now.
+That is acceptable.
+
+Use subtle professional labels where appropriate:
+- SAMPLE FILE
+- DEMO RECORD
+
+Do not overdo them.
+Use them tastefully.
+
+If helpful, make Files feel slightly more archival / indexed / investigative.
+
+==================================================
+7. DOSSIERS PAGE = CLEAN TACTICAL CATALOG
+==================================================
+
+Keep Dossiers disciplined and premium.
+
+Strengthen:
+- entity clarity
+- status readability
+- meta hierarchy
+- subtle classification / type labels
+- hover behavior
+- search bar polish
+
+Some dossier entries can be examples for now.
+
+Use subtle labels if needed:
+- EXAMPLE ENTITY
+- DEMO RECORD
+
+Again: tasteful only.
+
+==================================================
+8. WORLD PAGE = IMPLIED CAPABILITY, NOT FAKE OPS
+==================================================
+
+Keep World page strong.
+
+It should imply monitoring capability without pretending to be a real live command backend.
+
+Keep:
+- region posture cards
+- overall posture
+- critical zones
+- signal counts
+- global signal cluster
+- system clock
+- geospatial placeholder layer
+
+Strengthen:
+- hierarchy
+- clarity
+- subtle motion where useful
+- consistency with typed signal data
+
+No fake map APIs yet.
+No pretending there is a live battlefield engine if there isn’t.
+
+==================================================
+9. MICRO-INTERACTION PASS
+==================================================
+
+Do a final premium polish pass across the app.
+
+Refine:
+- hover borders
+- button response
+- row hover states
+- card highlight behavior
+- active nav states
+- subtle transitions
+
+Everything should feel:
+- controlled
+- responsive
+- premium
+- intentional
+
+==================================================
+10. IMPLEMENTATION DELIVERABLES
+==================================================
+
+Please do all of the following:
+
+1. Briefly explain the refinements you are making
+2. Explain how homepage vs systems page distinction is being preserved
+3. Explain how the data layer is being structured for future backend integration
+4. Implement the header logo enlargement with NO decorative container
+5. Add HOME to the navigation
+6. Preserve and strengthen the homepage hero/front-door identity
+7. Implement subtle live/system behaviors
+8. Strengthen Files as the credibility page
+9. Preserve overall page architecture and current visual identity
+
+IMPORTANT FINAL GUARDRAILS
+If anything conflicts:
+- preserve homepage identity first
+- preserve premium black + emerald command aesthetic second
+- preserve clean structure third
+
+Do not overwrite the strong parts of the current build.
+Refine them.
+
+Use the current build as the base, not a suggestion.
