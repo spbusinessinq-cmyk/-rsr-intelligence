@@ -23,10 +23,12 @@ export default function Layout({ children }: LayoutProps) {
       <div className="mx-auto w-full max-w-7xl px-6 py-6 relative z-10 flex flex-col flex-1">
         <header className="flex flex-col md:flex-row md:items-center justify-between border-b border-emerald-500/10 pb-5 gap-4">
           <Link href="/" className="flex items-center gap-4 group">
-            <div className="h-12 w-12 rounded-full border border-emerald-500/20 bg-black flex items-center justify-center overflow-hidden shadow-[0_0_20px_rgba(16,185,129,0.1)] group-hover:border-emerald-500/40 transition-colors">
-              <div className="h-8 w-8 rounded-full border border-emerald-500/40 flex items-center justify-center">
-                <span className="font-mono text-[8px] tracking-[0.3em] text-emerald-400">RSR</span>
-              </div>
+            <div className="h-14 w-14 rounded-full border border-emerald-500/20 bg-black flex items-center justify-center overflow-hidden shadow-[0_0_30px_rgba(16,185,129,0.15)] group-hover:border-emerald-500/50 group-hover:shadow-[0_0_40px_rgba(16,185,129,0.25)] transition-all duration-300">
+              <img
+                src="/logo.png"
+                alt="RSR"
+                className="h-[90%] w-[90%] object-contain opacity-80 group-hover:opacity-100 transition-opacity duration-300"
+              />
             </div>
             <div>
               <div className="font-mono text-[10px] tracking-[0.4em] text-emerald-400">RSR INTELLIGENCE NETWORK</div>
