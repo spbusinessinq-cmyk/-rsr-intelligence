@@ -1,0 +1,130 @@
+Build a production-ready React + Tailwind site for a project called:
+
+RSR Intelligence Network
+
+This is NOT a generic startup site and NOT a cyberpunk gimmick UI.
+It is a serious, minimal, command-grade public interface for an intelligence network / operating system.
+
+CORE IDENTITY
+- Name: RSR Intelligence Network
+- Tone: independent, structured, tactical, premium, disciplined
+- Vibe: CIA / Splinter Cell / Palantir / command terminal
+- Visual style: black background, subtle emerald-green accents, thin borders, restrained glow, monospace micro-labels, large clean headlines
+- Absolutely no neon overload, no bright green washes, no full-screen flicker, no cheesy cyber effects
+
+SITE ARCHITECTURE
+Create these pages/routes:
+1. / = Homepage
+2. /systems = Systems page
+3. /files = Files / investigations page
+4. /dossiers = Dossiers page
+5. /world = World monitor page
+
+HOMEPAGE GOAL
+The homepage is the front door to the network.
+It should establish identity first, then preview the system.
+
+Homepage structure:
+- Header with logo left, nav right
+- Hero section
+  - Eyebrow: NETWORK OVERVIEW
+  - Headline: Mapping power. Tracking systems. Exposing reality.
+  - Supporting copy: RSR Intelligence Network is an independent system built to analyze structures of power, global activity, and information flow. We don’t follow narratives — we map systems.
+  - CTA buttons: Enter System / View Files
+- Core Systems preview grid with 5 systems:
+  - AXION — Executive Briefs
+  - ATLAS — Entity Mapping
+  - ORION — World Monitor
+  - BLACK DOG — Restricted Review
+  - WHITE WING — Battlespace
+- Live Signal Feed preview
+- Network Status panel
+- Access Node footer section
+
+SYSTEMS PAGE GOAL
+This page should feel like the RSR OS command layer.
+Use the homepage preview as inspiration, but make this page more immersive and detailed.
+Include:
+- headline for systems layer
+- enlarged modular system cards
+- stronger tactical panel layout
+- right-side or lower-side status / signal blocks
+- subtle scanline overlays and hover sweeps ONLY where tasteful
+
+FILES PAGE GOAL
+This is the investigative backbone.
+Design it like an intelligence archive / case file index.
+Should support:
+- featured investigation card
+- list/grid of files
+- metadata lines like category, status, updated date, region, tags
+- categories like corruption, procurement, homelessness, contractors, governance, influence, budgets
+- should feel document-based and serious, not bloggy
+
+DOSSIERS PAGE GOAL
+Structured entity mapping layer.
+Should look like a clean tactical catalog:
+- entity cards or table/list
+- entity name
+- type
+- status
+- linked network / region / notes
+- support future expansion into relationship mapping
+
+WORLD PAGE GOAL
+A controlled global watch page.
+Do NOT build a real live map API yet.
+Use a placeholder intelligence-style layout:
+- region cards
+- global posture
+- signal clusters
+- activity lanes
+- preview panels only
+This should imply capability without faking a real operational backend.
+
+TECH REQUIREMENTS
+- React
+- Tailwind CSS
+- Clean component structure
+- Reusable layout and card components
+- Responsive design
+- Dark mode only
+- No backend required yet
+- Use local mock data arrays for now
+- Use simple routing if needed
+- Put the logo at /public/logo.png and render it correctly without clipping or zooming
+
+IMPORTANT VISUAL RULES
+- black base, not green base
+- emerald green only as accent
+- no blinking full-screen overlays
+- no pulsing background fills
+- scanlines must be very subtle
+- hover effects should feel premium and restrained
+- spacing should feel intentional and high-end
+- typography should be sharp and clean
+- micro-labels in monospace uppercase with tracking
+- big headlines should use a clean sans font
+
+IMPORTANT PRODUCT RULES
+- This is an intelligence network homepage, not just a systems page
+- Homepage must lead with identity and mission, then show the systems
+- Systems page is where the “OS” feel goes deeper
+- Files page should be one of the strongest pages, because this is where credibility lives
+- Everything should feel like one unified operating environment
+
+STARTING POINT
+Use this current homepage component as the design baseline and improve it into a multi-page app. Preserve the black + green command aesthetic, but refine the structure and organization.
+
+[PASTE CURRENT COMPONENT HERE]
+
+DELIVERABLES
+- Full project file structure
+- All React components
+- All pages/routes
+- Clean mock data
+- Tailwind classes included
+- No placeholders like “lorem ipsum”
+- Ready to run in Replit
+
+Before coding, briefly summarize the architecture you are about to build, then implement it.
