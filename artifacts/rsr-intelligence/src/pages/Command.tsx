@@ -48,7 +48,7 @@ function AccountBadge({ status }: { status?: string }) {
     banned:    "text-red-400 border-red-900/30 bg-red-900/5",
   };
   return (
-    <span className={`font-mono text-[7px] tracking-[0.3em] border px-1.5 py-0.5 ${map[status] ?? "text-zinc-500 border-zinc-700"}`}>
+    <span className={`font-mono text-[9px] tracking-[0.25em] border px-2 py-0.5 ${map[status] ?? "text-zinc-500 border-zinc-700"}`}>
       {status.toUpperCase()}
     </span>
   );
@@ -62,7 +62,7 @@ function RoleBadge({ role }: { role: string }) {
     member:   "text-zinc-600 border-zinc-800",
   };
   return (
-    <span className={`font-mono text-[7px] tracking-[0.3em] border px-1.5 py-0.5 ${map[role] ?? "text-zinc-500 border-zinc-700"}`}>
+    <span className={`font-mono text-[9px] tracking-[0.25em] border px-2 py-0.5 ${map[role] ?? "text-zinc-500 border-zinc-700"}`}>
       {role?.toUpperCase() ?? "—"}
     </span>
   );
@@ -197,8 +197,8 @@ export default function Command() {
                 { label: "SUSPENDED / BANNED", value: stats.suspended + stats.banned, color: (stats.suspended + stats.banned) > 0 ? "text-red-400" : "text-zinc-600" },
               ].map(s => (
                 <div key={s.label} className="bg-black px-5 py-4">
-                  <div className={`font-mono text-xl font-bold ${s.color}`}>{loading ? "—" : s.value}</div>
-                  <div className={`font-mono text-[7px] tracking-[0.3em] mt-1 ${s.alert ? "text-amber-600" : "text-zinc-700"}`}>{s.label}</div>
+                  <div className={`font-mono text-2xl font-bold ${s.color}`}>{loading ? "—" : s.value}</div>
+                  <div className={`font-mono text-[9px] tracking-[0.25em] mt-1.5 ${s.alert ? "text-amber-600" : "text-zinc-600"}`}>{s.label}</div>
                 </div>
               ))}
             </div>
@@ -215,8 +215,8 @@ export default function Command() {
                 { label: "MEMBER",  value: stats.byRole.member,  color: "text-zinc-500" },
               ].map(s => (
                 <div key={s.label} className="bg-black px-5 py-3">
-                  <div className={`font-mono text-lg font-bold ${s.color}`}>{loading ? "—" : s.value}</div>
-                  <div className="font-mono text-[7px] tracking-[0.3em] mt-1 text-zinc-700">{s.label}</div>
+                  <div className={`font-mono text-xl font-bold ${s.color}`}>{loading ? "—" : s.value}</div>
+                  <div className="font-mono text-[9px] tracking-[0.25em] mt-1.5 text-zinc-600">{s.label}</div>
                 </div>
               ))}
             </div>
@@ -232,7 +232,7 @@ export default function Command() {
             <div className="border border-zinc-900">
               <div className="grid grid-cols-[1.2fr_1.5fr_auto_auto_auto_auto_auto] gap-3 px-5 py-3 border-b border-zinc-900 bg-zinc-950">
                 {["HANDLE", "EMAIL", "ROLE", "CLEARANCE", "ACCOUNT", "JOINED", "ACTIONS"].map(h => (
-                  <div key={h} className="font-mono text-[7px] tracking-[0.3em] text-zinc-600">{h}</div>
+                  <div key={h} className="font-mono text-[9px] tracking-[0.25em] text-zinc-500">{h}</div>
                 ))}
               </div>
 
@@ -251,7 +251,7 @@ export default function Command() {
                       <div className="grid grid-cols-[1.2fr_1.5fr_auto_auto_auto_auto_auto] gap-3 px-5 py-3 items-center hover:bg-zinc-950/30 transition-colors">
 
                         {/* Handle */}
-                        <div className="font-mono text-[9px] tracking-[0.15em] text-zinc-300 flex items-center gap-2">
+                        <div className="font-mono text-[10px] tracking-[0.12em] text-zinc-200 flex items-center gap-2">
                           <button
                             onClick={() => setExpandedOp(isExpanded ? null : op.id)}
                             className="text-zinc-600 hover:text-zinc-400 transition-colors"
@@ -259,11 +259,11 @@ export default function Command() {
                             {isExpanded ? "▾" : "▸"}
                           </button>
                           {op.handle}
-                          {isSelf && <span className="text-[7px] text-emerald-600 tracking-[0.2em]">YOU</span>}
+                          {isSelf && <span className="text-[8px] text-emerald-600 tracking-[0.2em]">YOU</span>}
                         </div>
 
                         {/* Email */}
-                        <div className="font-mono text-[8px] tracking-[0.05em] text-zinc-600 truncate">{op.email ?? "—"}</div>
+                        <div className="font-mono text-[10px] tracking-[0.04em] text-zinc-500 truncate">{op.email ?? "—"}</div>
 
                         {/* Role */}
                         <div><RoleBadge role={op.role} /></div>
@@ -274,14 +274,14 @@ export default function Command() {
                         {/* Account status */}
                         <div>
                           {acctStatus === "active" ? (
-                            <span className="font-mono text-[7px] tracking-[0.2em] text-zinc-700">ACTIVE</span>
+                            <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-600">ACTIVE</span>
                           ) : (
                             <AccountBadge status={acctStatus} />
                           )}
                         </div>
 
                         {/* Joined */}
-                        <div className="font-mono text-[7px] tracking-[0.05em] text-zinc-700 whitespace-nowrap">
+                        <div className="font-mono text-[9px] tracking-[0.04em] text-zinc-600 whitespace-nowrap">
                           {op.created_at ? formatDate(op.created_at) : "—"}
                         </div>
 
@@ -309,7 +309,7 @@ export default function Command() {
                               )}
                             </>
                           )}
-                          {isSelf && <span className="font-mono text-[7px] text-zinc-800 tracking-[0.2em]">—</span>}
+                          {isSelf && <span className="font-mono text-[9px] text-zinc-800 tracking-[0.2em]">—</span>}
                         </div>
                       </div>
 
@@ -318,8 +318,8 @@ export default function Command() {
                         <div className="px-10 pb-4 pt-1 border-t border-zinc-900/40 bg-zinc-950/30">
                           <div className="flex flex-wrap gap-3 items-center">
                             {/* Role control */}
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-mono text-[7px] tracking-[0.3em] text-zinc-700">ROLE:</span>
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono text-[9px] tracking-[0.25em] text-zinc-600">ROLE:</span>
                               {ROLES.map(r => (
                                 <ActionBtn
                                   key={r}
@@ -335,8 +335,8 @@ export default function Command() {
                             <div className="w-px h-4 bg-zinc-800 mx-1" />
 
                             {/* Account status control */}
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-mono text-[7px] tracking-[0.3em] text-zinc-700">ACCOUNT:</span>
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono text-[9px] tracking-[0.25em] text-zinc-600">ACCOUNT:</span>
                               {(["active", "suspended", "banned"] as AccountStatus[]).map(s => (
                                 <ActionBtn
                                   key={s}
@@ -350,7 +350,7 @@ export default function Command() {
                             </div>
 
                             <div className="ml-auto">
-                              <span className="font-mono text-[7px] tracking-[0.2em] text-zinc-700">
+                              <span className="font-mono text-[9px] tracking-[0.15em] text-zinc-700">
                                 ID: {op.id.slice(0, 8)}...
                               </span>
                             </div>
@@ -381,24 +381,24 @@ export default function Command() {
                 </Link>
               </div>
               <div className="border border-zinc-900">
-                <div className="grid grid-cols-[55px_80px_1fr_80px] gap-3 px-5 py-2.5 border-b border-zinc-900 bg-zinc-950">
+                <div className="grid grid-cols-[60px_90px_1fr_90px] gap-3 px-5 py-2.5 border-b border-zinc-900 bg-zinc-950">
                   {["TIME", "CHANNEL", "MESSAGE", "HANDLE"].map(h => (
-                    <div key={h} className="font-mono text-[7px] tracking-[0.3em] text-zinc-600">{h}</div>
+                    <div key={h} className="font-mono text-[9px] tracking-[0.25em] text-zinc-500">{h}</div>
                   ))}
                 </div>
                 {loading ? (
-                  <div className="px-5 py-6 text-center font-mono text-[9px] tracking-[0.3em] text-zinc-700 animate-pulse">LOADING...</div>
+                  <div className="px-5 py-6 text-center font-mono text-[10px] tracking-[0.3em] text-zinc-700 animate-pulse">LOADING...</div>
                 ) : messages.length === 0 ? (
-                  <div className="px-5 py-6 text-center font-mono text-[9px] tracking-[0.3em] text-zinc-700">NO TRANSMISSIONS</div>
+                  <div className="px-5 py-6 text-center font-mono text-[10px] tracking-[0.3em] text-zinc-700">NO TRANSMISSIONS</div>
                 ) : (
                   messages.map(msg => (
-                    <div key={msg.id} className="grid grid-cols-[55px_80px_1fr_80px] gap-3 px-5 py-2.5 border-b border-zinc-900/30 items-start hover:bg-zinc-950/20">
-                      <div className="font-mono text-[7px] text-zinc-700 pt-0.5">{formatTime(msg.created_at)}</div>
-                      <div className="font-mono text-[7px] tracking-[0.1em] text-emerald-700 pt-0.5 truncate">#{msg.channel_id}</div>
-                      <div className="font-mono text-[8px] text-zinc-500 leading-relaxed truncate">
+                    <div key={msg.id} className="grid grid-cols-[60px_90px_1fr_90px] gap-3 px-5 py-2.5 border-b border-zinc-900/30 items-start hover:bg-zinc-950/20">
+                      <div className="font-mono text-[9px] text-zinc-600 pt-0.5">{formatTime(msg.created_at)}</div>
+                      <div className="font-mono text-[9px] tracking-[0.1em] text-emerald-700 pt-0.5 truncate">#{msg.channel_id}</div>
+                      <div className="font-mono text-[10px] text-zinc-400 leading-relaxed truncate">
                         {msg.body.length > 100 ? msg.body.slice(0, 100) + "…" : msg.body}
                       </div>
-                      <div className="font-mono text-[7px] text-zinc-600 pt-0.5 truncate">{msg.handle}</div>
+                      <div className="font-mono text-[9px] text-zinc-500 pt-0.5 truncate">{msg.handle}</div>
                     </div>
                   ))
                 )}
@@ -411,10 +411,10 @@ export default function Command() {
               <div className="border border-zinc-900 divide-y divide-zinc-900">
                 {["general", "investigations", "west-coast-case", "signals", "off-grid"].map(ch => (
                   <div key={ch} className="flex items-center justify-between px-5 py-3">
-                    <div className="font-mono text-[9px] tracking-[0.1em] text-zinc-500">
+                    <div className="font-mono text-[10px] tracking-[0.08em] text-zinc-400">
                       <span className="text-zinc-700"># </span>{ch}
                     </div>
-                    <div className="font-mono text-[8px] text-zinc-600">
+                    <div className="font-mono text-[10px] text-zinc-600">
                       {channelActivity[ch] ?? 0} msg
                     </div>
                   </div>
@@ -422,7 +422,7 @@ export default function Command() {
               </div>
 
               <div className="mt-4 border border-zinc-900 p-4">
-                <div className="font-mono text-[8px] tracking-[0.3em] text-zinc-700 mb-3">SYSTEM STATUS</div>
+                <div className="font-mono text-[10px] tracking-[0.3em] text-zinc-600 mb-3">SYSTEM STATUS</div>
                 {[
                   { label: "INVESTIGATION ROOM", status: "LIVE" },
                   { label: "REALTIME SYNC", status: "ACTIVE" },
@@ -430,8 +430,8 @@ export default function Command() {
                   { label: "APPROVAL GATE", status: "ACTIVE" },
                 ].map(s => (
                   <div key={s.label} className="flex items-center justify-between py-1.5 border-b border-zinc-900/40 last:border-0">
-                    <span className="font-mono text-[7px] tracking-[0.15em] text-zinc-600">{s.label}</span>
-                    <span className="font-mono text-[7px] text-emerald-600 tracking-[0.2em]">{s.status}</span>
+                    <span className="font-mono text-[9px] tracking-[0.12em] text-zinc-500">{s.label}</span>
+                    <span className="font-mono text-[9px] text-emerald-600 tracking-[0.2em]">{s.status}</span>
                   </div>
                 ))}
               </div>
@@ -483,7 +483,7 @@ function ActionBtn({
     <button
       disabled={disabled}
       onClick={onClick}
-      className={`font-mono text-[7px] tracking-[0.2em] border px-1.5 py-0.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${cls}`}
+      className={`font-mono text-[9px] tracking-[0.2em] border px-2 py-0.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${cls}`}
     >
       {loading ? "..." : label}
     </button>
@@ -493,17 +493,17 @@ function ActionBtn({
 function OpActivity({ handle, messages }: { handle: string; messages: MessageRow[] }) {
   const opMsgs = messages.filter(m => m.handle === handle).slice(0, 3);
   if (opMsgs.length === 0) return (
-    <div className="mt-2 font-mono text-[7px] tracking-[0.2em] text-zinc-800">NO RECENT TRANSMISSIONS</div>
+    <div className="mt-3 font-mono text-[9px] tracking-[0.2em] text-zinc-700">NO RECENT TRANSMISSIONS</div>
   );
   return (
-    <div className="mt-2 space-y-1">
-      <div className="font-mono text-[7px] tracking-[0.3em] text-zinc-700 mb-1">RECENT TRANSMISSIONS:</div>
+    <div className="mt-3 space-y-1.5">
+      <div className="font-mono text-[9px] tracking-[0.25em] text-zinc-600 mb-2">RECENT TRANSMISSIONS:</div>
       {opMsgs.map(m => (
         <div key={m.id} className="flex gap-3 items-start">
-          <span className="font-mono text-[7px] text-zinc-700 shrink-0">{formatTime(m.created_at)}</span>
-          <span className="font-mono text-[7px] text-emerald-800 shrink-0">#{m.channel_id}</span>
-          <span className="font-mono text-[7px] text-zinc-600 leading-relaxed truncate">
-            {m.body.slice(0, 80)}{m.body.length > 80 ? "…" : ""}
+          <span className="font-mono text-[9px] text-zinc-600 shrink-0">{formatTime(m.created_at)}</span>
+          <span className="font-mono text-[9px] text-emerald-800 shrink-0">#{m.channel_id}</span>
+          <span className="font-mono text-[10px] text-zinc-500 leading-relaxed truncate">
+            {m.body.slice(0, 90)}{m.body.length > 90 ? "…" : ""}
           </span>
         </div>
       ))}

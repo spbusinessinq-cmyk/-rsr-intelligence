@@ -175,6 +175,11 @@ const catColor: Record<SignalItem["category"], string> = {
 };
 
 export default function SignalRoom() {
+  const sorted = [...signals].sort((a, b) => {
+    if (a.priority === "HIGH" && b.priority !== "HIGH") return -1;
+    if (a.priority !== "HIGH" && b.priority === "HIGH") return 1;
+    return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+  });
   const highCount = signals.filter(s => s.priority === "HIGH").length;
 
   return (
@@ -184,20 +189,20 @@ export default function SignalRoom() {
         {/* ── BREAKING STRIP ──────────────────────────────────────────── */}
         <div className="border border-zinc-900 bg-zinc-950 mb-6 overflow-hidden">
           <div className="flex items-center">
-            <div className="shrink-0 font-mono text-[8px] tracking-[0.35em] text-red-400 bg-red-900/20 border-r border-zinc-900 px-3 py-2.5">
+            <div className="shrink-0 font-mono text-[9px] tracking-[0.35em] text-red-400 bg-red-900/20 border-r border-zinc-900 px-4 py-3">
               BREAKING
             </div>
             <div className="overflow-hidden flex-1">
-              <div className="animate-marquee flex gap-16 whitespace-nowrap py-2.5 px-4">
+              <div className="animate-marquee flex gap-16 whitespace-nowrap py-3 px-4">
                 {BREAKING.concat(BREAKING).map((item, i) => (
-                  <span key={i} className="font-mono text-[9px] tracking-[0.1em] text-zinc-500 shrink-0">
+                  <span key={i} className="font-mono text-[10px] tracking-[0.08em] text-zinc-500 shrink-0">
                     {item}
                   </span>
                 ))}
               </div>
             </div>
-            <div className="shrink-0 font-mono text-[8px] tracking-[0.3em] text-zinc-700 border-l border-zinc-900 px-3 py-2.5">
-              LIVE
+            <div className="shrink-0 font-mono text-[9px] tracking-[0.3em] text-zinc-700 border-l border-zinc-900 px-4 py-3">
+              INDICATIVE
             </div>
           </div>
         </div>
@@ -233,17 +238,17 @@ export default function SignalRoom() {
 
         {/* ── MARKET STRIP ────────────────────────────────────────────── */}
         <div className="border border-zinc-900 bg-zinc-950/40 mb-6">
-          <div className="border-b border-zinc-900 px-5 py-2 flex items-center justify-between">
-            <div className="font-mono text-[8px] tracking-[0.4em] text-zinc-600">MARKET WATCH</div>
-            <div className="font-mono text-[8px] tracking-[0.3em] text-zinc-700">INDICATIVE — MONITORING ONLY</div>
+          <div className="border-b border-zinc-900 px-5 py-2.5 flex items-center justify-between">
+            <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-500">MARKET WATCH</div>
+            <div className="font-mono text-[9px] tracking-[0.25em] text-zinc-700">INDICATIVE — NOT LIVE DATA</div>
           </div>
           <div className="grid grid-cols-3 md:grid-cols-6 divide-x divide-zinc-900">
             {marketWatchItems.map(m => (
-              <div key={m.label} className="px-4 py-3">
-                <div className="font-mono text-[7px] tracking-[0.3em] text-zinc-700 mb-1">{m.label}</div>
-                <div className="font-mono text-[11px] text-white">{m.value}</div>
+              <div key={m.label} className="px-4 py-3.5">
+                <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-600 mb-1">{m.label}</div>
+                <div className="font-mono text-sm text-white">{m.value}</div>
                 {m.delta && (
-                  <div className={`font-mono text-[8px] tracking-[0.1em] ${
+                  <div className={`font-mono text-[10px] tracking-[0.1em] ${
                     m.direction === "up" ? "text-emerald-500" :
                     m.direction === "down" ? "text-red-400" : "text-zinc-600"
                   }`}>{m.delta}</div>
@@ -260,60 +265,60 @@ export default function SignalRoom() {
           <div className="lg:col-span-3 flex flex-col gap-0">
 
             {/* Filter bar */}
-            <div className="border border-zinc-900 bg-zinc-950 px-5 py-3 mb-0 flex flex-wrap items-center gap-4 font-mono text-[9px] tracking-[0.3em]">
-              <span className="text-zinc-700">ACTIVE WATCH:</span>
-              <span className="text-zinc-400">MIDDLE EAST ESCALATION · EU MEDIA NETWORK · ASIA-PAC CAPITAL FLOWS · NORTH AMERICA POLICY</span>
-              <span className="ml-auto text-zinc-700">{signals.length} SIGNALS THIS CYCLE</span>
+            <div className="border border-zinc-900 bg-zinc-950 px-5 py-3 mb-0 flex flex-wrap items-center gap-4 font-mono text-[10px] tracking-[0.25em]">
+              <span className="text-zinc-600">ACTIVE WATCH:</span>
+              <span className="text-zinc-400">MIDDLE EAST · EU INFLUENCE · ASIA-PAC FLOWS · N. AMERICA POLICY</span>
+              <span className="ml-auto text-zinc-600">{signals.length} SIGNALS — HIGH PRIORITY FIRST</span>
             </div>
 
             {/* Signal entries */}
             <div className="border border-zinc-900 border-t-0">
-              {signals.map((sig, i) => (
+              {sorted.map((sig, i) => (
                 <div
                   key={sig.id}
-                  className={`px-5 py-5 ${i < signals.length - 1 ? "border-b border-zinc-900" : ""} ${
+                  className={`px-5 py-5 ${i < sorted.length - 1 ? "border-b border-zinc-900" : ""} ${
                     sig.priority === "HIGH" ? "bg-zinc-950/40" : "bg-black"
                   } hover:bg-zinc-950/60 transition-colors`}
                 >
                   <div className="flex items-start gap-4">
                     {/* Priority indicator */}
-                    <div className="mt-1.5 shrink-0">
+                    <div className="mt-2 shrink-0">
                       {sig.priority === "HIGH" ? (
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-400/80 block animate-pulse" />
+                        <span className="w-2 h-2 rounded-full bg-red-400/80 block animate-pulse" />
                       ) : (
-                        <span className="w-1.5 h-1.5 rounded-full bg-zinc-700 block" />
+                        <span className="w-2 h-2 rounded-full bg-zinc-700 block" />
                       )}
                     </div>
 
                     <div className="flex-1 min-w-0">
                       {/* Header row */}
                       <div className="flex items-center gap-3 mb-2.5 flex-wrap">
-                        <span className={`font-mono text-[7px] tracking-[0.3em] border px-2 py-0.5 ${catColor[sig.category]}`}>
+                        <span className={`font-mono text-[9px] tracking-[0.25em] border px-2 py-0.5 ${catColor[sig.category]}`}>
                           {sig.category}
                         </span>
-                        <span className="font-mono text-[8px] tracking-[0.25em] text-zinc-600">
+                        <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-500">
                           {sig.source}
                         </span>
-                        <span className="font-mono text-[8px] tracking-widest text-zinc-700">
+                        <span className="font-mono text-[9px] tracking-widest text-zinc-600">
                           {sig.region}
                         </span>
-                        <span className="ml-auto font-mono text-[9px] tracking-widest text-zinc-700">
+                        <span className="ml-auto font-mono text-[10px] tracking-widest text-zinc-600">
                           {formatTime(sig.timestamp)}
                         </span>
                         {sig.priority === "HIGH" && (
-                          <span className="font-mono text-[7px] tracking-widest text-red-400/70 border border-red-900/30 px-1.5 py-0.5">
+                          <span className="font-mono text-[9px] tracking-widest text-red-400/80 border border-red-900/30 px-2 py-0.5">
                             PRIORITY
                           </span>
                         )}
                       </div>
 
                       {/* Headline */}
-                      <div className="font-mono text-[10px] tracking-[0.1em] text-zinc-200 mb-2 font-medium">
+                      <div className="font-mono text-xs tracking-[0.08em] text-zinc-100 mb-2.5 font-medium">
                         {sig.headline}
                       </div>
 
                       {/* Summary */}
-                      <p className="text-[11px] text-zinc-500 leading-relaxed mb-3">
+                      <p className="text-[13px] text-zinc-500 leading-relaxed mb-3 font-mono tracking-[0.02em]">
                         {sig.summary}
                       </p>
 
@@ -324,7 +329,7 @@ export default function SignalRoom() {
                             <Link
                               key={ref}
                               href={ref.startsWith("F") ? `/files/${ref}` : `/dossiers/${ref}`}
-                              className="font-mono text-[8px] tracking-widest text-zinc-700 hover:text-emerald-400 border border-zinc-800 hover:border-emerald-900/40 px-1.5 py-0.5 transition-colors"
+                              className="font-mono text-[9px] tracking-widest text-zinc-600 hover:text-emerald-400 border border-zinc-800 hover:border-emerald-900/40 px-2 py-0.5 transition-colors"
                             >
                               {ref} →
                             </Link>
@@ -351,19 +356,19 @@ export default function SignalRoom() {
           </div>
 
           {/* Sidebar — 1/4 */}
-          <div className="lg:col-span-1 space-y-5 sticky top-6">
+          <div className="lg:col-span-1 space-y-4 sticky top-6 max-h-[calc(100vh-8rem)] overflow-y-auto pr-1">
 
             {/* Watch board */}
-            <div className="border border-zinc-900 p-5">
-              <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-600 mb-4">CURRENT WATCH</div>
-              <div className="space-y-2.5">
+            <div className="border border-zinc-900 p-4">
+              <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-500 mb-3">CURRENT WATCH</div>
+              <div className="space-y-3">
                 {watchItems.map(w => (
-                  <div key={w.label} className="flex items-start justify-between gap-3 border-b border-zinc-900/50 pb-2.5 last:border-0 last:pb-0">
+                  <div key={w.label} className="flex items-start justify-between gap-2 border-b border-zinc-900/50 pb-3 last:border-0 last:pb-0">
                     <div>
-                      <div className="font-mono text-[8px] tracking-[0.15em] text-zinc-400">{w.label}</div>
-                      <div className="font-mono text-[8px] tracking-[0.2em] text-zinc-600 mt-0.5">{w.status}</div>
+                      <div className="font-mono text-[10px] tracking-[0.1em] text-zinc-300">{w.label}</div>
+                      <div className="font-mono text-[9px] tracking-[0.15em] text-zinc-600 mt-0.5">{w.status}</div>
                     </div>
-                    <span className={`font-mono text-[7px] tracking-[0.25em] border px-1.5 py-0.5 shrink-0 ${
+                    <span className={`font-mono text-[8px] tracking-[0.2em] border px-1.5 py-0.5 shrink-0 mt-0.5 ${
                       w.level === "HIGH" ? "text-red-400 border-red-500/20" : "text-zinc-600 border-zinc-800"
                     }`}>
                       {w.level}
@@ -374,22 +379,22 @@ export default function SignalRoom() {
             </div>
 
             {/* Regional postures */}
-            <div className="border border-zinc-900 p-5">
-              <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-600 mb-4">REGIONAL POSTURES</div>
-              <div className="space-y-2">
+            <div className="border border-zinc-900 p-4">
+              <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-500 mb-3">REGIONAL POSTURES</div>
+              <div className="space-y-2.5">
                 {[
-                  { region: "Middle East", posture: "CRITICAL", signals: 27 },
-                  { region: "North America", posture: "ELEVATED", signals: 22 },
+                  { region: "Middle East",    posture: "CRITICAL", signals: 27 },
                   { region: "Eastern Europe", posture: "ELEVATED", signals: 16 },
-                  { region: "Asia-Pacific", posture: "ELEVATED", signals: 19 },
-                  { region: "European Union", posture: "STABLE", signals: 14 },
-                  { region: "Africa", posture: "STABLE", signals: 8 },
+                  { region: "Asia-Pacific",   posture: "ELEVATED", signals: 19 },
+                  { region: "North America",  posture: "ELEVATED", signals: 22 },
+                  { region: "Eur. Union",     posture: "STABLE",   signals: 14 },
+                  { region: "Africa",         posture: "STABLE",   signals: 8 },
                 ].map(r => (
-                  <div key={r.region} className="flex items-center justify-between font-mono text-[9px]">
-                    <span className="text-zinc-500 tracking-[0.1em]">{r.region}</span>
+                  <div key={r.region} className="flex items-center justify-between font-mono">
+                    <span className="text-[10px] tracking-[0.08em] text-zinc-400">{r.region}</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-zinc-700 text-[8px]">{r.signals}</span>
-                      <span className={`text-[7px] tracking-[0.2em] ${
+                      <span className="text-zinc-700 text-[9px]">{r.signals}</span>
+                      <span className={`text-[9px] tracking-[0.15em] ${
                         r.posture === "CRITICAL" ? "text-red-400" :
                         r.posture === "ELEVATED" ? "text-amber-400" : "text-zinc-600"
                       }`}>{r.posture}</span>
@@ -397,45 +402,45 @@ export default function SignalRoom() {
                   </div>
                 ))}
               </div>
-              <div className="mt-4 pt-4 border-t border-zinc-900">
-                <Link href="/world" className="font-mono text-[8px] tracking-[0.25em] text-zinc-600 hover:text-emerald-500 transition-colors">
+              <div className="mt-3 pt-3 border-t border-zinc-900">
+                <Link href="/world" className="font-mono text-[9px] tracking-[0.2em] text-zinc-600 hover:text-emerald-500 transition-colors">
                   → WORLD MONITOR
                 </Link>
               </div>
             </div>
 
             {/* Referenced records */}
-            <div className="border border-zinc-900 p-5">
-              <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-600 mb-4">REFERENCED THIS CYCLE</div>
+            <div className="border border-zinc-900 p-4">
+              <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-500 mb-3">REFERENCED THIS CYCLE</div>
               <div className="space-y-1.5">
                 {["F-001", "F-003", "F-006", "F-009", "F-010", "F-016", "F-017", "F-019"].map(ref => (
                   <Link key={ref} href={`/files/${ref}`} className="flex items-center gap-2 group">
-                    <span className="font-mono text-[9px] tracking-widest text-zinc-700 group-hover:text-emerald-500 transition-colors">{ref}</span>
-                    <span className="font-mono text-[8px] text-zinc-800 group-hover:text-zinc-600">→ FILE</span>
+                    <span className="font-mono text-[10px] tracking-widest text-zinc-600 group-hover:text-emerald-500 transition-colors">{ref}</span>
+                    <span className="font-mono text-[9px] text-zinc-800 group-hover:text-zinc-600">→ FILE</span>
                   </Link>
                 ))}
                 {["D-001", "D-004", "D-007", "D-010", "D-013"].map(ref => (
                   <Link key={ref} href={`/dossiers/${ref}`} className="flex items-center gap-2 group">
-                    <span className="font-mono text-[9px] tracking-widest text-zinc-700 group-hover:text-emerald-500 transition-colors">{ref}</span>
-                    <span className="font-mono text-[8px] text-zinc-800 group-hover:text-zinc-600">→ DOSSIER</span>
+                    <span className="font-mono text-[10px] tracking-widest text-zinc-600 group-hover:text-emerald-500 transition-colors">{ref}</span>
+                    <span className="font-mono text-[9px] text-zinc-800 group-hover:text-zinc-600">→ DOSSIER</span>
                   </Link>
                 ))}
               </div>
             </div>
 
             {/* Inner layer navigation */}
-            <div className="border border-zinc-900 p-5">
-              <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-600 mb-4">INNER LAYER</div>
-              <div className="space-y-2">
+            <div className="border border-zinc-900 p-4">
+              <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-500 mb-3">INNER LAYER</div>
+              <div className="space-y-2.5">
                 {[
                   { label: "INVESTIGATION ROOM", href: "/investigation-room" },
-                  { label: "ENTITY DOSSIERS", href: "/dossiers" },
-                  { label: "WORLD MONITOR", href: "/world" },
-                  { label: "ACTIVE FILES", href: "/files" },
+                  { label: "ENTITY DOSSIERS",    href: "/dossiers" },
+                  { label: "WORLD MONITOR",      href: "/world" },
+                  { label: "ACTIVE FILES",        href: "/files" },
                 ].map(l => (
                   <Link key={l.href} href={l.href} className="flex items-center justify-between group">
-                    <span className="font-mono text-[10px] tracking-widest text-zinc-600 group-hover:text-zinc-300 transition-colors">{l.label}</span>
-                    <span className="font-mono text-[8px] text-zinc-800 group-hover:text-emerald-600 transition-colors">→</span>
+                    <span className="font-mono text-[10px] tracking-widest text-zinc-500 group-hover:text-zinc-200 transition-colors">{l.label}</span>
+                    <span className="font-mono text-[9px] text-zinc-800 group-hover:text-emerald-600 transition-colors">→</span>
                   </Link>
                 ))}
               </div>

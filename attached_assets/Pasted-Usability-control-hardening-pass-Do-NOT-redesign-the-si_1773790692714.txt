@@ -1,0 +1,167 @@
+Usability + control hardening pass.
+
+Do NOT redesign the site.
+Do NOT weaken the homepage.
+Do NOT change the established visual identity.
+
+Refine the current build only.
+
+MAIN GOAL
+Make the platform fully usable, readable, and operational by fixing:
+- tiny text / readability issues
+- Investigation Room messaging flow
+- Sage Terminal placement and usability
+- admin command access visibility
+- Signal Room feed hierarchy and scrolling behavior
+
+PRESERVE
+- black base
+- restrained emerald accents
+- thin borders
+- premium command-interface feel
+- monospace micro-labels
+- serious intelligence-network tone
+
+CRITICAL RULES
+- No visual redesign
+- No generic app styling
+- No bloated UI
+- Keep the current structure, but make it more readable and usable
+
+==================================================
+1. GLOBAL READABILITY FIX
+==================================================
+
+Text is too small across key pages.
+
+Increase readability across:
+- Investigation Room
+- Signal Room
+- Command Console
+- Sage Terminal
+- sidebars
+- feed cards
+- operator tables
+- message composer
+
+Raise text sizes carefully while preserving the aesthetic.
+Do not make it chunky or generic.
+Just make it clearly readable at normal desktop viewing distance.
+
+Priority:
+- message text
+- sidebar content
+- signal copy
+- terminal text
+- buttons / controls
+
+==================================================
+2. INVESTIGATION ROOM — MESSAGE SYSTEM FIX
+==================================================
+
+The Investigation Room is the core workspace and must work reliably.
+
+Confirm and fix:
+- message composer works
+- send button works
+- Enter-to-send works
+- messages post to the active channel
+- messages persist
+- messages appear live without refresh
+- empty-channel state is cleaner and more useful
+
+Also improve:
+- current channel clarity
+- message spacing
+- role label readability
+- composer usability
+
+If there is any bug in posting, fix that before cosmetic work.
+
+==================================================
+3. ADMIN ACCESS / GOD CONTROLS VISIBILITY
+==================================================
+
+As admin, I need visible access to the control layer.
+
+Add a visible admin-only button/link in Investigation Room:
+- COMMAND
+or
+- COMMAND CONSOLE
+
+It should route to /command.
+
+Keep it subtle and on-brand.
+Do not hide core admin access behind manual URL typing.
+
+Also make sure command/admin status displays correctly if there is any mismatch.
+
+==================================================
+4. SAGE TERMINAL — PLACEMENT + SIZE FIX
+==================================================
+
+Sage works, but it is too tiny and buried.
+
+Refine the Sage experience:
+- keep a compact terminal panel in the right sidebar
+- add a clear admin/operator action to expand Sage into a larger workspace
+- expanded Sage can be:
+  - slide-over panel
+  - modal terminal
+  - dedicated route
+Choose the cleanest option that preserves the room layout.
+
+Requirements:
+- larger readable terminal text
+- larger response area
+- larger input area
+- keep quick action buttons
+- keep internal RSR-data-first behavior
+
+Do NOT remove Sage.
+Do NOT leave it tiny and hard to use.
+
+==================================================
+5. SIGNAL ROOM — FEED HIERARCHY FIX
+==================================================
+
+Signal Room is visually strong, but the information hierarchy needs improvement.
+
+Refine it so:
+- Current Watch = newest / most immediate breaking developments
+- Regional Postures = top 5 headline clusters / strongest current world developments
+- feed/ticker/scrollers behave cleanly and are readable
+- sidebar content is clearer and more useful
+- signal cards remain premium and intelligence-like
+
+Fix any awkward scrolling or ticker behavior.
+
+If market/news values are not truly live, keep the language honest and controlled.
+If a live source/feed is already connected, preserve it and improve presentation.
+
+==================================================
+6. KEEP THE STRUCTURE
+==================================================
+
+Do NOT move the platform away from its current structure.
+
+Keep:
+- homepage as arrival/identity layer
+- Investigation Room as live collaboration layer
+- Signal Room as public intelligence/news layer
+- Command Console as control layer
+- Sage as intelligence interface
+
+This is a hardening pass, not a concept rewrite.
+
+==================================================
+7. IMPLEMENTATION DELIVERABLES
+==================================================
+
+Please do all of the following:
+1. fix readability across the live system
+2. confirm/fix Investigation Room message posting and sending
+3. add visible admin access to /command
+4. improve Sage placement and allow expanded usage
+5. refine Signal Room hierarchy and scrolling behavior
+6. preserve the current visual identity and architecture

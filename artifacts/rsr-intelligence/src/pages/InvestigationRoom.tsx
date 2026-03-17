@@ -133,46 +133,89 @@ function extractRefs(body: string) {
 function roleBadge(role: string | null) {
   if (!role) return null;
   const map: Record<string, string> = {
-    admin:    "text-emerald-300 border-emerald-400/30",
-    lead:     "text-blue-300 border-blue-400/20",
+    admin:    "text-emerald-300 border-emerald-400/30 bg-emerald-500/5",
+    lead:     "text-blue-300 border-blue-400/20 bg-blue-500/5",
     analyst:  "text-zinc-400 border-zinc-700",
     member:   "text-zinc-600 border-zinc-800",
   };
   return map[role] ?? "text-zinc-600 border-zinc-800";
 }
 
-/* ── Message component ──────────────────────────────────────────────── */
+/* ── SAGE shared logic ──────────────────────────────────────────────── */
+
+const QUICK_BRIEFS = [
+  { label: "QUICK BRIEF",  action: "brief" as SageAction, query: "Provide the current priority intelligence brief for RSR analysts. Include the top 3 active developments, regional posture changes, and which files/dossiers require immediate attention." },
+  { label: "MIDDLE EAST",  action: "brief" as SageAction, query: "Brief on current Middle East posture, energy watch status, and all RSR records relevant to the region." },
+  { label: "EU INFLUENCE", action: "brief" as SageAction, query: "Brief on the European Union influence operation tracking — F-003, F-017, D-006, and current status." },
+  { label: "N. AMERICA",   action: "brief" as SageAction, query: "Brief on North America case activity — F-001, D-001, F-019, D-010, and current procurement watch posture." },
+];
+
+const ACTION_OPTS: { value: SageAction; label: string }[] = [
+  { value: "query",     label: "QUERY" },
+  { value: "brief",     label: "BRIEF" },
+  { value: "summarize", label: "SUMMARIZE" },
+  { value: "factcheck", label: "FACT CHECK" },
+  { value: "trace",     label: "TRACE" },
+];
+
+async function runSageQuery(
+  query: string,
+  action: SageAction,
+  onStart: (entry: SageEntry) => void,
+  onDone: (id: string, response: string | null, error?: string) => void,
+) {
+  const id = crypto.randomUUID();
+  onStart({ id, action, query, response: null, loading: true });
+  try {
+    const res = await fetch("/api/sage", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query, action }),
+    });
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({ error: "Request failed" }));
+      onDone(id, null, errData.error ?? "SAGE QUERY FAILED");
+      return;
+    }
+    const data = await res.json();
+    onDone(id, data.response ?? "NO RESPONSE.", undefined);
+  } catch (err) {
+    onDone(id, null, err instanceof Error ? err.message : "NETWORK ERROR");
+  }
+}
+
+/* ── Message Row ────────────────────────────────────────────────────── */
 
 function MessageRow({ msg }: { msg: Message }) {
   const { files, dossiers, cleanBody } = extractRefs(msg.body);
   const roleCls = roleBadge(msg.role);
 
   return (
-    <div className="px-5 py-4 border-b border-zinc-900/60 hover:bg-zinc-950/20 transition-colors group">
+    <div className="px-5 py-5 border-b border-zinc-900/60 hover:bg-zinc-950/20 transition-colors">
       <div className="flex items-start gap-3">
         <div className="w-5 h-5 rounded-full border border-zinc-800 flex items-center justify-center shrink-0 mt-0.5">
           <div className="w-1.5 h-1.5 rounded-full bg-zinc-600" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2.5 flex-wrap mb-1.5">
-            <span className="font-mono text-[9px] tracking-[0.12em] text-zinc-300 font-medium">{msg.handle}</span>
+          <div className="flex items-center gap-3 flex-wrap mb-2">
+            <span className="font-mono text-xs tracking-[0.1em] text-zinc-200 font-medium">{msg.handle}</span>
             {roleCls && msg.role && (
-              <span className={`font-mono text-[7px] tracking-[0.25em] border px-1 py-0.5 ${roleCls}`}>
+              <span className={`font-mono text-[9px] tracking-[0.2em] border px-1.5 py-0.5 ${roleCls}`}>
                 {msg.role.toUpperCase()}
               </span>
             )}
-            <span className="font-mono text-[8px] text-zinc-700">{fmtTime(msg.created_at)}</span>
+            <span className="font-mono text-[10px] text-zinc-600">{fmtTime(msg.created_at)}</span>
           </div>
-          <p className="text-[11px] text-zinc-400 leading-relaxed font-mono tracking-[0.03em]">{cleanBody}</p>
+          <p className="text-[13px] text-zinc-400 leading-relaxed font-mono tracking-[0.02em]">{cleanBody}</p>
           {(files.length > 0 || dossiers.length > 0) && (
-            <div className="flex flex-wrap gap-1.5 mt-2">
+            <div className="flex flex-wrap gap-2 mt-2.5">
               {files.map(f => (
-                <Link key={f} href={`/files/${f}`} className="font-mono text-[8px] tracking-widest text-zinc-700 hover:text-emerald-400 border border-zinc-900 hover:border-emerald-900/40 px-1.5 py-0.5 transition-colors">
+                <Link key={f} href={`/files/${f}`} className="font-mono text-[9px] tracking-widest text-zinc-600 hover:text-emerald-400 border border-zinc-900 hover:border-emerald-900/40 px-2 py-0.5 transition-colors">
                   {f} →
                 </Link>
               ))}
               {dossiers.map(d => (
-                <Link key={d} href={`/dossiers/${d}`} className="font-mono text-[8px] tracking-widest text-zinc-700 hover:text-emerald-400 border border-zinc-900 hover:border-emerald-900/40 px-1.5 py-0.5 transition-colors">
+                <Link key={d} href={`/dossiers/${d}`} className="font-mono text-[9px] tracking-widest text-zinc-600 hover:text-emerald-400 border border-zinc-900 hover:border-emerald-900/40 px-2 py-0.5 transition-colors">
                   {d} →
                 </Link>
               ))}
@@ -184,16 +227,210 @@ function MessageRow({ msg }: { msg: Message }) {
   );
 }
 
-/* ── SAGE Terminal component ────────────────────────────────────────── */
+/* ── SAGE Entry display ─────────────────────────────────────────────── */
 
-const QUICK_BRIEFS = [
-  { label: "QUICK BRIEF", action: "brief" as SageAction, query: "Provide the current priority intelligence brief for RSR analysts. Include the top 3 active developments, regional posture changes, and which files/dossiers require immediate attention." },
-  { label: "MIDDLE EAST", action: "brief" as SageAction, query: "Brief on current Middle East posture, energy watch status, and all RSR records relevant to the region." },
-  { label: "EU INFLUENCE", action: "brief" as SageAction, query: "Brief on the European Union influence operation tracking — F-003, F-017, D-006, and current status." },
-  { label: "NORTH AMERICA", action: "brief" as SageAction, query: "Brief on North America case activity — F-001, D-001, F-019, D-010, and current procurement watch posture." },
-];
+function SageEntryView({ e }: { e: SageEntry }) {
+  return (
+    <div className="p-4 space-y-2.5 border-b border-zinc-900/50 last:border-0">
+      <div className="flex items-start gap-2">
+        <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-600 shrink-0 mt-0.5 min-w-[60px]">
+          {e.action.toUpperCase()} »
+        </span>
+        <span className="font-mono text-[10px] text-zinc-500 leading-relaxed">{e.query}</span>
+      </div>
+      {e.loading ? (
+        <div className="font-mono text-[10px] text-emerald-700 animate-pulse pl-[68px]">
+          SAGE processing...
+        </div>
+      ) : e.error ? (
+        <div className="font-mono text-[10px] text-red-500 pl-[68px] leading-relaxed">{e.error}</div>
+      ) : (
+        <div className="font-mono text-[11px] text-zinc-300 leading-relaxed pl-[68px] whitespace-pre-wrap">
+          {e.response}
+        </div>
+      )}
+    </div>
+  );
+}
 
-function SageTerminal({ configured }: { configured: boolean }) {
+/* ── SAGE Modal (expanded workspace) ───────────────────────────────── */
+
+function SageModal({ onClose }: { onClose: () => void }) {
+  const [entries, setEntries] = useState<SageEntry[]>([]);
+  const [inputVal, setInputVal] = useState("");
+  const [selectedAction, setSelectedAction] = useState<SageAction>("query");
+  const [online, setOnline] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const t = setTimeout(() => setOnline(true), 600);
+    return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [entries]);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) { if (e.key === "Escape") onClose(); }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  function addEntry(entry: SageEntry) {
+    setEntries(prev => [...prev, entry]);
+    setInputVal("");
+  }
+  function updateEntry(id: string, response: string | null, error?: string) {
+    setEntries(prev => prev.map(e => e.id === id ? { ...e, loading: false, response, error } : e));
+  }
+
+  function handleQuery(query: string, action: SageAction) {
+    if (!query.trim() || !online) return;
+    runSageQuery(query, action, addEntry, updateEntry);
+  }
+  function submit() { handleQuery(inputVal.trim(), selectedAction); }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.85)" }}>
+      <div className="bg-black border border-zinc-800 w-full max-w-4xl mx-6 flex flex-col" style={{ height: "85vh" }}>
+
+        {/* Header */}
+        <div className="border-b border-zinc-800 px-6 py-4 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="font-mono text-xs tracking-[0.4em] text-zinc-400">SAGE TERMINAL</div>
+            <span className={`font-mono text-[9px] tracking-widest flex items-center gap-1.5 ${online ? "text-emerald-500" : "text-zinc-700"}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${online ? "bg-emerald-500 animate-pulse" : "bg-zinc-700 animate-pulse"}`} />
+              {online ? "ONLINE — RSR DATA LOADED" : "INITIALIZING..."}
+            </span>
+          </div>
+          <div className="flex items-center gap-4">
+            {entries.length > 0 && (
+              <button
+                onClick={() => setEntries([])}
+                className="font-mono text-[9px] tracking-[0.25em] text-zinc-700 hover:text-zinc-400 transition-colors"
+              >
+                CLR
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="font-mono text-[9px] tracking-[0.3em] text-zinc-600 hover:text-zinc-300 border border-zinc-800 hover:border-zinc-600 px-3 py-1.5 transition-colors"
+            >
+              CLOSE ✕
+            </button>
+          </div>
+        </div>
+
+        {/* Quick briefs */}
+        <div className="border-b border-zinc-900 px-6 py-3 flex gap-2 shrink-0 flex-wrap">
+          <span className="font-mono text-[9px] tracking-[0.3em] text-zinc-700 mr-2 flex items-center">QUICK:</span>
+          {QUICK_BRIEFS.map(b => (
+            <button
+              key={b.label}
+              disabled={!online}
+              onClick={() => handleQuery(b.query, b.action)}
+              className="font-mono text-[9px] tracking-[0.2em] border border-zinc-800 text-zinc-500 hover:text-emerald-400 hover:border-emerald-900/40 px-3 py-1.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              {b.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Response area */}
+        <div className="flex-1 overflow-y-auto">
+          {entries.length === 0 ? (
+            <div className="p-6 space-y-2 font-mono">
+              <div className="text-zinc-600 text-[10px]">&gt; SAGE // RSR STRATEGIC ANALYSIS ENGINE</div>
+              <div className="text-zinc-800 text-[10px]">&gt; CONTEXT: 20 files · 14 dossiers · 5 systems · 6 regions · 10 active signals</div>
+              <div className="text-zinc-800 text-[10px]">&gt; ────────────────────────────────────────────────────</div>
+              {online ? (
+                <div className="text-emerald-700 text-[10px] animate-pulse">&gt; READY. Submit a query or use a quick action above.</div>
+              ) : (
+                <div className="text-zinc-800 text-[10px] animate-pulse">&gt; Loading knowledge base...</div>
+              )}
+              <div className="mt-6 pt-4 border-t border-zinc-900 space-y-1">
+                <div className="text-zinc-800 text-[10px]">Example queries:</div>
+                {[
+                  "Summarize F-001 Operation Clearwater",
+                  "Trace connections between D-004 Meridian Capital and F-006",
+                  "Fact check: is D-010 linked to foreign-interest lobbying?",
+                  "What is the current posture for Eastern Europe?",
+                ].map(q => (
+                  <button
+                    key={q}
+                    disabled={!online}
+                    onClick={() => handleQuery(q, "query")}
+                    className="block text-left font-mono text-[10px] text-zinc-700 hover:text-zinc-400 transition-colors disabled:opacity-30 py-0.5"
+                  >
+                    &gt; {q}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div>
+              {entries.map(e => <SageEntryView key={e.id} e={e} />)}
+              <div ref={bottomRef} className="py-2" />
+            </div>
+          )}
+        </div>
+
+        {/* Action selector + input */}
+        <div className="border-t border-zinc-800 shrink-0">
+          <div className="border-b border-zinc-900 px-6 py-2 flex gap-2 flex-wrap">
+            {ACTION_OPTS.map(a => (
+              <button
+                key={a.value}
+                onClick={() => setSelectedAction(a.value)}
+                className={`font-mono text-[9px] tracking-[0.2em] border px-2.5 py-1 transition-colors ${
+                  selectedAction === a.value
+                    ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/5"
+                    : "text-zinc-600 border-zinc-800 hover:text-zinc-400 hover:border-zinc-700"
+                }`}
+              >
+                {a.label}
+              </button>
+            ))}
+          </div>
+          <div className="px-6 py-4 flex items-end gap-4">
+            <div className="flex-1 border border-zinc-700 focus-within:border-zinc-500 transition-colors">
+              <textarea
+                value={inputVal}
+                onChange={e => setInputVal(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    submit();
+                  }
+                }}
+                disabled={!online}
+                placeholder={online ? `[${selectedAction.toUpperCase()}] Query SAGE... (Enter to send, Shift+Enter for newline)` : "Initializing..."}
+                rows={3}
+                className="w-full bg-black text-zinc-300 font-mono text-[13px] tracking-[0.02em] px-4 py-3 resize-none outline-none placeholder-zinc-800 disabled:opacity-50"
+              />
+              <div className="border-t border-zinc-900 px-4 py-2 flex items-center justify-between">
+                <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-700">{inputVal.length} chars</span>
+                <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-800">Shift+Enter for newline · Esc to close</span>
+              </div>
+            </div>
+            <button
+              disabled={!online || !inputVal.trim()}
+              onClick={submit}
+              className="shrink-0 font-mono text-[10px] tracking-[0.3em] border border-zinc-700 text-zinc-400 hover:text-emerald-400 hover:border-emerald-700/40 px-5 py-4 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              SEND →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── SAGE Sidebar Terminal (compact) ────────────────────────────────── */
+
+function SageTerminal({ onExpand }: { onExpand: () => void }) {
   const [entries, setEntries] = useState<SageEntry[]>([]);
   const [inputVal, setInputVal] = useState("");
   const [selectedAction, setSelectedAction] = useState<SageAction>("query");
@@ -209,59 +446,39 @@ function SageTerminal({ configured }: { configured: boolean }) {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [entries]);
 
-  async function querySage(query: string, action: SageAction) {
-    const id = crypto.randomUUID();
-    const entry: SageEntry = { id, action, query, response: null, loading: true };
+  function addEntry(entry: SageEntry) {
     setEntries(prev => [...prev, entry]);
     setInputVal("");
-
-    try {
-      const res = await fetch("/api/sage", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, action }),
-      });
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({ error: "Request failed" }));
-        setEntries(prev => prev.map(e => e.id === id ? { ...e, loading: false, error: errData.error ?? "SAGE QUERY FAILED" } : e));
-        return;
-      }
-
-      const data = await res.json();
-      setEntries(prev => prev.map(e => e.id === id ? { ...e, loading: false, response: data.response } : e));
-    } catch (err) {
-      setEntries(prev => prev.map(e => e.id === id ? {
-        ...e, loading: false, error: err instanceof Error ? err.message : "NETWORK ERROR",
-      } : e));
-    }
+  }
+  function updateEntry(id: string, response: string | null, error?: string) {
+    setEntries(prev => prev.map(e => e.id === id ? { ...e, loading: false, response, error } : e));
   }
 
-  function submit() {
-    const q = inputVal.trim();
-    if (!q || !online) return;
-    querySage(q, selectedAction);
+  function handleQuery(query: string, action: SageAction) {
+    if (!query.trim() || !online) return;
+    runSageQuery(query, action, addEntry, updateEntry);
   }
-
-  const actionOpts: { value: SageAction; label: string }[] = [
-    { value: "query", label: "QUERY" },
-    { value: "brief", label: "BRIEF" },
-    { value: "summarize", label: "SUMMARIZE" },
-    { value: "factcheck", label: "FACT CHECK" },
-    { value: "trace", label: "TRACE" },
-  ];
+  function submit() { handleQuery(inputVal.trim(), selectedAction); }
 
   const hasEntries = entries.length > 0;
 
   return (
-    <div className="p-5 flex flex-col gap-3">
+    <div className="p-4 flex flex-col gap-3">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-600">SAGE TERMINAL</div>
-        <span className={`font-mono text-[7px] tracking-widest flex items-center gap-1.5 ${online ? "text-emerald-600" : "text-zinc-700"}`}>
-          <span className={`w-1 h-1 rounded-full ${online ? "bg-emerald-500 animate-pulse" : "bg-zinc-700 animate-pulse"}`} />
-          {online ? "ONLINE" : "INIT..."}
-        </span>
+        <div className="flex items-center gap-2">
+          <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-500">SAGE</div>
+          <span className={`font-mono text-[8px] tracking-widest flex items-center gap-1 ${online ? "text-emerald-600" : "text-zinc-700"}`}>
+            <span className={`w-1 h-1 rounded-full ${online ? "bg-emerald-500 animate-pulse" : "bg-zinc-700 animate-pulse"}`} />
+            {online ? "ONLINE" : "INIT"}
+          </span>
+        </div>
+        <button
+          onClick={onExpand}
+          className="font-mono text-[8px] tracking-[0.2em] text-zinc-600 hover:text-emerald-400 border border-zinc-800 hover:border-emerald-900/40 px-2 py-1 transition-colors"
+        >
+          EXPAND ↗
+        </button>
       </div>
 
       {/* Quick brief buttons */}
@@ -270,8 +487,8 @@ function SageTerminal({ configured }: { configured: boolean }) {
           <button
             key={b.label}
             disabled={!online}
-            onClick={() => querySage(b.query, b.action)}
-            className="font-mono text-[7px] tracking-[0.2em] border border-zinc-800 text-zinc-600 hover:text-emerald-400 hover:border-emerald-900/40 px-2 py-1.5 transition-colors text-left disabled:opacity-30 disabled:cursor-not-allowed"
+            onClick={() => handleQuery(b.query, b.action)}
+            className="font-mono text-[8px] tracking-[0.15em] border border-zinc-800 text-zinc-600 hover:text-emerald-400 hover:border-emerald-900/40 px-2 py-1.5 transition-colors text-left disabled:opacity-30 disabled:cursor-not-allowed"
           >
             {b.label}
           </button>
@@ -279,40 +496,31 @@ function SageTerminal({ configured }: { configured: boolean }) {
       </div>
 
       {/* Response area */}
-      <div className="border border-zinc-900 bg-zinc-950/50 min-h-[180px] max-h-[320px] overflow-y-auto">
+      <div className="border border-zinc-900 bg-zinc-950/50 min-h-[160px] max-h-[260px] overflow-y-auto">
         {!hasEntries ? (
-          <div className="p-3 space-y-1 font-mono text-[8px]">
-            <div className="text-zinc-700">&gt; SAGE // RSR STRATEGIC ANALYSIS ENGINE</div>
-            <div className="text-zinc-800">&gt; LOADED: 20 files · 14 dossiers · 5 systems · 6 regions</div>
-            <div className="text-zinc-800">&gt; ────────────────────────────────────</div>
+          <div className="p-3 space-y-1 font-mono">
+            <div className="text-[9px] text-zinc-700">&gt; SAGE // RSR STRATEGIC ANALYSIS ENGINE</div>
+            <div className="text-[9px] text-zinc-800">&gt; 20 files · 14 dossiers · 5 systems · 6 regions</div>
             {online ? (
-              <div className="text-emerald-700 animate-pulse">&gt; READY. Submit query below.</div>
+              <div className="text-[9px] text-emerald-700 animate-pulse">&gt; READY — use EXPAND ↗ for full workspace</div>
             ) : (
-              <div className="text-zinc-800 animate-pulse">&gt; Initializing knowledge base...</div>
+              <div className="text-[9px] text-zinc-800 animate-pulse">&gt; Initializing...</div>
             )}
           </div>
         ) : (
-          <div className="divide-y divide-zinc-900/50">
+          <div>
             {entries.map(e => (
-              <div key={e.id} className="p-3 space-y-2">
-                {/* Query */}
+              <div key={e.id} className="p-3 border-b border-zinc-900/50 last:border-0 space-y-2">
                 <div className="flex items-start gap-2">
-                  <span className="font-mono text-[7px] tracking-[0.2em] text-zinc-700 shrink-0 mt-0.5">
-                    {e.action.toUpperCase()} »
-                  </span>
-                  <span className="font-mono text-[8px] text-zinc-500 leading-relaxed">{e.query}</span>
+                  <span className="font-mono text-[8px] tracking-[0.15em] text-zinc-700 shrink-0">{e.action.toUpperCase()} »</span>
+                  <span className="font-mono text-[9px] text-zinc-500 leading-relaxed">{e.query}</span>
                 </div>
-                {/* Response */}
                 {e.loading ? (
-                  <div className="font-mono text-[8px] text-emerald-700 animate-pulse pl-10">
-                    SAGE processing...
-                  </div>
+                  <div className="font-mono text-[9px] text-emerald-700 animate-pulse pl-2">Processing...</div>
                 ) : e.error ? (
-                  <div className="font-mono text-[8px] text-red-500 pl-10">{e.error}</div>
+                  <div className="font-mono text-[9px] text-red-500 pl-2 leading-relaxed">{e.error}</div>
                 ) : (
-                  <div className="font-mono text-[8px] text-zinc-400 leading-relaxed pl-10 whitespace-pre-wrap">
-                    {e.response}
-                  </div>
+                  <div className="font-mono text-[10px] text-zinc-300 leading-relaxed pl-2 whitespace-pre-wrap">{e.response}</div>
                 )}
               </div>
             ))}
@@ -323,11 +531,11 @@ function SageTerminal({ configured }: { configured: boolean }) {
 
       {/* Action selector */}
       <div className="flex gap-1 flex-wrap">
-        {actionOpts.map(a => (
+        {ACTION_OPTS.map(a => (
           <button
             key={a.value}
             onClick={() => setSelectedAction(a.value)}
-            className={`font-mono text-[7px] tracking-[0.2em] border px-1.5 py-0.5 transition-colors ${
+            className={`font-mono text-[8px] tracking-[0.15em] border px-1.5 py-0.5 transition-colors ${
               selectedAction === a.value
                 ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/5"
                 : "text-zinc-700 border-zinc-800 hover:text-zinc-400 hover:border-zinc-700"
@@ -339,7 +547,7 @@ function SageTerminal({ configured }: { configured: boolean }) {
       </div>
 
       {/* Input */}
-      <div className="border border-zinc-800 focus-within:border-zinc-700 transition-colors">
+      <div className="border border-zinc-800 focus-within:border-zinc-600 transition-colors">
         <textarea
           value={inputVal}
           onChange={e => setInputVal(e.target.value)}
@@ -350,27 +558,26 @@ function SageTerminal({ configured }: { configured: boolean }) {
             }
           }}
           disabled={!online}
-          placeholder={online ? "Query SAGE... (Enter to send, Shift+Enter for newline)" : "Initializing..."}
+          placeholder={online ? "Query... (Enter to send)" : "Initializing..."}
           rows={2}
-          className="w-full bg-black text-zinc-400 font-mono text-[9px] tracking-[0.05em] px-3 py-2 resize-none outline-none placeholder-zinc-800 disabled:opacity-50"
+          className="w-full bg-black text-zinc-300 font-mono text-[11px] tracking-[0.03em] px-3 py-2.5 resize-none outline-none placeholder-zinc-800 disabled:opacity-50"
         />
         <div className="border-t border-zinc-900 px-3 py-1.5 flex items-center justify-between">
-          <span className="font-mono text-[7px] tracking-[0.2em] text-zinc-800">{inputVal.length}/500</span>
+          <span className="font-mono text-[8px] tracking-[0.15em] text-zinc-800">{inputVal.length}/500</span>
           <button
             disabled={!online || !inputVal.trim()}
             onClick={submit}
-            className="font-mono text-[8px] tracking-[0.25em] text-zinc-700 hover:text-emerald-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            className="font-mono text-[9px] tracking-[0.2em] text-zinc-600 hover:text-emerald-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           >
             SEND →
           </button>
         </div>
       </div>
 
-      {/* Clear */}
       {hasEntries && (
         <button
           onClick={() => setEntries([])}
-          className="font-mono text-[7px] tracking-[0.2em] text-zinc-800 hover:text-zinc-600 text-left transition-colors"
+          className="font-mono text-[8px] tracking-[0.15em] text-zinc-800 hover:text-zinc-600 text-left transition-colors"
         >
           CLR TERMINAL
         </button>
@@ -401,25 +608,25 @@ function AnalystRoster({ configured, user }: { configured: boolean; user: unknow
   }, [configured, user]);
 
   const roleCls: Record<string, string> = {
-    admin:    "text-emerald-600",
-    lead:     "text-blue-500",
+    admin:    "text-emerald-500",
+    lead:     "text-blue-400",
     analyst:  "text-zinc-500",
     member:   "text-zinc-700",
   };
 
   return (
-    <div className="border-b border-zinc-900 p-5">
-      <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-700 mb-4">ANALYST ROSTER</div>
+    <div className="border-b border-zinc-900 p-4">
+      <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-600 mb-3">ANALYST ROSTER</div>
       <div className="space-y-2">
         {analysts.map(a => (
-          <div key={a.handle} className="flex items-center justify-between font-mono text-[9px]">
+          <div key={a.handle} className="flex items-center justify-between font-mono">
             <div className="flex items-center gap-2">
               <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${a.status === "ACTIVE" ? "bg-zinc-500" : "bg-zinc-800"}`} />
-              <span className={a.status === "ACTIVE" ? "text-zinc-400 tracking-[0.1em]" : "text-zinc-700 tracking-[0.1em]"}>
+              <span className={`text-[10px] tracking-[0.08em] ${a.status === "ACTIVE" ? "text-zinc-400" : "text-zinc-700"}`}>
                 {a.handle}
               </span>
             </div>
-            <span className={`text-[7px] tracking-[0.2em] ${roleCls[a.role] ?? "text-zinc-700"}`}>
+            <span className={`text-[8px] tracking-[0.2em] ${roleCls[a.role] ?? "text-zinc-700"}`}>
               {a.role?.toUpperCase() ?? "MEMBER"}
             </span>
           </div>
@@ -434,18 +641,19 @@ function AnalystRoster({ configured, user }: { configured: boolean; user: unknow
 export default function InvestigationRoom() {
   const { profile: user } = useAuth();
   const configured = isConfigured;
+  const isAdmin = user?.role === "admin";
 
-  const [channels, setChannels] = useState<Channel[]>(DEFAULT_CHANNELS);
   const [activeChannel, setActiveChannel] = useState("investigations");
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [composerVal, setComposerVal] = useState("");
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
+  const [sageOpen, setSageOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
 
-  const activeChannelData = channels.find(c => c.id === activeChannel);
+  const activeChannelData = DEFAULT_CHANNELS.find(c => c.id === activeChannel);
 
   const loadMessages = useCallback(async () => {
     if (!configured) {
@@ -510,47 +718,60 @@ export default function InvestigationRoom() {
     composerRef.current?.focus();
   }
 
-  const msgCount = messages.length;
-
   return (
     <Layout>
-      {/* Full-height 3-panel layout uses negative margin trick */}
+      {sageOpen && <SageModal onClose={() => setSageOpen(false)} />}
+
+      {/* Full-height 3-panel layout */}
       <div className="-my-10 -mx-6 flex" style={{ height: "calc(100vh - 3.25rem)" }}>
 
         {/* ── LEFT — Channel selector ─────────────────────────────── */}
-        <div className="w-52 shrink-0 border-r border-zinc-900 flex flex-col overflow-y-auto">
+        <div className="w-56 shrink-0 border-r border-zinc-900 flex flex-col overflow-y-auto">
 
-          {/* Header */}
           <div className="border-b border-zinc-900 p-4">
-            <div className="font-mono text-[8px] tracking-[0.4em] text-zinc-700 mb-1">INVESTIGATION ROOM</div>
-            <div className="font-mono text-[7px] tracking-[0.3em] text-zinc-800">SECURE ANALYST WORKSPACE</div>
+            <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-600 mb-0.5">INVESTIGATION ROOM</div>
+            <div className="font-mono text-[8px] tracking-[0.25em] text-zinc-800">SECURE ANALYST WORKSPACE</div>
           </div>
 
-          {/* Status strip */}
           {!configured && (
-            <div className="border-b border-zinc-900 px-4 py-2.5 bg-amber-500/5">
-              <div className="font-mono text-[7px] tracking-[0.2em] text-amber-700 leading-relaxed">
-                OFFLINE MODE — Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to activate live collaboration
+            <div className="border-b border-zinc-900 px-4 py-2 bg-amber-500/5">
+              <div className="font-mono text-[8px] tracking-[0.15em] text-amber-700 leading-relaxed">
+                OFFLINE — Add Supabase credentials to enable live messaging
               </div>
+            </div>
+          )}
+
+          {/* Admin COMMAND link */}
+          {isAdmin && (
+            <div className="border-b border-emerald-900/30 px-4 py-3 bg-emerald-500/5">
+              <Link href="/command">
+                <div className="flex items-center gap-2 group cursor-pointer">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                  <span className="font-mono text-[9px] tracking-[0.25em] text-emerald-500 group-hover:text-emerald-400 transition-colors">
+                    COMMAND CONSOLE
+                  </span>
+                  <span className="font-mono text-[8px] text-emerald-800 group-hover:text-emerald-600 transition-colors ml-auto">→</span>
+                </div>
+              </Link>
             </div>
           )}
 
           {/* Channels */}
           <div className="flex-1 py-2">
-            <div className="font-mono text-[7px] tracking-[0.35em] text-zinc-700 px-4 py-2">CHANNELS</div>
-            {channels.map(ch => {
+            <div className="font-mono text-[8px] tracking-[0.35em] text-zinc-700 px-4 py-2">CHANNELS</div>
+            {DEFAULT_CHANNELS.map(ch => {
               const isActive = ch.id === activeChannel;
               return (
                 <button
                   key={ch.id}
                   onClick={() => setActiveChannel(ch.id)}
-                  className={`w-full text-left px-4 py-2 transition-colors ${
-                    isActive ? "bg-zinc-900/60 text-zinc-300" : "text-zinc-600 hover:text-zinc-400 hover:bg-zinc-950"
+                  className={`w-full text-left px-4 py-2.5 transition-colors ${
+                    isActive ? "bg-zinc-900/60 text-zinc-200" : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-950"
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-[8px] tracking-[0.1em] text-zinc-700">#</span>
-                    <span className="font-mono text-[8px] tracking-[0.1em]">{ch.name}</span>
+                    <span className="font-mono text-[9px] tracking-[0.1em] text-zinc-700">#</span>
+                    <span className="font-mono text-[10px] tracking-[0.05em]">{ch.name}</span>
                   </div>
                 </button>
               );
@@ -561,10 +782,17 @@ export default function InvestigationRoom() {
           {user && (
             <div className="border-t border-zinc-900 p-4">
               <div className="flex items-center gap-2 mb-1">
-                <div className="w-1.5 h-1.5 rounded-full bg-zinc-600" />
-                <span className="font-mono text-[8px] tracking-[0.1em] text-zinc-400">{user.handle}</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
+                <span className="font-mono text-[10px] tracking-[0.08em] text-zinc-300">{user.handle}</span>
               </div>
-              <div className="font-mono text-[7px] tracking-[0.2em] text-zinc-700">{user.role?.toUpperCase()}</div>
+              <div className="font-mono text-[8px] tracking-[0.2em] text-zinc-600">{user.role?.toUpperCase()}</div>
+              {isAdmin && (
+                <Link href="/command">
+                  <div className="mt-2 font-mono text-[8px] tracking-[0.2em] text-emerald-700 hover:text-emerald-500 transition-colors cursor-pointer">
+                    → /command
+                  </div>
+                </Link>
+              )}
             </div>
           )}
         </div>
@@ -573,24 +801,31 @@ export default function InvestigationRoom() {
         <div className="flex-1 flex flex-col min-w-0">
 
           {/* Channel header */}
-          <div className="border-b border-zinc-900 px-5 py-3 flex items-center justify-between shrink-0">
+          <div className="border-b border-zinc-900 px-6 py-3.5 flex items-center justify-between shrink-0">
             <div>
-              <div className="font-mono text-[9px] tracking-[0.1em] text-zinc-400">
-                <span className="text-zinc-700"># </span>{activeChannel}
+              <div className="font-mono text-xs tracking-[0.08em] text-zinc-300">
+                <span className="text-zinc-600"># </span>{activeChannel}
               </div>
               {activeChannelData?.description && (
-                <div className="font-mono text-[7px] tracking-[0.2em] text-zinc-700 mt-0.5">
+                <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-600 mt-0.5">
                   {activeChannelData.description.toUpperCase()}
                 </div>
               )}
             </div>
             <div className="flex items-center gap-4">
-              <span className="font-mono text-[7px] tracking-[0.2em] text-zinc-800">{msgCount} MSG</span>
+              <span className="font-mono text-[9px] tracking-[0.15em] text-zinc-700">{messages.length} MSG</span>
               {configured && (
-                <span className="flex items-center gap-1.5 font-mono text-[7px] tracking-[0.2em] text-emerald-700">
-                  <span className="w-1 h-1 rounded-full bg-emerald-600 animate-pulse" />
+                <span className="flex items-center gap-1.5 font-mono text-[9px] tracking-[0.15em] text-emerald-600">
+                  <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
                   LIVE
                 </span>
+              )}
+              {isAdmin && (
+                <Link href="/command">
+                  <span className="font-mono text-[9px] tracking-[0.2em] text-emerald-600/60 hover:text-emerald-500 border border-emerald-900/30 hover:border-emerald-800/40 px-2.5 py-1 transition-colors cursor-pointer">
+                    COMMAND
+                  </span>
+                </Link>
               )}
             </div>
           </div>
@@ -599,42 +834,40 @@ export default function InvestigationRoom() {
           <div className="flex-1 overflow-y-auto">
             {loading ? (
               <div className="flex items-center justify-center h-full">
-                <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-700 animate-pulse">LOADING TRANSMISSIONS...</div>
+                <div className="font-mono text-[10px] tracking-[0.3em] text-zinc-700 animate-pulse">LOADING TRANSMISSIONS...</div>
               </div>
             ) : messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full gap-3 px-8 text-center">
+              <div className="flex flex-col items-center justify-center h-full gap-4 px-8 text-center">
                 <div className="w-2 h-2 rounded-full bg-zinc-800" />
-                <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-700">NO TRANSMISSIONS IN #{activeChannel}</div>
-                <div className="font-mono text-[7px] tracking-[0.2em] text-zinc-800">
-                  {configured ? "Begin a thread below." : "Activate Supabase to enable live messaging."}
+                <div className="font-mono text-[11px] tracking-[0.25em] text-zinc-600">NO TRANSMISSIONS IN #{activeChannel}</div>
+                <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-800">
+                  {configured ? "Begin a thread below. Use [F-001] or [D-001] to reference records." : "Activate Supabase credentials to enable live messaging."}
                 </div>
+                {!configured && (
+                  <div className="mt-2 font-mono text-[9px] tracking-[0.15em] text-zinc-800 border border-zinc-900 px-4 py-3 text-left max-w-sm leading-relaxed">
+                    Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in environment variables to connect the live database.
+                  </div>
+                )}
               </div>
             ) : (
               <div>
                 {messages.map(msg => (
                   <MessageRow key={msg.id} msg={msg} />
                 ))}
-                <div ref={messagesEndRef} className="py-2" />
+                <div ref={messagesEndRef} className="py-3" />
               </div>
             )}
           </div>
 
           {/* Composer */}
           <div className="border-t border-zinc-900 shrink-0">
-            {!configured && (
-              <div className="border-b border-zinc-900 px-5 py-2.5">
-                <div className="font-mono text-[7px] tracking-[0.2em] text-zinc-800">
-                  OFFLINE MODE — Supabase credentials required for live messaging
-                </div>
-              </div>
-            )}
             {sendError && (
-              <div className="border-b border-zinc-900 px-5 py-2 bg-red-950/10">
-                <div className="font-mono text-[8px] tracking-[0.2em] text-red-500">{sendError}</div>
+              <div className="border-b border-zinc-900 px-6 py-2 bg-red-950/10">
+                <div className="font-mono text-[9px] tracking-[0.2em] text-red-400">{sendError}</div>
               </div>
             )}
             <div className="flex items-end gap-3 px-5 py-4">
-              <div className="flex-1 border border-zinc-800 focus-within:border-zinc-700 transition-colors">
+              <div className="flex-1 border border-zinc-800 focus-within:border-zinc-600 transition-colors">
                 <textarea
                   ref={composerRef}
                   value={composerVal}
@@ -647,26 +880,24 @@ export default function InvestigationRoom() {
                   }}
                   disabled={!configured || !user || sending}
                   placeholder={
-                    !configured ? "Offline mode — Supabase not configured"
+                    !configured ? "Supabase not configured — offline mode"
                     : !user ? "Sign in to post"
-                    : `Transmit to #${activeChannel}... (Enter to send, Shift+Enter for newline)`
+                    : `Transmit to #${activeChannel}... (Enter to send · Shift+Enter for newline)`
                   }
                   rows={2}
-                  className="w-full bg-black font-mono text-[10px] tracking-[0.04em] text-zinc-400 px-3 py-2.5 resize-none outline-none placeholder-zinc-800 disabled:opacity-40"
+                  className="w-full bg-black font-mono text-[13px] tracking-[0.02em] text-zinc-300 px-4 py-3 resize-none outline-none placeholder-zinc-800 disabled:opacity-40"
                 />
-                <div className="border-t border-zinc-900 px-3 py-1.5 flex items-center gap-3">
-                  <span className="font-mono text-[7px] tracking-[0.2em] text-zinc-800">
-                    # {activeChannel}
-                  </span>
-                  <span className="font-mono text-[7px] tracking-[0.15em] text-zinc-800">
-                    {composerVal.length > 0 ? `${composerVal.length} chars` : "Use [F-001] [D-001] to ref records"}
+                <div className="border-t border-zinc-900 px-4 py-2 flex items-center gap-4">
+                  <span className="font-mono text-[8px] tracking-[0.2em] text-zinc-800"># {activeChannel}</span>
+                  <span className="font-mono text-[8px] tracking-[0.12em] text-zinc-800">
+                    {composerVal.length > 0 ? `${composerVal.length} chars` : "Use [F-001] [D-001] to reference records"}
                   </span>
                 </div>
               </div>
               <button
                 onClick={handleSend}
                 disabled={!configured || !user || !composerVal.trim() || sending}
-                className="shrink-0 border border-zinc-800 hover:border-emerald-800/60 text-zinc-600 hover:text-emerald-500 font-mono text-[8px] tracking-[0.25em] px-4 py-3 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                className="shrink-0 border border-zinc-700 hover:border-emerald-700/50 text-zinc-500 hover:text-emerald-400 font-mono text-[10px] tracking-[0.25em] px-4 py-3.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 {sending ? "..." : "SEND"}
               </button>
@@ -678,38 +909,36 @@ export default function InvestigationRoom() {
         <div className="w-72 shrink-0 border-l border-zinc-900 overflow-y-auto flex flex-col">
 
           {/* Room status */}
-          <div className="border-b border-zinc-900 p-5">
-            <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-700 mb-4">ROOM STATUS</div>
-            <div className="space-y-3 font-mono text-[9px] tracking-widest">
-              <div>
-                <div className="text-zinc-700 text-[7px] tracking-[0.3em] mb-0.5">DESIGNATION</div>
-                <div className="text-zinc-400 text-[8px]">INVESTIGATION ROOM // ALPHA</div>
-              </div>
-              <div>
-                <div className="text-zinc-700 text-[7px] tracking-[0.3em] mb-0.5">ACTIVE CYCLE</div>
-                <div className="text-zinc-400 text-[8px]">MARCH 2026</div>
-              </div>
-              <div>
-                <div className="text-zinc-700 text-[7px] tracking-[0.3em] mb-0.5">ACCESS</div>
-                <div className="text-zinc-700 text-[7px]">TEAM ONLY — RESTRICTED</div>
-              </div>
+          <div className="border-b border-zinc-900 p-4">
+            <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-600 mb-3">ROOM STATUS</div>
+            <div className="space-y-2.5 font-mono">
+              {[
+                ["DESIGNATION", "INVESTIGATION ROOM // ALPHA"],
+                ["CYCLE", "MARCH 2026"],
+                ["ACCESS", "TEAM ONLY — RESTRICTED"],
+              ].map(([l, v]) => (
+                <div key={l}>
+                  <div className="text-[8px] tracking-[0.3em] text-zinc-700 mb-0.5">{l}</div>
+                  <div className="text-[10px] tracking-[0.05em] text-zinc-400">{v}</div>
+                </div>
+              ))}
             </div>
           </div>
 
           {/* Active cases */}
-          <div className="border-b border-zinc-900 p-5">
-            <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-700 mb-3">ACTIVE CASES</div>
-            <div className="space-y-1.5">
+          <div className="border-b border-zinc-900 p-4">
+            <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-600 mb-3">ACTIVE CASES</div>
+            <div className="space-y-2">
               {activeCases.map(c => (
                 <div key={c.ref} className="flex items-center gap-2">
                   <Link
                     href={c.ref.startsWith("F") ? `/files/${c.ref}` : `/dossiers/${c.ref}`}
-                    className="font-mono text-[8px] tracking-[0.12em] text-zinc-600 hover:text-emerald-500 transition-colors shrink-0"
+                    className="font-mono text-[9px] tracking-[0.1em] text-zinc-600 hover:text-emerald-500 transition-colors shrink-0"
                   >
                     {c.ref}
                   </Link>
-                  <span className="font-mono text-[7px] tracking-widest text-zinc-700 truncate flex-1">{c.name}</span>
-                  <span className={`font-mono text-[7px] tracking-widest shrink-0 ${stageStyle[c.stage] ?? "text-zinc-600"}`}>
+                  <span className="font-mono text-[8px] tracking-widest text-zinc-700 truncate flex-1">{c.name}</span>
+                  <span className={`font-mono text-[8px] tracking-widest shrink-0 ${stageStyle[c.stage] ?? "text-zinc-600"}`}>
                     {c.stage}
                   </span>
                 </div>
@@ -721,7 +950,7 @@ export default function InvestigationRoom() {
           <AnalystRoster configured={configured} user={user} />
 
           {/* SAGE Terminal */}
-          <SageTerminal configured={configured} />
+          <SageTerminal onExpand={() => setSageOpen(true)} />
 
         </div>
       </div>
