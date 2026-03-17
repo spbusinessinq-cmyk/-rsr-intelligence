@@ -2,6 +2,7 @@ import { Switch, Route, Router as WouterRouter } from "wouter";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Systems from "@/pages/Systems";
+import SystemDetail from "@/pages/SystemDetail";
 import Files from "@/pages/Files";
 import Dossiers from "@/pages/Dossiers";
 import World from "@/pages/World";
@@ -9,11 +10,12 @@ import World from "@/pages/World";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/systems" component={Systems} />
-      <Route path="/files" component={Files} />
-      <Route path="/dossiers" component={Dossiers} />
-      <Route path="/world" component={World} />
+      <Route path="/"                component={Home} />
+      <Route path="/systems"         component={Systems} />
+      <Route path="/systems/:slug"   component={SystemDetail} />
+      <Route path="/files"           component={Files} />
+      <Route path="/dossiers"        component={Dossiers} />
+      <Route path="/world"           component={World} />
       <Route component={NotFound} />
     </Switch>
   );

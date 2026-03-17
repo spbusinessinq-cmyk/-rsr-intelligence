@@ -10,50 +10,62 @@ export default function Home() {
       <div className="flex flex-col gap-20">
 
         {/* ── HERO — arrival / front door ─────────────────────────────── */}
-        <section className="pt-6 pb-2">
+        <section className="pt-4 pb-2 relative">
 
-          {/* Network status micro-label */}
+          {/* Hero logo reveal — placed right side of hero, fades in on load */}
+          <div className="absolute right-0 top-0 pointer-events-none select-none hidden lg:block">
+            <img
+              src="/logo.png"
+              alt=""
+              aria-hidden="true"
+              className="h-64 w-auto object-contain animate-logo-reveal grayscale"
+            />
+          </div>
+
+          {/* Network status micro-bar */}
           <div className="flex items-center gap-6 mb-10 font-mono text-[9px] tracking-[0.4em] text-zinc-700">
             <span className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-zinc-600">NETWORK LIVE</span>
             </span>
             <span className="text-zinc-800">·</span>
-            <span className="text-zinc-700">THREAT INDEX <span className="text-red-400/80">HIGH</span></span>
+            <span>THREAT INDEX <span className="text-red-400/80">HIGH</span></span>
             <span className="text-zinc-800">·</span>
-            <span className="text-zinc-700">55 SIGNALS ACTIVE</span>
+            <span>55 SIGNALS ACTIVE</span>
           </div>
 
           {/* Main headline */}
-          <h1 className="text-5xl md:text-7xl font-semibold text-white tracking-tight leading-[1.05] max-w-4xl">
-            Mapping power.<br />
-            Tracking systems.<br />
-            <span className="text-zinc-500">Exposing reality.</span>
-          </h1>
+          <div className="max-w-3xl">
+            <h1 className="text-5xl md:text-7xl font-semibold text-white tracking-tight leading-[1.05]">
+              Mapping power.<br />
+              Tracking systems.<br />
+              <span className="text-zinc-500">Exposing reality.</span>
+            </h1>
 
-          <p className="mt-10 text-zinc-500 max-w-xl text-sm md:text-base leading-relaxed">
-            RSR Intelligence Network is an independent analytic system built to map
-            structures of power, track global activity, and surface information flows
-            that institutional media ignores. We don't follow narratives — we map systems.
-          </p>
+            <p className="mt-10 text-zinc-500 max-w-lg text-sm leading-relaxed">
+              RSR Intelligence Network is an independent analytic system built to map
+              structures of power, track global activity, and surface information flows
+              that institutional media ignores. We don't follow narratives — we map systems.
+            </p>
 
-          <div className="mt-10 flex flex-wrap gap-3">
-            <Link
-              href="/systems"
-              className="border border-emerald-500/40 bg-emerald-500/5 px-7 py-3 text-emerald-300 font-mono text-[11px] tracking-[0.35em] hover:bg-emerald-500/10 hover:border-emerald-500/60 transition-all"
-            >
-              ENTER SYSTEM
-            </Link>
-            <Link
-              href="/files"
-              className="border border-zinc-800 px-7 py-3 text-zinc-400 font-mono text-[11px] tracking-[0.35em] hover:border-zinc-600 hover:text-white transition-all"
-            >
-              VIEW FILES
-            </Link>
+            <div className="mt-10 flex flex-wrap gap-3">
+              <Link
+                href="/systems"
+                className="border border-emerald-500/40 bg-emerald-500/5 px-7 py-3 text-emerald-300 font-mono text-[11px] tracking-[0.35em] hover:bg-emerald-500/10 hover:border-emerald-500/60 transition-all"
+              >
+                ENTER SYSTEM
+              </Link>
+              <Link
+                href="/files"
+                className="border border-zinc-800 px-7 py-3 text-zinc-400 font-mono text-[11px] tracking-[0.35em] hover:border-zinc-600 hover:text-white transition-all"
+              >
+                VIEW FILES
+              </Link>
+            </div>
           </div>
         </section>
 
-        {/* ── DIVIDER — subtle visual break before content ─────────────── */}
+        {/* ── DIVIDER ──────────────────────────────────────────────────── */}
         <div className="border-t border-zinc-900" />
 
         {/* ── SYSTEM PREVIEW — 3 of 5 systems, clearly a preview ───────── */}
@@ -65,7 +77,7 @@ export default function Home() {
             </div>
             <Link
               href="/systems"
-              className="font-mono text-[10px] tracking-[0.25em] text-emerald-600 hover:text-emerald-400 transition-colors flex items-center gap-2"
+              className="font-mono text-[10px] tracking-[0.25em] text-emerald-600 hover:text-emerald-400 transition-colors"
             >
               VIEW ALL SYSTEMS →
             </Link>
@@ -102,21 +114,19 @@ export default function Home() {
             <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-500 border-b border-zinc-900 pb-3 mb-5">
               NETWORK STATUS
             </div>
-            <div className="border border-zinc-900 bg-black font-mono space-y-0">
+            <div className="border border-zinc-900 bg-black font-mono">
               {[
-                { label: "NETWORK",      value: "STABLE",   color: "text-emerald-400", bg: "bg-emerald-400/8" },
-                { label: "SIGNAL LOAD",  value: "ELEVATED", color: "text-amber-400",   bg: "bg-amber-400/8"   },
-                { label: "THREAT INDEX", value: "HIGH",     color: "text-red-400",     bg: "bg-red-400/8"     },
-                { label: "AUTH MODE",    value: "SECURE",   color: "text-zinc-300",    bg: ""                 },
+                { label: "NETWORK",      value: "STABLE",   color: "text-emerald-400" },
+                { label: "SIGNAL LOAD",  value: "ELEVATED", color: "text-amber-400"   },
+                { label: "THREAT INDEX", value: "HIGH",     color: "text-red-400"     },
+                { label: "AUTH MODE",    value: "SECURE",   color: "text-zinc-300"    },
               ].map((row, i, arr) => (
                 <div
                   key={row.label}
                   className={`flex justify-between items-center px-5 py-4 ${i < arr.length - 1 ? "border-b border-zinc-900" : ""}`}
                 >
                   <span className="text-[10px] tracking-widest text-zinc-600">{row.label}</span>
-                  <span className={`text-[10px] tracking-widest px-2 py-1 ${row.color} ${row.bg}`}>
-                    {row.value}
-                  </span>
+                  <span className={`text-[10px] tracking-widest ${row.color}`}>{row.value}</span>
                 </div>
               ))}
             </div>
@@ -128,10 +138,10 @@ export default function Home() {
                 Deeper system access requires authorization.
               </p>
               <div className="flex gap-2">
-                <button className="flex-1 border border-emerald-500/30 bg-emerald-500/5 py-2 text-emerald-400 font-mono text-[9px] tracking-[0.3em] hover:bg-emerald-500/10 transition-colors">
+                <button className="flex-1 border border-emerald-500/25 bg-emerald-500/5 py-2 text-emerald-500/70 font-mono text-[9px] tracking-[0.3em] hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors">
                   REQUEST ACCESS
                 </button>
-                <button className="flex-1 border border-zinc-800 py-2 text-zinc-500 font-mono text-[9px] tracking-[0.3em] hover:border-zinc-600 hover:text-zinc-300 transition-colors">
+                <button className="flex-1 border border-zinc-800 py-2 text-zinc-600 font-mono text-[9px] tracking-[0.3em] hover:border-zinc-600 hover:text-zinc-300 transition-colors">
                   LOGIN
                 </button>
               </div>

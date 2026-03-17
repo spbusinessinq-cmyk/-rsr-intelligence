@@ -1,6 +1,19 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@keyframes logoReveal {
+  0%   { opacity: 0; }
+  12%  { opacity: 0.55; }
+  18%  { opacity: 0.05; }
+  30%  { opacity: 0.65; }
+  100% { opacity: 0.65; }
+}
+
+.animate-logo-reveal {
+  animation: logoReveal 2.2s ease-out 0.4s forwards;
+  opacity: 0;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

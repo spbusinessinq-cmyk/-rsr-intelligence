@@ -1,0 +1,258 @@
+// ─── System Detail Data ───────────────────────────────────────────────────────
+// Structured for future CMS / API replacement.
+// Each key matches the URL slug: /systems/{slug}
+
+import type { SystemStatus } from "./mockData";
+
+export interface Capability {
+  label: string;       // tactical micro-label, e.g. "MODULE 01"
+  title: string;       // capability name
+  description: string; // 1–2 sentence explanation
+}
+
+export interface MissionApplication {
+  context: string;     // who/what scenario
+  use: string;         // how this system applies
+}
+
+export interface OperationalStat {
+  label: string;
+  value: string;
+  color?: string;      // optional accent — defaults to zinc
+}
+
+export interface SystemDetailData {
+  slug: string;
+  name: string;
+  role: string;
+  status: SystemStatus;
+  layer: string;       // e.g. "SYNTHESIS LAYER" — architecture classification
+  category: string;    // e.g. "ANALYTIC FRAMEWORK"
+  tagline: string;     // 1-line operational descriptor for hero
+  overview: {
+    headline: string;
+    body: string[];    // paragraphs
+  };
+  capabilities: Capability[];
+  missionApplications: MissionApplication[];
+  operationalStats: OperationalStat[]; // mock command panel data
+  relatedSystems: string[];            // system slugs
+}
+
+// ─── Slug helper ──────────────────────────────────────────────────────────────
+export function nameToSlug(name: string): string {
+  return name.toLowerCase().replace(/\s+/g, "-");
+}
+
+export function slugToSystemDetail(slug: string): SystemDetailData | null {
+  return systemDetails[slug] ?? null;
+}
+
+// ─── Data ─────────────────────────────────────────────────────────────────────
+
+const systemDetails: Record<string, SystemDetailData> = {
+
+  axion: {
+    slug: "axion",
+    name: "AXION",
+    role: "Executive Briefs",
+    status: "LIVE",
+    layer: "SYNTHESIS LAYER",
+    category: "INTELLIGENCE SYNTHESIS",
+    tagline: "Converts distributed signal into decision-ready intelligence.",
+    overview: {
+      headline: "Structured intelligence for decision-makers.",
+      body: [
+        "AXION is the primary synthesis and briefing engine within the RSR Intelligence Network. It aggregates signals from across the monitoring stack, applies analytic weighting, and produces structured executive briefs calibrated for decision-makers who cannot engage raw signal feeds directly.",
+        "The system is designed around a core principle: that the distance between raw information and actionable intelligence must be shortened without sacrificing accuracy or nuance. AXION does not summarize — it synthesizes, structures, and prioritizes.",
+        "Each output produced by AXION is tagged with source confidence ratings, classification tiers, and analytic confidence markers — ensuring that consumers of its output understand the epistemic basis of every assessment.",
+      ],
+    },
+    capabilities: [
+      { label: "FUNCTION 01", title: "Signal Triage",           description: "Prioritizes incoming signals from ORION, ATLAS, and BLACK DOG feeds based on configurable threat and relevance weighting." },
+      { label: "FUNCTION 02", title: "Brief Structuring",        description: "Formats synthesized intelligence into structured brief templates: SITUATION, SIGNIFICANCE, IMPLICATIONS, RECOMMENDED ACTION." },
+      { label: "FUNCTION 03", title: "Source Aggregation",       description: "Consolidates multi-layer source inputs including open-source, structured reporting, and monitored network signals into unified analytic input." },
+      { label: "FUNCTION 04", title: "Confidence Scoring",       description: "Applies analytic confidence markers (HIGH / MODERATE / LOW) to each assessment line based on source quality and corroboration depth." },
+      { label: "FUNCTION 05", title: "Priority Escalation",      description: "Flags time-sensitive items for immediate distribution across the network, bypassing standard brief cycle cadence where required." },
+    ],
+    missionApplications: [
+      { context: "Executive leadership",            use: "Produces daily priority briefs condensing the most relevant developments across tracked domains into a structured single document." },
+      { context: "Investigative teams",             use: "Synthesizes distributed investigative signals into coherent narrative summaries, ensuring analytic continuity across case cycles." },
+      { context: "Stakeholder reporting",           use: "Generates formatted intelligence outputs suitable for distribution to external stakeholders and partner organizations." },
+      { context: "Escalation management",           use: "Identifies developing situations requiring immediate escalation and produces rapid-cycle alert briefs outside normal delivery cadence." },
+    ],
+    operationalStats: [
+      { label: "STATUS",          value: "LIVE",            color: "text-emerald-400" },
+      { label: "BRIEF CYCLE",     value: "DAILY — 06:00Z",  color: "text-zinc-300" },
+      { label: "SOURCE INPUTS",   value: "4 ACTIVE FEEDS",  color: "text-zinc-300" },
+      { label: "CONFIDENCE MODE", value: "MULTI-SOURCE",    color: "text-emerald-400" },
+      { label: "OUTPUT FORMAT",   value: "STRUCTURED PDF",  color: "text-zinc-300" },
+      { label: "DISTRIBUTION",    value: "TIER-2 CLEARED",  color: "text-amber-400" },
+    ],
+    relatedSystems: ["atlas", "orion", "black-dog"],
+  },
+
+  atlas: {
+    slug: "atlas",
+    name: "ATLAS",
+    role: "Entity Mapping",
+    status: "CORE",
+    layer: "RELATIONAL LAYER",
+    category: "NETWORK & ENTITY ANALYSIS",
+    tagline: "Maps the hidden architecture of institutions, networks, and individuals.",
+    overview: {
+      headline: "Structured mapping of power, ownership, and connection.",
+      body: [
+        "ATLAS is the core entity intelligence and network mapping system within RSR. It maintains structured records of organizations, individuals, programs, and financial entities — and maps the relationships between them with analytic precision.",
+        "Where surface-level research identifies actors, ATLAS identifies structures. It traces ownership layers, maps directorial overlaps, follows capital flows, and surfaces the non-obvious connections that define real power architecture.",
+        "ATLAS outputs feed directly into AXION for synthesis, and provide the primary source base for the Dossiers layer. All entity records are maintained with classification tiers, confidence assessments, and update tracking to ensure analytic currency.",
+      ],
+    },
+    capabilities: [
+      { label: "FUNCTION 01", title: "Entity Profiling",          description: "Maintains structured records for organizations, programs, individuals, and networks — including status, jurisdiction, and operational context." },
+      { label: "FUNCTION 02", title: "Relationship Graphing",     description: "Maps directorial overlaps, ownership chains, contractual relationships, and capital flows between tracked entities." },
+      { label: "FUNCTION 03", title: "Beneficial Ownership Trace",description: "Identifies and documents the ultimate beneficial ownership structure of entities where surface-level records are obscured or incomplete." },
+      { label: "FUNCTION 04", title: "Network Cluster Analysis",  description: "Identifies clusters of co-related entities operating in coordinated fashion across procurement, finance, media, or political domains." },
+      { label: "FUNCTION 05", title: "Cross-Reference Index",     description: "Links entity records to associated files, signals, and world-layer events — providing full-network context for any tracked actor." },
+    ],
+    missionApplications: [
+      { context: "Corruption investigations",       use: "Traces the ownership and control architecture behind entities implicated in procurement fraud, contract irregularities, or financial crime." },
+      { context: "Influence network mapping",       use: "Identifies coordinated actor networks operating across media, lobbying, and government advisory roles." },
+      { context: "Due diligence support",           use: "Provides structured entity intelligence supporting third-party risk assessment and organizational due diligence." },
+      { context: "Investment structure analysis",   use: "Maps capital flow patterns and fund structures associated with entities of analytic interest." },
+    ],
+    operationalStats: [
+      { label: "STATUS",           value: "CORE",              color: "text-cyan-400" },
+      { label: "ACTIVE ENTITIES",  value: "1,247 RECORDS",     color: "text-zinc-300" },
+      { label: "RELATIONSHIP MAP", value: "3,891 LINKS",       color: "text-zinc-300" },
+      { label: "CLASSIFICATION",   value: "MULTI-TIER",        color: "text-amber-400" },
+      { label: "UPDATE CYCLE",     value: "CONTINUOUS",        color: "text-emerald-400" },
+      { label: "CONFIDENCE MODE",  value: "CORROBORATED",      color: "text-emerald-400" },
+    ],
+    relatedSystems: ["axion", "black-dog"],
+  },
+
+  orion: {
+    slug: "orion",
+    name: "ORION",
+    role: "World Monitor",
+    status: "LIVE",
+    layer: "SITUATIONAL LAYER",
+    category: "GLOBAL MONITORING",
+    tagline: "Continuous regional situational awareness across active monitoring zones.",
+    overview: {
+      headline: "Real-time global posture tracking across priority regions.",
+      body: [
+        "ORION provides the RSR network's global situational awareness infrastructure. It maintains continuous monitoring of geopolitical, economic, and conflict-adjacent developments across priority regions, feeding structured posture assessments and signal data to the broader analytic stack.",
+        "Rather than consuming raw news or unstructured social media, ORION operates against a structured regional framework — assigning posture classifications (STABLE / ELEVATED / CRITICAL), tracking active signal counts, and monitoring escalation indicators across defined geographic lanes.",
+        "ORION's outputs are the primary geographic intelligence source for AXION brief cycles and provide the signal context layer that ATLAS uses for entity-linked regional tracking.",
+      ],
+    },
+    capabilities: [
+      { label: "FUNCTION 01", title: "Regional Posture Classification", description: "Assigns and maintains posture ratings (STABLE / ELEVATED / CRITICAL) for all monitored regions based on structured indicator sets." },
+      { label: "FUNCTION 02", title: "Signal Aggregation",               description: "Aggregates regional signals from monitored lanes including conflict, procurement, political, and economic indicators." },
+      { label: "FUNCTION 03", title: "Escalation Tracking",              description: "Monitors defined escalation markers within active regions and triggers escalation alerts when threshold conditions are met." },
+      { label: "FUNCTION 04", title: "Lane Monitoring",                  description: "Maintains active monitoring across defined operational lanes: procurement, influence operations, conflict, energy, trade disruption." },
+      { label: "FUNCTION 05", title: "Geospatial Context Layer",         description: "Provides geographic context and coordinates for entity-linked events, enabling cross-referencing with ATLAS entity records." },
+      { label: "FUNCTION 06", title: "Signal Feed Generation",           description: "Produces continuous structured signal feed output consumed by the AXION synthesis layer and visible in the World Monitor interface." },
+    ],
+    missionApplications: [
+      { context: "Geopolitical risk assessment",   use: "Provides structured regional posture intelligence for organizations assessing operational risk in monitored zones." },
+      { context: "Early warning",                  use: "Flags developing escalation patterns in monitored regions before they surface in mainstream reporting." },
+      { context: "Conflict zone briefing",         use: "Produces tactical summaries of active conflict lanes for integration into daily AXION brief cycles." },
+      { context: "Supply chain monitoring",        use: "Tracks trade and logistics lane disruptions within priority regions affecting supply chain operations." },
+    ],
+    operationalStats: [
+      { label: "STATUS",             value: "LIVE",           color: "text-emerald-400" },
+      { label: "MONITORED REGIONS",  value: "5 ACTIVE",       color: "text-zinc-300" },
+      { label: "SIGNAL COUNT",       value: "55 LIVE",        color: "text-zinc-300" },
+      { label: "CRITICAL ZONES",     value: "1 ACTIVE",       color: "text-red-400" },
+      { label: "ELEVATED ZONES",     value: "2 ACTIVE",       color: "text-amber-400" },
+      { label: "FEED CYCLE",         value: "CONTINUOUS",     color: "text-emerald-400" },
+    ],
+    relatedSystems: ["axion", "white-wing"],
+  },
+
+  "black-dog": {
+    slug: "black-dog",
+    name: "BLACK DOG",
+    role: "Restricted Review",
+    status: "RESTRICTED",
+    layer: "SENSITIVE LAYER",
+    category: "ANOMALY & RESTRICTED REVIEW",
+    tagline: "Handles anomalous signals, sensitive cases, and restricted source material.",
+    overview: {
+      headline: "Elevated handling for sensitive and anomalous intelligence.",
+      body: [
+        "BLACK DOG is the RSR network's restricted review and anomaly management system. It handles the intelligence cases and signal categories that require elevated handling procedures, restricted access controls, or specialized analytic approaches not appropriate for standard network layers.",
+        "The system processes signals flagged by ORION and ATLAS as anomalous, sensitive, or potentially indicative of organized counter-intelligence activity. It also manages cyber-adjacent incident tracking and maintains restricted case files that are not surfaced to the standard dossier layer.",
+        "Access to BLACK DOG outputs is limited to cleared analytic personnel. The system operates on a need-to-know basis, and its outputs feed selectively into AXION brief cycles only where appropriate classification controls are maintained.",
+      ],
+    },
+    capabilities: [
+      { label: "FUNCTION 01", title: "Anomaly Flagging",          description: "Identifies and queues signals exhibiting anomalous patterns relative to established baseline behavior in monitored domains." },
+      { label: "FUNCTION 02", title: "Restricted Case Management",description: "Maintains classified case files for sensitive investigations requiring access controls above the standard network tier." },
+      { label: "FUNCTION 03", title: "Cyber Incident Tracking",   description: "Monitors and logs cyber-adjacent incidents, infrastructure anomalies, and digital operation indicators relevant to tracked entities." },
+      { label: "FUNCTION 04", title: "Counter-Intelligence Watch", description: "Monitors for indicators of organized counter-intelligence activity directed at RSR network infrastructure or tracked sources." },
+      { label: "FUNCTION 05", title: "Restricted Source Handling", description: "Manages intelligence derived from restricted source categories, applying appropriate access controls and handling protocols." },
+    ],
+    missionApplications: [
+      { context: "Sensitive investigations",          use: "Manages high-value cases requiring elevated access controls and restricted distribution of analytic outputs." },
+      { context: "Anomaly triage",                   use: "Reviews and classifies anomalous signals that do not fit standard monitoring patterns, escalating confirmed cases to cleared analysts." },
+      { context: "Infrastructure security",           use: "Monitors RSR network infrastructure for intrusion indicators and anomalous access patterns." },
+      { context: "Counter-intelligence assessment",  use: "Provides analytic support for identifying and assessing organized attempts to disrupt, penetrate, or mislead RSR monitoring operations." },
+    ],
+    operationalStats: [
+      { label: "STATUS",             value: "RESTRICTED",       color: "text-red-400" },
+      { label: "ACCESS TIER",        value: "CLEARED ONLY",     color: "text-red-400" },
+      { label: "OPEN CASES",         value: "2 ACTIVE",         color: "text-amber-400" },
+      { label: "ANOMALY QUEUE",      value: "7 PENDING",        color: "text-amber-400" },
+      { label: "ENCRYPTION",         value: "AES-256 / E2E",    color: "text-emerald-400" },
+      { label: "REVIEW CYCLE",       value: "CONTINUOUS",       color: "text-emerald-400" },
+    ],
+    relatedSystems: ["axion", "atlas"],
+  },
+
+  "white-wing": {
+    slug: "white-wing",
+    name: "WHITE WING",
+    role: "Battlespace",
+    status: "TRACKING",
+    layer: "TACTICAL LAYER",
+    category: "CONFLICT & ESCALATION MONITORING",
+    tagline: "Tactical intelligence on active conflict environments, escalation patterns, and force movements.",
+    overview: {
+      headline: "Structured intelligence across active conflict and escalation zones.",
+      body: [
+        "WHITE WING is the RSR network's tactical intelligence layer, focused on active and developing conflict environments. It tracks escalation indicators, monitors defined conflict lanes, logs tactical incidents, and provides structured situational intelligence for decision-making in volatile operational contexts.",
+        "The system operates against a defined set of conflict zones and monitored escalation corridors. It tracks the status of active engagements, documents force movement indicators, monitors logistics and supply lane disruptions, and maintains rolling escalation assessments for each active zone.",
+        "WHITE WING outputs feed into ORION's regional posture layer and contribute to AXION brief cycles on conflict-affected regions. The system does not pretend to real-time battlefield intelligence — it provides structured, sourced, analytic assessment of conflict dynamics based on available open and monitored source material.",
+      ],
+    },
+    capabilities: [
+      { label: "FUNCTION 01", title: "Conflict Lane Mapping",      description: "Maintains active monitoring and mapping of defined conflict corridors, tracking engagement patterns and zone boundary shifts." },
+      { label: "FUNCTION 02", title: "Escalation Indicator Tracking",description: "Monitors predefined escalation markers — force build-up, mobilization signals, supply disruption — and rates escalation risk across active zones." },
+      { label: "FUNCTION 03", title: "Incident Logging",           description: "Documents tactical incidents within monitored zones, including engagement reports, infrastructure strikes, and significant escalation events." },
+      { label: "FUNCTION 04", title: "Logistics Lane Monitoring",  description: "Tracks disruptions to supply, fuel, and logistics lanes within and adjacent to active conflict zones." },
+      { label: "FUNCTION 05", title: "Force Movement Assessment",  description: "Analyzes available source material to identify and assess significant force movement and repositioning patterns." },
+    ],
+    missionApplications: [
+      { context: "Conflict zone risk assessment",  use: "Provides structured escalation and posture intelligence for organizations operating in or adjacent to active conflict zones." },
+      { context: "Strategic escalation briefing",  use: "Produces structured escalation assessments for integration into AXION priority brief cycles on conflict-affected regions." },
+      { context: "Logistics disruption monitoring",use: "Tracks conflict-driven disruptions to key logistics and supply lanes affecting regional and global supply chain operations." },
+      { context: "Incident documentation",         use: "Maintains structured logs of significant tactical events in monitored conflict zones for historical and analytic reference." },
+    ],
+    operationalStats: [
+      { label: "STATUS",             value: "TRACKING",         color: "text-amber-400" },
+      { label: "ACTIVE ZONES",       value: "3 MONITORED",      color: "text-zinc-300" },
+      { label: "ESCALATION RISK",    value: "HIGH — MIDDLE EAST", color: "text-red-400" },
+      { label: "OPEN INCIDENTS",     value: "5 LOGGED",         color: "text-amber-400" },
+      { label: "CONFLICT LANES",     value: "7 ACTIVE",         color: "text-zinc-300" },
+      { label: "REVIEW CYCLE",       value: "CONTINUOUS",       color: "text-emerald-400" },
+    ],
+    relatedSystems: ["orion", "axion"],
+  },
+
+};
+
+export default systemDetails;

@@ -1,0 +1,164 @@
+Next expansion pass.
+
+Do NOT redesign the current site.
+Preserve the current homepage, systems page, files page, dossiers page, and world page layout direction.
+
+Main goal:
+Expand the site from a strong shell into a more complete public-facing intelligence network by adding detailed system presentation pages and a subtle hero logo reveal.
+
+==================================================
+1. SYSTEM DETAIL PAGE EXPANSION
+==================================================
+
+When a user clicks a system card (AXION / ATLAS / ORION / BLACK DOG / WHITE WING), it should open a dedicated system detail page.
+
+Create dedicated routes/pages for:
+- /systems/axion
+- /systems/atlas
+- /systems/orion
+- /systems/black-dog
+- /systems/white-wing
+
+These pages should feel like:
+- premium system presentations
+- credible enough for investors or serious public visitors
+- clear enough for general public understanding
+- still part of the same RSR OS ecosystem
+
+Each system page should include:
+
+A. Header block
+- system name
+- one-line operational descriptor
+- status
+- category / layer / role metadata
+
+B. Overview section
+- what the system does
+- why it exists
+- what role it plays inside RSR Intelligence Network
+
+C. Capabilities / architecture section
+- 3 to 6 structured capabilities or functions
+- short explanatory text
+- use tactical labels and metadata styling
+
+D. Use case / mission application section
+- how the system supports intelligence work, analysis, investigations, monitoring, synthesis, etc.
+- this should sound serious and real, not like marketing fluff
+
+E. Interface preview / operational preview area
+- a mock command panel, architecture strip, structured preview cards, or system activity block
+- no fake backend claims, but it should imply real depth
+
+F. CTA or routing section
+- back to systems
+- view files
+- related network layer
+- related dossier layer if relevant
+
+Tone:
+- present these pages like serious infrastructure
+- avoid generic startup product copy
+- avoid vague buzzwords
+
+==================================================
+2. PRESERVE HOMEPAGE
+==================================================
+
+Do NOT weaken the homepage.
+The homepage is already strong.
+
+Keep:
+- big hero statement
+- arrival / front-door feel
+- systems preview
+- signal feed preview
+- network status panel
+
+Do not flatten homepage into another internal page.
+
+==================================================
+3. HOMEPAGE HERO LOGO REVEAL
+==================================================
+
+Add a subtle logo reveal near the homepage hero.
+
+Goal:
+Make the homepage feel a little more alive and branded, without becoming gimmicky.
+
+Requirements:
+- use the actual RSR logo
+- place it tastefully near the hero area, not in a distracting way
+- animation should be subtle and premium
+- preferred behavior: soft fade-in with maybe a tiny initial flicker/glitch at load only
+- once revealed, it should remain stable
+- no constant flickering
+- no pulsing neon effects
+- no heavy hacker-style animation
+
+This should feel like:
+- system emblem reveal
+- restrained command identity
+not:
+- cyberpunk effect
+
+Use framer-motion only if needed and keep it elegant.
+
+==================================================
+4. SYSTEM CARD ROUTING
+==================================================
+
+Update the system cards on:
+- homepage preview
+- systems page
+
+So they route into the correct dedicated system detail pages.
+
+Preserve current styling and behavior.
+
+==================================================
+5. CONTENT QUALITY
+==================================================
+
+The new system pages should read like a serious presentation of infrastructure.
+
+Each page should make clear:
+- what the system is
+- what it does
+- how it fits in the wider intelligence network
+- why it matters
+
+This is not just UI.
+It is public-facing system explanation.
+
+==================================================
+6. KEEP THE AESTHETIC DISCIPLINED
+==================================================
+
+Keep:
+- black base
+- restrained emerald accents
+- thin borders
+- premium spacing
+- monospace micro-labels
+- large clean headlines
+- subtle live/interface behavior
+
+Do NOT add:
+- giant glowing elements
+- noisy animations
+- fake dashboards
+- full-screen overlays
+- heavy glitch effects
+
+==================================================
+7. IMPLEMENTATION DELIVERABLES
+==================================================
+
+Please:
+1. explain the routing structure for the new system pages
+2. explain the homepage logo reveal behavior before implementing it
+3. implement all 5 system detail pages
+4. wire system cards to those pages
+5. preserve the current homepage identity and overall design language
