@@ -1,0 +1,231 @@
+Power pass — operator controls, Sage Terminal v1, and Signal Room reposition.
+
+Do NOT redesign the site.
+Do NOT weaken the homepage.
+Do NOT change the established visual identity.
+
+Refine and expand the current build only.
+
+MAIN GOAL
+Take the now-working RSR Intelligence Network platform and push it into a stronger operational state by improving:
+- Investigation Room live usability
+- admin/operator control
+- Command Console authority
+- Signal Room identity
+- Sage Terminal v1
+
+PRESERVE
+- black base
+- restrained emerald accents
+- thin borders
+- premium command-interface feel
+- monospace micro-labels
+- large clean headlines
+- serious intelligence-network tone
+
+CRITICAL RULES
+- No Discord clone
+- No generic SaaS admin styling
+- No gimmicky cyberpunk effects
+- No fake AI automation claims
+- Keep everything controlled, tactical, and coherent
+
+==================================================
+1. INVESTIGATION ROOM — LIVE USABILITY UPGRADE
+==================================================
+
+The Investigation Room is now live. Improve it without redesigning it.
+
+Refine:
+- clearer message density and spacing
+- better empty-channel state
+- stronger message composer usability
+- better indication of current channel
+- visible role labels on messages
+- better analyst roster fidelity
+
+Messages should clearly show:
+- timestamp
+- handle
+- role
+- body
+
+Keep the current terminal style.
+
+==================================================
+2. ADMIN / MODERATION CONTROLS
+==================================================
+
+I need “god controls” as admin.
+
+Implement role-aware moderation controls.
+
+In the Command Console:
+- approve / deny users
+- promote / demote users
+- set role to member / analyst / lead / admin
+- suspend or ban users
+- show suspended/banned state clearly
+- show recent activity by user if easy
+
+In the Investigation Room:
+- light admin controls only
+- if current user is admin, allow minimal operator actions such as:
+  - open operator in Command Console
+  - quick suspend / quick remove from room if clean to implement
+Do NOT clutter the room UI.
+
+If suspension/ban needs new profile fields, add them cleanly:
+- account_status = active / suspended / banned
+
+Protected behavior:
+- suspended or banned users cannot access Investigation Room
+- banned users should be blocked at auth-protected routes with a controlled denial screen
+
+==================================================
+3. COMMAND CONSOLE — POWER UPGRADE
+==================================================
+
+The Command Console works. Upgrade it.
+
+Add:
+- clearer role counts
+- pending / approved / denied / suspended / banned counts
+- stronger operator controls
+- more useful recent activity
+- room activity visibility
+- channel-level activity snapshot if easy
+- better operator status indicators
+
+Keep this page feeling like:
+- executive oversight
+- command authority
+- not a generic admin dashboard
+
+==================================================
+4. SIGNAL ROOM — REPOSITION IT
+==================================================
+
+Signal Room should feel less like fake staged analyst chat and more like a monitored public intelligence/news layer.
+
+Reposition it into:
+- breaking news room
+- market + macro watch room
+- geopolitical signal layer
+
+Keep the page architecture and visual language, but refine content and purpose.
+
+Desired content types:
+- headline signals
+- breaking geopolitical developments
+- market watch items
+- energy / shipping / defense / policy watch notes
+- curated analyst signal summaries
+- structured watch cards or feed entries
+
+If useful, add:
+- a quiet horizontal headlines strip
+- a compact market strip / watchlist
+- structured “watch items” in the sidebar
+
+Do NOT turn it into a noisy news site.
+Keep it premium and controlled.
+
+==================================================
+5. SAGE TERMINAL V1 — ACTIVATE
+==================================================
+
+Now activate the first real version of SAGE TERMINAL.
+
+Scope it tightly.
+
+SAGE TERMINAL v1 should answer from INTERNAL RSR data only:
+- files
+- dossiers
+- systems
+- world/signal records already in the app
+- optionally room/channel context if easy
+
+Primary use cases:
+- summarize a file
+- summarize a dossier
+- explain a system
+- trace linked records
+- generate a quick brief
+- fact check against current internal records
+
+Do NOT make Sage a general open chatbot yet.
+No broad world-knowledge mode in this pass.
+
+UI:
+- keep it in the right panel / terminal language
+- input box
+- response area
+- quick actions:
+  - QUICK BRIEF
+  - FACT CHECK
+  - SUMMARIZE FILE
+  - SUMMARIZE DOSSIER
+
+If backend support is needed, implement it cleanly.
+Use the existing structured data as the source of truth where possible.
+If a server route is needed, create it cleanly.
+
+==================================================
+6. QUICK BRIEF OUTPUT
+==================================================
+
+Sage should be able to produce a structured quick brief format.
+
+Target format:
+- title
+- topic / region / system
+- current posture
+- key linked records
+- concise assessment
+
+Tone:
+- disciplined
+- concise
+- intelligence-style
+- not cheesy
+
+==================================================
+7. INTERNAL-ONLY FIRST
+==================================================
+
+For this pass, keep Sage internal-facing.
+Do not attempt to answer arbitrary world questions yet.
+Accuracy should mean:
+- accurate to the current RSR data environment
+
+==================================================
+8. ROLE / PROFILE CLEANUP
+==================================================
+
+Ensure the current signed-in admin user visibly reflects admin status where appropriate.
+
+Fix any mismatch where admin access exists but role display/counting is incorrect.
+
+The Command Console should accurately count admin roles.
+
+==================================================
+9. IMPLEMENTATION DELIVERABLES
+==================================================
+
+Please do all of the following:
+1. improve Investigation Room live usability
+2. implement admin moderation / god controls cleanly
+3. upgrade Command Console
+4. reposition Signal Room into a monitored news/market/signal room
+5. activate Sage Terminal v1 for internal RSR data
+6. implement quick brief / fact check actions
+7. fix any role/admin display inconsistencies
+8. preserve current visual identity and strong working layout
+
+FINAL GUARDRAILS
+- Preserve homepage identity first
+- Preserve premium black + emerald command aesthetic second
+- Preserve clean structure third
+- Do not overwrite strong working sections
+- Make the platform feel more powerful, not more bloated

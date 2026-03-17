@@ -8,6 +8,7 @@ export interface Profile {
   handle: string;
   role: string;
   approval_status: string;
+  account_status?: string;
   created_at?: string;
   email?: string;
 }
@@ -276,6 +277,96 @@ function DeniedScreen({ profile }: { profile: Profile }) {
   );
 }
 
+function SuspendedScreen({ profile }: { profile: Profile }) {
+  const { signOut } = useAuth();
+  return (
+    <div className="min-h-screen bg-black flex flex-col">
+      <div className="border-b border-zinc-900 px-8 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-6 h-6 rounded-full border border-zinc-800 flex items-center justify-center">
+            <div className="w-2 h-2 rounded-full bg-zinc-700" />
+          </div>
+          <div>
+            <div className="font-mono text-xs tracking-[0.25em] text-zinc-300">RSR INTELLIGENCE NETWORK</div>
+            <div className="font-mono text-[8px] tracking-[0.3em] text-zinc-700">INDEPENDENT ANALYSIS SYSTEM</div>
+          </div>
+        </div>
+        <button onClick={signOut} className="font-mono text-[9px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 transition-colors">SIGN OUT</button>
+      </div>
+      <div className="flex-1 flex items-center justify-center px-6">
+        <div className="max-w-md w-full">
+          <div className="font-mono text-[9px] tracking-[0.45em] text-zinc-700 mb-8">» ACCESS PROTOCOL // RSR INTELLIGENCE NETWORK</div>
+          <div className="border border-amber-500/20 bg-amber-500/5 px-6 py-4 mb-8">
+            <div className="font-mono text-[8px] tracking-[0.4em] text-amber-500/70 mb-1">ACCOUNT STATUS</div>
+            <div className="font-mono text-xs tracking-[0.2em] text-amber-400">ACCOUNT SUSPENDED</div>
+          </div>
+          <h1 className="font-mono text-3xl font-bold tracking-[0.12em] text-white mb-2">ACCOUNT<br />SUSPENDED</h1>
+          <div className="w-16 h-px bg-zinc-800 mb-8" />
+          <div className="space-y-1 mb-8">
+            {[["OPERATOR", profile.handle], ["STATUS", "SUSPENDED"]].map(([l, v]) => (
+              <div key={l} className="flex items-center gap-4 py-2 border-b border-zinc-900">
+                <span className="font-mono text-[8px] tracking-[0.35em] text-zinc-600 w-28 shrink-0">{l}</span>
+                <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-400">{v}</span>
+              </div>
+            ))}
+          </div>
+          <p className="font-mono text-[9px] tracking-[0.15em] text-zinc-600 leading-relaxed mb-8">
+            Your account has been temporarily suspended. Contact the RSR team lead to resolve your access status.
+          </p>
+          <Link href="/signal-room">
+            <span className="font-mono text-[9px] tracking-[0.3em] text-emerald-500 hover:text-emerald-400 transition-colors cursor-pointer">→ SIGNAL ROOM</span>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BannedScreen({ profile }: { profile: Profile }) {
+  const { signOut } = useAuth();
+  return (
+    <div className="min-h-screen bg-black flex flex-col">
+      <div className="border-b border-zinc-900 px-8 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-6 h-6 rounded-full border border-zinc-800 flex items-center justify-center">
+            <div className="w-2 h-2 rounded-full bg-zinc-700" />
+          </div>
+          <div>
+            <div className="font-mono text-xs tracking-[0.25em] text-zinc-300">RSR INTELLIGENCE NETWORK</div>
+            <div className="font-mono text-[8px] tracking-[0.3em] text-zinc-700">INDEPENDENT ANALYSIS SYSTEM</div>
+          </div>
+        </div>
+        <button onClick={signOut} className="font-mono text-[9px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 transition-colors">SIGN OUT</button>
+      </div>
+      <div className="flex-1 flex items-center justify-center px-6">
+        <div className="max-w-md w-full">
+          <div className="font-mono text-[9px] tracking-[0.45em] text-zinc-700 mb-8">» ACCESS PROTOCOL // RSR INTELLIGENCE NETWORK</div>
+          <div className="border border-red-500/20 bg-red-500/5 px-6 py-4 mb-8">
+            <div className="font-mono text-[8px] tracking-[0.4em] text-red-500/70 mb-1">ACCOUNT STATUS</div>
+            <div className="font-mono text-xs tracking-[0.2em] text-red-400">ACCESS PERMANENTLY REVOKED</div>
+          </div>
+          <h1 className="font-mono text-3xl font-bold tracking-[0.12em] text-white mb-2">ACCESS<br />REVOKED</h1>
+          <div className="w-16 h-px bg-zinc-800 mb-8" />
+          <div className="space-y-1 mb-8">
+            {[["OPERATOR", profile.handle], ["STATUS", "BANNED"]].map(([l, v]) => (
+              <div key={l} className="flex items-center gap-4 py-2 border-b border-zinc-900">
+                <span className="font-mono text-[8px] tracking-[0.35em] text-zinc-600 w-28 shrink-0">{l}</span>
+                <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-400">{v}</span>
+              </div>
+            ))}
+          </div>
+          <p className="font-mono text-[9px] tracking-[0.15em] text-zinc-600 leading-relaxed mb-8">
+            This account has been permanently removed from the RSR network. This action is final.
+          </p>
+          <Link href="/">
+            <span className="font-mono text-[9px] tracking-[0.3em] text-zinc-600 hover:text-zinc-400 transition-colors cursor-pointer">← RETURN HOME</span>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ProtectedRoute({ component: Component, adminOnly = false }: { component: React.ComponentType; adminOnly?: boolean }) {
   const { user, profile, loading, configured } = useAuth();
   const [, setLocation] = useLocation();
@@ -296,6 +387,10 @@ export function ProtectedRoute({ component: Component, adminOnly = false }: { co
       if (profile.role !== "admin") return null;
       return <Component />;
     }
+
+    const acctStatus = profile.account_status ?? "active";
+    if (acctStatus === "banned") return <BannedScreen profile={profile} />;
+    if (acctStatus === "suspended") return <SuspendedScreen profile={profile} />;
 
     const status = profile.approval_status ?? "approved";
     if (status === "pending") return <PendingScreen profile={profile} />;

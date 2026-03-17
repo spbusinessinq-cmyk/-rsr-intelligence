@@ -1,223 +1,335 @@
 import Layout from "@/components/Layout";
 import { Link } from "wouter";
 
-interface Message {
+interface SignalItem {
   id: string;
-  handle: string;
-  handleType: "system" | "analyst" | "restricted";
-  system?: string;
+  category: "GEOPOLITICAL" | "MARKET" | "ENERGY" | "DEFENSE" | "POLICY" | "INTELLIGENCE";
+  headline: string;
+  summary: string;
+  region: string;
+  priority: "HIGH" | "NORMAL" | "LOW";
   timestamp: string;
-  content: string;
-  priority?: "HIGH" | "NORMAL";
-  redacted?: boolean;
+  refs?: string[];
+  source: string;
 }
 
-const messages: Message[] = [
+interface MarketWatch {
+  label: string;
+  value: string;
+  delta?: string;
+  direction?: "up" | "down" | "flat";
+  note?: string;
+}
+
+const BREAKING: string[] = [
+  "MIDDLE EAST — ENERGY CORRIDOR WATCH: LOGISTICS LANE 2 DISRUPTION CONFIRMED · STRAIT OF HORMUZ ADJACENT LANES UNDER ELEVATED MONITORING",
+  "F-017 ALLIED MEDIA NETWORK — NEW FUNDING SOURCE CONFIRMED LINKED TO F-003 OFFSHORE CHAIN · SIX EU JURISDICTIONS AFFECTED",
+  "EASTERN EUROPE — POSTURE ELEVATED · CAPITAL EXODUS INDICATORS RISING · INFLUENCE OPERATIONS ACTIVE ACROSS MEDIA AND POLICY LAYERS",
+  "ASIA-PACIFIC — D-004 MERIDIAN CAPITAL NEW ACQUISITION NODE IDENTIFIED · ATLAS CROSS-REFERENCE IN PROGRESS",
+  "NORTH AMERICA — F-019 LOBBYING MAP UPDATE · TWENTY-THREE RELATIONSHIPS FLAGGED · FOREIGN-INTEREST DISCLOSURE GAPS CONFIRMED",
+];
+
+const signals: SignalItem[] = [
   {
-    id: "m-001", handle: "ORION-WATCH", handleType: "system", system: "ORION",
+    id: "SIG-R001",
+    category: "GEOPOLITICAL",
+    headline: "MIDDLE EAST POSTURE ELEVATED TO CRITICAL",
+    summary: "ORION monitor flagging sustained escalation across energy watch corridor. Strait of Hormuz adjacent logistics lanes reporting confirmed disruption across two supply routes. Signal count at 27, highest this cycle. Energy watch posture moved to CRITICAL. WHITE WING conflict lane tracking active.",
+    region: "Middle East",
+    priority: "HIGH",
     timestamp: "2026-03-17T19:22:00Z",
-    content: "POSTURE UPDATE — Middle East zone moving to CRITICAL. Energy watch corridor active on Strait of Hormuz adjacent lanes. Logistics disruption confirmed on two supply routes. Signal count now 27.",
+    source: "ORION",
+    refs: ["F-016"],
+  },
+  {
+    id: "SIG-R002",
+    category: "INTELLIGENCE",
+    headline: "F-017 FUNDING CONFIRMED — F-003 OFFSHORE CHAIN LINK ESTABLISHED",
+    summary: "Allied Media Network Watch (F-017) now confirmed connected to F-003 Influence Architecture offshore intermediary chain. Editorial coordination pattern documented across six EU member jurisdictions. Capital routing mechanism confirmed. Network operating with state-adjacent backing across major EU media markets.",
+    region: "European Union",
     priority: "HIGH",
-  },
-  {
-    id: "m-002", handle: "ATLAS-07", handleType: "analyst",
-    timestamp: "2026-03-17T19:18:00Z",
-    content: "Cross-referencing D-004 Meridian Capital against the new Asia-Pacific acquisition node flagged by signal SIG-004. Looking at shared registered agents across four offshore holding structures. Will post update to ATLAS layer by 20:00Z.",
-  },
-  {
-    id: "m-003", handle: "SIGNAL-DESK", handleType: "analyst",
-    timestamp: "2026-03-17T19:15:00Z",
-    content: "F-017 Allied Media Network Watch — confirmed the funding link back to F-003's offshore intermediary chain. The editorial coordination pattern is consistent across six EU jurisdictions. This is not coincidental alignment.",
-    priority: "HIGH",
-  },
-  {
-    id: "m-004", handle: "AXION-SYS", handleType: "system", system: "AXION",
     timestamp: "2026-03-17T19:11:00Z",
-    content: "BRIEF ALERT — F-017 and F-003 cross-reference flagged for priority inclusion in next AXION cycle. Confidence rating: HIGH. Source basis: multi-source corroborated. Distribution: Tier-2 Cleared.",
+    source: "ATLAS",
+    refs: ["F-017", "F-003", "D-006"],
+  },
+  {
+    id: "SIG-R003",
+    category: "DEFENSE",
+    headline: "WHITE WING — CONFLICT LANE 3 MOVEMENT INDICATORS ELEVATED",
+    summary: "WHITE WING battlespace system detecting unusual movement indicators in Conflict Lane 3. Not yet at escalation threshold. Trending data flagged for monitoring inclusion in next AXION brief cycle. Pattern consistent with preparatory repositioning rather than active engagement. Watch status: ELEVATED.",
+    region: "Middle East",
     priority: "HIGH",
+    timestamp: "2026-03-17T17:44:00Z",
+    source: "WHITE WING",
   },
   {
-    id: "m-005", handle: "ANALYST-03", handleType: "analyst",
-    timestamp: "2026-03-17T19:05:00Z",
-    content: "Anyone have current status on D-007 Northern Bridge Consortium? F-009 update flagged shared beneficial ownership but I need the ATLAS entity graph to confirm link depth. ATLAS-07 can you pull that?",
-  },
-  {
-    id: "m-006", handle: "ATLAS-07", handleType: "analyst",
-    timestamp: "2026-03-17T19:03:00Z",
-    content: "D-007 — confirmed four entities, shared registration agent in two jurisdictions. Beneficial ownership resolves to two individuals, one of whom appears in F-001 procurement network as third-tier contractor. Graph updated in ATLAS layer.",
-  },
-  {
-    id: "m-007", handle: "BLACK Dog // RESTRICTED", handleType: "restricted",
-    timestamp: "2026-03-17T18:59:00Z",
-    content: "[CONTENT RESTRICTED — ACCESS REQUIRES CLEARED AUTHORIZATION]",
-    redacted: true,
-  },
-  {
-    id: "m-008", handle: "ORION-WATCH", handleType: "system", system: "ORION",
-    timestamp: "2026-03-17T18:55:00Z",
-    content: "EASTERN EUROPE POSTURE — now elevated. F-010 influence mapping consistent with increased activity across media and policy advisory channels. Capital exodus signals have increased since previous cycle.",
+    id: "SIG-R004",
+    category: "MARKET",
+    headline: "ASIA-PACIFIC CAPITAL FLOW DISRUPTION — D-004 NODE IDENTIFIED",
+    summary: "ATLAS entity mapping confirms new acquisition node linked to D-004 Meridian Capital operating in Asia-Pacific. Cross-referenced against F-006 Meridian Finance Audit. Three state-adjacent investment vehicles now tracked in connection with active procurement bids across two jurisdictions. Capital structure review ongoing.",
+    region: "Asia-Pacific",
     priority: "NORMAL",
+    timestamp: "2026-03-17T18:44:00Z",
+    source: "ATLAS",
+    refs: ["D-004", "F-006"],
   },
   {
-    id: "m-009", handle: "SIGNAL-DESK", handleType: "analyst",
-    timestamp: "2026-03-17T18:47:00Z",
-    content: "D-010 Western Advocacy Network update — coordinated legislative outreach documented across three Senate committees and two House oversight bodies. Cross-referencing with F-019 lobbying map now. The pattern is structured, not organic.",
+    id: "SIG-R005",
+    category: "POLICY",
+    headline: "WESTERN ADVOCACY NETWORK — COORDINATED LEGISLATIVE OUTREACH DOCUMENTED",
+    summary: "D-010 Western Advocacy Network confirmed coordinated outreach across three Senate committees and two House oversight bodies. Twelve registered organizations involved. Shared messaging infrastructure active. Cross-reference with F-019 Cross-Border Lobbying Map now showing structural overlap. Pattern is systematic, not organic.",
+    region: "North America",
+    priority: "NORMAL",
+    timestamp: "2026-03-17T17:30:00Z",
+    source: "ATLAS",
+    refs: ["D-010", "F-019"],
   },
   {
-    id: "m-010", handle: "ANALYST-11", handleType: "analyst",
-    timestamp: "2026-03-17T18:39:00Z",
-    content: "F-014 Information Corridor Watch — two new channels identified this cycle. Both distributing structured framing around energy policy and trade disruption in coordinated timing with Middle East escalation signal cluster. Flagging for AXION inclusion.",
+    id: "SIG-R006",
+    category: "GEOPOLITICAL",
+    headline: "EASTERN EUROPE — INFLUENCE OPERATIONS AND CAPITAL EXODUS ACTIVE",
+    summary: "ORION elevated Eastern Europe posture to ELEVATED. F-010 influence mapping consistent with increased activity across media and policy advisory channels. Capital exodus signals rising since previous cycle. Regional Futures Fund (D-013) equity exposure in three media entities linked to capital and editorial direction overlap.",
+    region: "Eastern Europe",
     priority: "HIGH",
-  },
-  {
-    id: "m-011", handle: "AXION-SYS", handleType: "system", system: "AXION",
-    timestamp: "2026-03-17T18:31:00Z",
-    content: "DAILY BRIEF CYCLE COMPLETE — summary distributed to Tier-2 cleared analysts. Priority items: F-001, F-006, F-017. Elevated items: Middle East posture, Eastern Europe influence activity, D-004 acquisition node.",
-    priority: "NORMAL",
-  },
-  {
-    id: "m-012", handle: "ANALYST-03", handleType: "analyst",
-    timestamp: "2026-03-17T18:22:00Z",
-    content: "F-016 Sovereign Fund Review — ATLAS cross-reference is slow. Beneficial ownership chain on the primary holding structure has three layers. One of the entities uses a jurisdiction with restricted company registry access. Requesting BLACK DOG escalation.",
-  },
-  {
-    id: "m-013", handle: "BLACK Dog // RESTRICTED", handleType: "restricted",
-    timestamp: "2026-03-17T18:19:00Z",
-    content: "[CONTENT RESTRICTED — ACCESS REQUIRES CLEARED AUTHORIZATION]",
-    redacted: true,
-  },
-  {
-    id: "m-014", handle: "ORION-WATCH", handleType: "system", system: "ORION",
     timestamp: "2026-03-17T18:10:00Z",
-    content: "WHITE WING coordination — Conflict Lane 3 movement indicators elevated. Not at threshold for escalation alert yet but trending. AXION flagged for monitoring inclusion. See WHITE WING module for current documentation.",
-    priority: "NORMAL",
+    source: "ORION",
+    refs: ["F-010", "D-013"],
   },
   {
-    id: "m-015", handle: "SIGNAL-DESK", handleType: "analyst",
-    timestamp: "2026-03-17T17:58:00Z",
-    content: "Noting for the record: F-009 Northern Gateway and D-007 Northern Bridge Consortium now have three confirmed linkage points. This is not a coincidence of geography. Recommend elevating F-009 to RESTRICTED classification.",
+    id: "SIG-R007",
+    category: "INTELLIGENCE",
+    headline: "BLACK DOG QUEUE — 7 ANOMALOUS SIGNALS PENDING RESTRICTED REVIEW",
+    summary: "BLACK DOG restricted review system holding seven anomalous signals pending analyst assessment. Nature of signals not available at this clearance level. Escalation request from F-016 Sovereign Fund Review and F-012 Defense Advisory Network active in queue. BLACK DOG escalation for tier-1 entity identification also pending from F-001 CLEARWATER review.",
+    region: "Global",
+    priority: "HIGH",
+    timestamp: "2026-03-17T18:55:00Z",
+    source: "BLACK DOG",
+    refs: ["F-001", "F-016"],
+  },
+  {
+    id: "SIG-R008",
+    category: "ENERGY",
+    headline: "ENERGY CORRIDOR — LOGISTICS DISRUPTION SPREADING ACROSS SUPPLY ROUTES",
+    summary: "Two confirmed supply route disruptions now active in Middle East energy corridor. Strait of Hormuz adjacent lanes showing elevated movement. No formal escalation event declared but logistics disruption is operational in scope. Impact assessment ongoing. Watch status elevated for third lane. ORION signal count at 27 — cycle high.",
+    region: "Middle East",
+    priority: "HIGH",
+    timestamp: "2026-03-17T19:05:00Z",
+    source: "ORION",
+  },
+  {
+    id: "SIG-R009",
+    category: "POLICY",
+    headline: "NORTH AMERICA PROCUREMENT WATCH — F-001 CLEARWATER ESCALATION UNDERWAY",
+    summary: "Operation Clearwater (F-001) procurement chain now confirmed at five layers. Cormorant Group (D-001) positioned at tier-2, not tier-1 as previously documented. Tier-1 entity appears to be unregistered holding structure sharing registered agent with three F-005 entries. Risk attribution model requires revision. BLACK DOG escalation for tier-1 identification requested.",
+    region: "North America",
+    priority: "HIGH",
+    timestamp: "2026-03-17T16:00:00Z",
+    source: "AXION",
+    refs: ["F-001", "D-001", "F-005"],
+  },
+  {
+    id: "SIG-R010",
+    category: "MARKET",
+    headline: "NORTHERN GATEWAY — BENEFICIAL OWNERSHIP CONFIRMED ACROSS FOUR BIDS",
+    summary: "F-009 Northern Gateway procurement review confirms shared beneficial ownership across four bid submissions. D-007 Northern Bridge Consortium: four entities, two jurisdictions. Ownership resolves to two individuals, one of whom appears in F-001 procurement network. Document authorship metadata match across all four submissions indicates pre-bid coordination. F-009 reclassification to RESTRICTED recommended.",
+    region: "Canada",
+    priority: "NORMAL",
+    timestamp: "2026-03-17T17:10:00Z",
+    source: "ATLAS",
+    refs: ["F-009", "D-007"],
   },
 ];
 
-const activeAnalysts = [
-  { handle: "ATLAS-07",    status: "ACTIVE",  role: "Entity Analysis" },
-  { handle: "SIGNAL-DESK", status: "ACTIVE",  role: "Signal Review" },
-  { handle: "ANALYST-03",  status: "ACTIVE",  role: "Case Review" },
-  { handle: "ANALYST-11",  status: "ACTIVE",  role: "Content Monitoring" },
-  { handle: "ORION-WATCH", status: "SYSTEM",  role: "Automated Feed" },
-  { handle: "AXION-SYS",   status: "SYSTEM",  role: "Brief System" },
-  { handle: "ANALYST-06",  status: "IDLE",    role: "World Monitor" },
+const marketWatchItems: MarketWatch[] = [
+  { label: "BRENT CRUDE", value: "$94.40", delta: "+2.1%", direction: "up", note: "Logistics disruption pressure" },
+  { label: "WTI CRUDE",   value: "$90.85", delta: "+1.8%", direction: "up", note: "Corridor watch active" },
+  { label: "GOLD",        value: "$2,384", delta: "+0.4%", direction: "up", note: "Safe haven flow" },
+  { label: "USD INDEX",   value: "104.22", delta: "-0.2%", direction: "down", note: "Risk sentiment" },
+  { label: "EUR/USD",     value: "1.0842", delta: "+0.3%", direction: "up", note: "Policy watch" },
+  { label: "10Y UST",     value: "4.42%",  delta: "+6bps", direction: "up", note: "Pressure continuing" },
 ];
 
-function formatTimestamp(iso: string): string {
+const watchItems = [
+  { label: "STRAIT OF HORMUZ", status: "WATCH ACTIVE", level: "HIGH" },
+  { label: "EASTERN EUROPE POSTURE", status: "ELEVATED", level: "HIGH" },
+  { label: "EU MEDIA INFLUENCE", status: "ACTIVE MAPPING", level: "HIGH" },
+  { label: "ASIA-PAC CAPITAL FLOWS", status: "MONITORING", level: "NORMAL" },
+  { label: "NORTH AMERICA LOBBYING", status: "ACTIVE REVIEW", level: "NORMAL" },
+  { label: "WHITE WING LANE 3", status: "TRENDING UP", level: "HIGH" },
+];
+
+function formatTime(iso: string): string {
   const d = new Date(iso);
   const h = d.getUTCHours().toString().padStart(2, "0");
   const m = d.getUTCMinutes().toString().padStart(2, "0");
   return `${h}:${m}Z`;
 }
 
-function handleStyle(type: Message["handleType"]) {
-  if (type === "system")     return "text-emerald-400";
-  if (type === "restricted") return "text-red-400";
-  return "text-zinc-300";
-}
+const catColor: Record<SignalItem["category"], string> = {
+  GEOPOLITICAL: "text-red-400 border-red-500/20",
+  MARKET: "text-amber-400 border-amber-500/20",
+  ENERGY: "text-orange-400 border-orange-500/20",
+  DEFENSE: "text-red-300 border-red-400/20",
+  POLICY: "text-blue-400 border-blue-500/20",
+  INTELLIGENCE: "text-emerald-400 border-emerald-500/20",
+};
 
 export default function SignalRoom() {
+  const highCount = signals.filter(s => s.priority === "HIGH").length;
+
   return (
     <Layout>
-      <div className="flex flex-col gap-0 h-full">
+      <div className="flex flex-col gap-0">
 
-        {/* ── PAGE HEADER ───────────────────────────────────────────────── */}
+        {/* ── BREAKING STRIP ──────────────────────────────────────────── */}
+        <div className="border border-zinc-900 bg-zinc-950 mb-6 overflow-hidden">
+          <div className="flex items-center">
+            <div className="shrink-0 font-mono text-[8px] tracking-[0.35em] text-red-400 bg-red-900/20 border-r border-zinc-900 px-3 py-2.5">
+              BREAKING
+            </div>
+            <div className="overflow-hidden flex-1">
+              <div className="animate-marquee flex gap-16 whitespace-nowrap py-2.5 px-4">
+                {BREAKING.concat(BREAKING).map((item, i) => (
+                  <span key={i} className="font-mono text-[9px] tracking-[0.1em] text-zinc-500 shrink-0">
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="shrink-0 font-mono text-[8px] tracking-[0.3em] text-zinc-700 border-l border-zinc-900 px-3 py-2.5">
+              LIVE
+            </div>
+          </div>
+        </div>
+
+        {/* ── PAGE HEADER ─────────────────────────────────────────────── */}
         <section className="border-b border-zinc-900 pb-6 mb-6">
           <div className="font-mono text-[9px] tracking-[0.45em] text-emerald-400 mb-4 flex items-center gap-2">
             <span className="w-1 h-1 bg-emerald-400 animate-pulse" />
-            RSR INTELLIGENCE NETWORK
+            RSR INTELLIGENCE NETWORK // SIGNAL ROOM
           </div>
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <h1 className="text-3xl md:text-5xl font-semibold text-white tracking-tight">
-              SIGNAL ROOM
-            </h1>
-            <div className="flex items-center gap-4 font-mono text-[9px] tracking-[0.3em]">
+            <div>
+              <h1 className="text-3xl md:text-5xl font-semibold text-white tracking-tight leading-none">
+                SIGNAL ROOM
+              </h1>
+              <p className="mt-3 text-zinc-600 text-sm leading-relaxed max-w-xl">
+                Monitored intelligence signal layer. Breaking geopolitical developments, market watch items,
+                energy corridor tracking, and policy signals sourced from active RSR case files and ORION monitoring.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-4 font-mono text-[9px] tracking-[0.3em]">
               <span className="flex items-center gap-2 text-emerald-600">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                CHANNEL ACTIVE
+                FEED ACTIVE
               </span>
               <span className="text-zinc-700">·</span>
-              <span className="text-zinc-600">{activeAnalysts.filter(a => a.status === "ACTIVE").length} ANALYSTS ONLINE</span>
+              <span className="text-red-400">{highCount} HIGH PRIORITY</span>
               <span className="text-zinc-700">·</span>
-              <span className="text-zinc-700">OBSERVATION MODE</span>
+              <span className="text-zinc-600">MARCH 2026 CYCLE</span>
             </div>
           </div>
         </section>
 
-        {/* ── MAIN LAYOUT ───────────────────────────────────────────────── */}
+        {/* ── MARKET STRIP ────────────────────────────────────────────── */}
+        <div className="border border-zinc-900 bg-zinc-950/40 mb-6">
+          <div className="border-b border-zinc-900 px-5 py-2 flex items-center justify-between">
+            <div className="font-mono text-[8px] tracking-[0.4em] text-zinc-600">MARKET WATCH</div>
+            <div className="font-mono text-[8px] tracking-[0.3em] text-zinc-700">INDICATIVE — MONITORING ONLY</div>
+          </div>
+          <div className="grid grid-cols-3 md:grid-cols-6 divide-x divide-zinc-900">
+            {marketWatchItems.map(m => (
+              <div key={m.label} className="px-4 py-3">
+                <div className="font-mono text-[7px] tracking-[0.3em] text-zinc-700 mb-1">{m.label}</div>
+                <div className="font-mono text-[11px] text-white">{m.value}</div>
+                {m.delta && (
+                  <div className={`font-mono text-[8px] tracking-[0.1em] ${
+                    m.direction === "up" ? "text-emerald-500" :
+                    m.direction === "down" ? "text-red-400" : "text-zinc-600"
+                  }`}>{m.delta}</div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── MAIN LAYOUT ─────────────────────────────────────────────── */}
         <div className="grid lg:grid-cols-4 gap-6 items-start">
 
-          {/* Message stream — takes up 3/4 */}
+          {/* Signal feed — 3/4 */}
           <div className="lg:col-span-3 flex flex-col gap-0">
 
-            {/* Active topic bar */}
-            <div className="border border-zinc-900 bg-zinc-950 px-5 py-3 mb-4 flex flex-wrap items-center gap-4 font-mono text-[9px] tracking-[0.3em]">
-              <span className="text-zinc-700">ACTIVE TOPIC:</span>
-              <span className="text-zinc-400">MIDDLE EAST ESCALATION // F-017 MEDIA NETWORK // D-004 CAPITAL FLOWS</span>
-              <span className="ml-auto text-zinc-700">{messages.length} ENTRIES IN CURRENT CYCLE</span>
+            {/* Filter bar */}
+            <div className="border border-zinc-900 bg-zinc-950 px-5 py-3 mb-0 flex flex-wrap items-center gap-4 font-mono text-[9px] tracking-[0.3em]">
+              <span className="text-zinc-700">ACTIVE WATCH:</span>
+              <span className="text-zinc-400">MIDDLE EAST ESCALATION · EU MEDIA NETWORK · ASIA-PAC CAPITAL FLOWS · NORTH AMERICA POLICY</span>
+              <span className="ml-auto text-zinc-700">{signals.length} SIGNALS THIS CYCLE</span>
             </div>
 
-            {/* Messages */}
-            <div className="space-y-0 border border-zinc-900">
-              {messages.map((msg, i) => (
+            {/* Signal entries */}
+            <div className="border border-zinc-900 border-t-0">
+              {signals.map((sig, i) => (
                 <div
-                  key={msg.id}
-                  className={`px-5 py-4 ${i < messages.length - 1 ? "border-b border-zinc-900" : ""} ${
-                    msg.handleType === "system" ? "bg-zinc-950/60" :
-                    msg.redacted ? "bg-red-950/10" : "bg-black"
-                  } hover:bg-zinc-950/80 transition-colors`}
+                  key={sig.id}
+                  className={`px-5 py-5 ${i < signals.length - 1 ? "border-b border-zinc-900" : ""} ${
+                    sig.priority === "HIGH" ? "bg-zinc-950/40" : "bg-black"
+                  } hover:bg-zinc-950/60 transition-colors`}
                 >
                   <div className="flex items-start gap-4">
-
-                    {/* Priority dot */}
-                    <div className="mt-1 shrink-0">
-                      {msg.priority === "HIGH" ? (
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-400/80 animate-pulse block" />
-                      ) : msg.handleType === "system" ? (
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/40 block" />
-                      ) : msg.redacted ? (
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-800 block" />
+                    {/* Priority indicator */}
+                    <div className="mt-1.5 shrink-0">
+                      {sig.priority === "HIGH" ? (
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-400/80 block animate-pulse" />
                       ) : (
-                        <span className="w-1.5 h-1.5 rounded-full bg-zinc-800 block" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-zinc-700 block" />
                       )}
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      {/* Handle row */}
-                      <div className="flex items-center gap-3 mb-2 flex-wrap">
-                        <span className={`font-mono text-[10px] tracking-[0.2em] font-medium ${handleStyle(msg.handleType)}`}>
-                          {msg.handle}
+                      {/* Header row */}
+                      <div className="flex items-center gap-3 mb-2.5 flex-wrap">
+                        <span className={`font-mono text-[7px] tracking-[0.3em] border px-2 py-0.5 ${catColor[sig.category]}`}>
+                          {sig.category}
                         </span>
-                        {msg.system && (
-                          <span className="font-mono text-[8px] tracking-widest text-zinc-700 border border-zinc-900 px-1.5 py-0.5">
-                            {msg.system}
-                          </span>
-                        )}
-                        {msg.priority === "HIGH" && !msg.redacted && (
-                          <span className="font-mono text-[8px] tracking-widest text-red-400/70 border border-red-900/30 px-1.5 py-0.5">
+                        <span className="font-mono text-[8px] tracking-[0.25em] text-zinc-600">
+                          {sig.source}
+                        </span>
+                        <span className="font-mono text-[8px] tracking-widest text-zinc-700">
+                          {sig.region}
+                        </span>
+                        <span className="ml-auto font-mono text-[9px] tracking-widest text-zinc-700">
+                          {formatTime(sig.timestamp)}
+                        </span>
+                        {sig.priority === "HIGH" && (
+                          <span className="font-mono text-[7px] tracking-widest text-red-400/70 border border-red-900/30 px-1.5 py-0.5">
                             PRIORITY
                           </span>
                         )}
-                        <span className="font-mono text-[9px] tracking-widest text-zinc-700 ml-auto">
-                          {formatTimestamp(msg.timestamp)}
-                        </span>
                       </div>
 
-                      {/* Content */}
-                      {msg.redacted ? (
-                        <p className="text-sm text-red-900/80 font-mono tracking-[0.1em] leading-relaxed">
-                          {msg.content}
-                        </p>
-                      ) : (
-                        <p className="text-sm text-zinc-400 leading-relaxed">
-                          {msg.content}
-                        </p>
+                      {/* Headline */}
+                      <div className="font-mono text-[10px] tracking-[0.1em] text-zinc-200 mb-2 font-medium">
+                        {sig.headline}
+                      </div>
+
+                      {/* Summary */}
+                      <p className="text-[11px] text-zinc-500 leading-relaxed mb-3">
+                        {sig.summary}
+                      </p>
+
+                      {/* Ref links */}
+                      {sig.refs && sig.refs.length > 0 && (
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {sig.refs.map(ref => (
+                            <Link
+                              key={ref}
+                              href={ref.startsWith("F") ? `/files/${ref}` : `/dossiers/${ref}`}
+                              className="font-mono text-[8px] tracking-widest text-zinc-700 hover:text-emerald-400 border border-zinc-800 hover:border-emerald-900/40 px-1.5 py-0.5 transition-colors"
+                            >
+                              {ref} →
+                            </Link>
+                          ))}
+                        </div>
                       )}
                     </div>
                   </div>
@@ -225,146 +337,112 @@ export default function SignalRoom() {
               ))}
             </div>
 
-            {/* Observation mode footer */}
+            {/* Footer */}
             <div className="border border-zinc-900 border-t-0 bg-zinc-950 px-5 py-3 flex items-center gap-4">
               <div className="flex-1 font-mono text-[9px] tracking-[0.3em] text-zinc-700">
-                OBSERVATION MODE — INPUT RESTRICTED TO CLEARED ANALYSTS
+                OBSERVATION MODE — SIGNAL ROOM IS A MONITORED PUBLIC INTELLIGENCE LAYER
               </div>
-              <span className="font-mono text-[9px] tracking-widest text-zinc-800">
-                REQUEST ACCESS TO PARTICIPATE →
-              </span>
+              <Link href="/investigation-room">
+                <span className="font-mono text-[9px] tracking-widest text-zinc-700 hover:text-emerald-500 transition-colors cursor-pointer">
+                  INVESTIGATION ROOM →
+                </span>
+              </Link>
             </div>
           </div>
 
-          {/* Sidebar */}
-          <div className="lg:col-span-1 space-y-6 sticky top-6">
+          {/* Sidebar — 1/4 */}
+          <div className="lg:col-span-1 space-y-5 sticky top-6">
 
-            {/* Channel info */}
+            {/* Watch board */}
             <div className="border border-zinc-900 p-5">
-              <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-600 mb-4">CHANNEL INFO</div>
-              <div className="space-y-3 font-mono text-[10px] tracking-widest">
-                <div>
-                  <div className="text-zinc-700 mb-1">DESIGNATION</div>
-                  <div className="text-zinc-400">SIGNAL ROOM // ALPHA</div>
-                </div>
-                <div>
-                  <div className="text-zinc-700 mb-1">ACCESS TIER</div>
-                  <div className="text-zinc-400">MONITORED / PUBLIC OBSERVATION</div>
-                </div>
-                <div>
-                  <div className="text-zinc-700 mb-1">CYCLE</div>
-                  <div className="text-zinc-400">CONTINUOUS</div>
-                </div>
-                <div>
-                  <div className="text-zinc-700 mb-1">RETENTION</div>
-                  <div className="text-zinc-400">72H ROLLING ARCHIVE</div>
-                </div>
-              </div>
-              <div className="mt-5 pt-4 border-t border-zinc-900 text-[11px] text-zinc-600 leading-relaxed">
-                This channel is monitored. Analysis discussions reference active RSR case files
-                and ATLAS entity records. Restricted content is redacted for public observation.
-              </div>
-            </div>
-
-            {/* Active analysts */}
-            <div className="border border-zinc-900 p-5">
-              <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-600 mb-4">ACTIVE ANALYSTS</div>
-              <div className="space-y-2">
-                {activeAnalysts.map(a => (
-                  <div key={a.handle} className="flex items-center justify-between font-mono text-[10px]">
-                    <div className="flex items-center gap-2">
-                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                        a.status === "ACTIVE" ? "bg-emerald-500" :
-                        a.status === "SYSTEM" ? "bg-emerald-400/40 animate-pulse" :
-                        "bg-zinc-700"
-                      }`} />
-                      <span className={`tracking-[0.15em] ${
-                        a.status === "ACTIVE" ? "text-zinc-400" :
-                        a.status === "SYSTEM" ? "text-emerald-600" :
-                        "text-zinc-700"
-                      }`}>{a.handle}</span>
+              <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-600 mb-4">CURRENT WATCH</div>
+              <div className="space-y-2.5">
+                {watchItems.map(w => (
+                  <div key={w.label} className="flex items-start justify-between gap-3 border-b border-zinc-900/50 pb-2.5 last:border-0 last:pb-0">
+                    <div>
+                      <div className="font-mono text-[8px] tracking-[0.15em] text-zinc-400">{w.label}</div>
+                      <div className="font-mono text-[8px] tracking-[0.2em] text-zinc-600 mt-0.5">{w.status}</div>
                     </div>
-                    <span className="text-zinc-700 tracking-widest text-[8px]">{a.status}</span>
+                    <span className={`font-mono text-[7px] tracking-[0.25em] border px-1.5 py-0.5 shrink-0 ${
+                      w.level === "HIGH" ? "text-red-400 border-red-500/20" : "text-zinc-600 border-zinc-800"
+                    }`}>
+                      {w.level}
+                    </span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Linked resources */}
+            {/* Regional postures */}
             <div className="border border-zinc-900 p-5">
-              <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-600 mb-4">REFERENCED IN THIS CYCLE</div>
+              <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-600 mb-4">REGIONAL POSTURES</div>
+              <div className="space-y-2">
+                {[
+                  { region: "Middle East", posture: "CRITICAL", signals: 27 },
+                  { region: "North America", posture: "ELEVATED", signals: 22 },
+                  { region: "Eastern Europe", posture: "ELEVATED", signals: 16 },
+                  { region: "Asia-Pacific", posture: "ELEVATED", signals: 19 },
+                  { region: "European Union", posture: "STABLE", signals: 14 },
+                  { region: "Africa", posture: "STABLE", signals: 8 },
+                ].map(r => (
+                  <div key={r.region} className="flex items-center justify-between font-mono text-[9px]">
+                    <span className="text-zinc-500 tracking-[0.1em]">{r.region}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-zinc-700 text-[8px]">{r.signals}</span>
+                      <span className={`text-[7px] tracking-[0.2em] ${
+                        r.posture === "CRITICAL" ? "text-red-400" :
+                        r.posture === "ELEVATED" ? "text-amber-400" : "text-zinc-600"
+                      }`}>{r.posture}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 pt-4 border-t border-zinc-900">
+                <Link href="/world" className="font-mono text-[8px] tracking-[0.25em] text-zinc-600 hover:text-emerald-500 transition-colors">
+                  → WORLD MONITOR
+                </Link>
+              </div>
+            </div>
+
+            {/* Referenced records */}
+            <div className="border border-zinc-900 p-5">
+              <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-600 mb-4">REFERENCED THIS CYCLE</div>
               <div className="space-y-1.5">
-                {["F-001", "F-003", "F-006", "F-009", "F-010", "F-014", "F-016", "F-017", "F-019"].map(ref => (
-                  <Link
-                    key={ref}
-                    href={`/files/${ref}`}
-                    className="flex items-center gap-2 group"
-                  >
+                {["F-001", "F-003", "F-006", "F-009", "F-010", "F-016", "F-017", "F-019"].map(ref => (
+                  <Link key={ref} href={`/files/${ref}`} className="flex items-center gap-2 group">
                     <span className="font-mono text-[9px] tracking-widest text-zinc-700 group-hover:text-emerald-500 transition-colors">{ref}</span>
-                    <span className="font-mono text-[8px] tracking-widest text-zinc-800 group-hover:text-zinc-600 transition-colors">→ FILE</span>
+                    <span className="font-mono text-[8px] text-zinc-800 group-hover:text-zinc-600">→ FILE</span>
                   </Link>
                 ))}
-                {["D-004", "D-007", "D-010"].map(ref => (
-                  <Link
-                    key={ref}
-                    href={`/dossiers/${ref}`}
-                    className="flex items-center gap-2 group"
-                  >
+                {["D-001", "D-004", "D-007", "D-010", "D-013"].map(ref => (
+                  <Link key={ref} href={`/dossiers/${ref}`} className="flex items-center gap-2 group">
                     <span className="font-mono text-[9px] tracking-widest text-zinc-700 group-hover:text-emerald-500 transition-colors">{ref}</span>
-                    <span className="font-mono text-[8px] tracking-widest text-zinc-800 group-hover:text-zinc-600 transition-colors">→ DOSSIER</span>
+                    <span className="font-mono text-[8px] text-zinc-800 group-hover:text-zinc-600">→ DOSSIER</span>
                   </Link>
                 ))}
               </div>
             </div>
 
-            {/* Cross-navigation */}
+            {/* Inner layer navigation */}
             <div className="border border-zinc-900 p-5">
               <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-600 mb-4">INNER LAYER</div>
               <div className="space-y-2">
-                <Link
-                  href="/investigation-room"
-                  className="flex items-center justify-between group"
-                >
-                  <span className="font-mono text-[10px] tracking-widest text-zinc-600 group-hover:text-zinc-300 transition-colors">INVESTIGATION ROOM</span>
-                  <span className="font-mono text-[8px] text-zinc-800 group-hover:text-emerald-600 transition-colors">→</span>
-                </Link>
-                <Link
-                  href="/dossiers"
-                  className="flex items-center justify-between group"
-                >
-                  <span className="font-mono text-[10px] tracking-widest text-zinc-600 group-hover:text-zinc-300 transition-colors">ENTITY DOSSIERS</span>
-                  <span className="font-mono text-[8px] text-zinc-800 group-hover:text-emerald-600 transition-colors">→</span>
-                </Link>
-                <Link
-                  href="/world"
-                  className="flex items-center justify-between group"
-                >
-                  <span className="font-mono text-[10px] tracking-widest text-zinc-600 group-hover:text-zinc-300 transition-colors">WORLD MONITOR</span>
-                  <span className="font-mono text-[8px] text-zinc-800 group-hover:text-emerald-600 transition-colors">→</span>
-                </Link>
-              </div>
-            </div>
-
-            {/* SAGE Terminal teaser */}
-            <div className="border border-zinc-900 bg-zinc-950/30 p-5">
-              <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-800 mb-3 flex items-center gap-2">
-                <span className="w-1 h-1 bg-zinc-800" />
-                SAGE TERMINAL
-              </div>
-              <div className="font-mono text-[9px] tracking-widest text-zinc-800 mb-3 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-zinc-800 animate-pulse" />
-                COMING ONLINE...
-              </div>
-              <div className="border border-zinc-900 bg-black px-3 py-2.5">
-                <span className="font-mono text-[9px] tracking-widest text-zinc-800 italic">
-                  Query interface initializing. SAGE will provide rapid brief synthesis, fact verification, and signal summarization.
-                </span>
+                {[
+                  { label: "INVESTIGATION ROOM", href: "/investigation-room" },
+                  { label: "ENTITY DOSSIERS", href: "/dossiers" },
+                  { label: "WORLD MONITOR", href: "/world" },
+                  { label: "ACTIVE FILES", href: "/files" },
+                ].map(l => (
+                  <Link key={l.href} href={l.href} className="flex items-center justify-between group">
+                    <span className="font-mono text-[10px] tracking-widest text-zinc-600 group-hover:text-zinc-300 transition-colors">{l.label}</span>
+                    <span className="font-mono text-[8px] text-zinc-800 group-hover:text-emerald-600 transition-colors">→</span>
+                  </Link>
+                ))}
               </div>
             </div>
 
           </div>
         </div>
-
       </div>
     </Layout>
   );

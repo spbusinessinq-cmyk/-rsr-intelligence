@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   handle TEXT NOT NULL,
   role TEXT NOT NULL DEFAULT 'member',
   approval_status TEXT NOT NULL DEFAULT 'pending',
+  account_status TEXT NOT NULL DEFAULT 'active',
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
