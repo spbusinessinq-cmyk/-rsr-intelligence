@@ -1,7 +1,16 @@
 import { useState, useEffect } from "react";
+import { Link } from "wouter";
 import Layout from "@/components/Layout";
 import SignalFeed from "@/components/SignalFeed";
 import { regions, feedItems, type RegionPosture } from "@/data/mockData";
+
+const regionLinks: Record<string, { files: string[]; dossiers: string[]; system: string }> = {
+  "Middle East":    { files: ["F-016", "F-018"], dossiers: ["D-009"],        system: "white-wing" },
+  "Eastern Europe": { files: ["F-010", "F-017"], dossiers: ["D-006", "D-013"], system: "orion" },
+  "North America":  { files: ["F-001", "F-009"], dossiers: ["D-001", "D-007"], system: "atlas" },
+  "European Union": { files: ["F-003", "F-007"], dossiers: ["D-002", "D-008"], system: "atlas" },
+  "Asia-Pacific":   { files: ["F-006", "F-013"], dossiers: ["D-004", "D-011"], system: "atlas" },
+};
 
 function postureColor(posture: RegionPosture): string {
   if (posture === "CRITICAL") return "text-red-400 border-red-500/20 bg-red-500/5";
@@ -133,6 +142,35 @@ export default function World() {
                   <div className="mt-4 font-mono text-[8px] tracking-widest opacity-40">
                     UPDATED {formatLastUpdated(region.lastUpdated)}
                   </div>
+
+                  {/* Cross-links */}
+                  {regionLinks[region.region] && (
+                    <div className="mt-4 pt-3 border-t border-current/10">
+                      <div className="font-mono text-[8px] tracking-[0.2em] opacity-40 mb-2">RELATED RECORDS</div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {regionLinks[region.region].files.map(id => (
+                          <Link
+                            key={id}
+                            href={`/files/${id}`}
+                            className="font-mono text-[8px] tracking-widest bg-black/60 px-2 py-1 border border-current/15 hover:border-current/40 transition-colors"
+                            onClick={e => e.stopPropagation()}
+                          >
+                            {id}
+                          </Link>
+                        ))}
+                        {regionLinks[region.region].dossiers.map(id => (
+                          <Link
+                            key={id}
+                            href={`/dossiers/${id}`}
+                            className="font-mono text-[8px] tracking-widest bg-black/60 px-2 py-1 border border-current/15 hover:border-current/40 transition-colors opacity-70"
+                            onClick={e => e.stopPropagation()}
+                          >
+                            {id}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

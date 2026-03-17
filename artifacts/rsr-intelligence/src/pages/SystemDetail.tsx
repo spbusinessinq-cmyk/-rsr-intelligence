@@ -175,6 +175,57 @@ export default function SystemDetail({ params }: SystemDetailProps) {
           </div>
         </section>
 
+        {/* ── RELATED INTELLIGENCE ──────────────────────────────────────── */}
+        {(system.relatedFiles.length > 0 || system.relatedDossiers.length > 0) && (
+          <section>
+            <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-700 mb-5 border-b border-zinc-900 pb-3">
+              RELATED INTELLIGENCE
+            </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              {system.relatedFiles.length > 0 && (
+                <div>
+                  <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-700 mb-3 flex items-center gap-2">
+                    <span className="w-1 h-1 bg-zinc-700" />
+                    ACTIVE FILES
+                  </div>
+                  <div className="space-y-2">
+                    {system.relatedFiles.map(id => (
+                      <Link
+                        key={id}
+                        href={`/files/${id}`}
+                        className="flex items-center justify-between group border border-zinc-900 bg-zinc-950/40 px-4 py-3 hover:border-zinc-700 transition-colors"
+                      >
+                        <span className="font-mono text-[10px] tracking-widest text-zinc-500 group-hover:text-zinc-300 transition-colors">{id}</span>
+                        <span className="font-mono text-[8px] tracking-widest text-zinc-800 group-hover:text-emerald-500 transition-colors">FILE →</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {system.relatedDossiers.length > 0 && (
+                <div>
+                  <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-700 mb-3 flex items-center gap-2">
+                    <span className="w-1 h-1 bg-zinc-700" />
+                    LINKED ENTITIES
+                  </div>
+                  <div className="space-y-2">
+                    {system.relatedDossiers.map(id => (
+                      <Link
+                        key={id}
+                        href={`/dossiers/${id}`}
+                        className="flex items-center justify-between group border border-zinc-900 bg-zinc-950/40 px-4 py-3 hover:border-zinc-700 transition-colors"
+                      >
+                        <span className="font-mono text-[10px] tracking-widest text-zinc-500 group-hover:text-zinc-300 transition-colors">{id}</span>
+                        <span className="font-mono text-[8px] tracking-widest text-zinc-800 group-hover:text-emerald-500 transition-colors">DOSSIER →</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
         {/* ── INTERFACE PREVIEW STRIP ───────────────────────────────────── */}
         <section>
           <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-700 mb-4">INTERFACE LAYER</div>

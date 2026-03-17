@@ -311,6 +311,28 @@ export default function InvestigationRoom() {
               </div>
             </div>
 
+            {/* SAGE Terminal placeholder */}
+            <div className="border border-zinc-900 bg-zinc-950/20 p-5">
+              <div className="flex items-center justify-between mb-3">
+                <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-800">SAGE TERMINAL</div>
+                <span className="font-mono text-[8px] tracking-widest text-zinc-800 flex items-center gap-1.5">
+                  <span className="w-1 h-1 rounded-full bg-zinc-800 animate-pulse" />
+                  INITIALIZING
+                </span>
+              </div>
+              <div className="border border-zinc-900 bg-black p-3 mb-3">
+                <div className="font-mono text-[9px] text-zinc-800 space-y-1">
+                  <div>&gt; SAGE // QUERY INTERFACE</div>
+                  <div>&gt; STATUS: COMING ONLINE...</div>
+                  <div>&gt; ─────────────────────────</div>
+                  <div className="animate-pulse">&gt; Awaiting authorization.</div>
+                </div>
+              </div>
+              <p className="font-mono text-[9px] tracking-widest text-zinc-800 leading-relaxed">
+                Rapid brief synthesis, signal summarization, and fact verification. Next cycle.
+              </p>
+            </div>
+
           </div>
         </div>
 

@@ -37,6 +37,8 @@ export interface SystemDetailData {
   missionApplications: MissionApplication[];
   operationalStats: OperationalStat[]; // mock command panel data
   relatedSystems: string[];            // system slugs
+  relatedFiles: string[];              // file IDs e.g. "F-001"
+  relatedDossiers: string[];           // dossier IDs e.g. "D-001"
 }
 
 // ─── Slug helper ──────────────────────────────────────────────────────────────
@@ -90,6 +92,8 @@ const systemDetails: Record<string, SystemDetailData> = {
       { label: "DISTRIBUTION",    value: "TIER-2 CLEARED",  color: "text-amber-400" },
     ],
     relatedSystems: ["atlas", "orion", "black-dog"],
+    relatedFiles: ["F-001", "F-006", "F-009", "F-017"],
+    relatedDossiers: ["D-001", "D-004"],
   },
 
   atlas: {
@@ -130,6 +134,8 @@ const systemDetails: Record<string, SystemDetailData> = {
       { label: "CONFIDENCE MODE",  value: "CORROBORATED",      color: "text-emerald-400" },
     ],
     relatedSystems: ["axion", "black-dog"],
+    relatedFiles: ["F-003", "F-012", "F-019", "F-020"],
+    relatedDossiers: ["D-002", "D-006", "D-007", "D-014"],
   },
 
   orion: {
@@ -171,6 +177,8 @@ const systemDetails: Record<string, SystemDetailData> = {
       { label: "FEED CYCLE",         value: "CONTINUOUS",     color: "text-emerald-400" },
     ],
     relatedSystems: ["axion", "white-wing"],
+    relatedFiles: ["F-010", "F-014", "F-017"],
+    relatedDossiers: ["D-006", "D-013"],
   },
 
   "black-dog": {
@@ -211,6 +219,8 @@ const systemDetails: Record<string, SystemDetailData> = {
       { label: "REVIEW CYCLE",       value: "CONTINUOUS",       color: "text-emerald-400" },
     ],
     relatedSystems: ["axion", "atlas"],
+    relatedFiles: ["F-001", "F-016", "F-018"],
+    relatedDossiers: ["D-003", "D-004", "D-009"],
   },
 
   "white-wing": {
@@ -251,6 +261,8 @@ const systemDetails: Record<string, SystemDetailData> = {
       { label: "REVIEW CYCLE",       value: "CONTINUOUS",       color: "text-emerald-400" },
     ],
     relatedSystems: ["orion", "axion"],
+    relatedFiles: ["F-010", "F-013"],
+    relatedDossiers: ["D-007", "D-011"],
   },
 
 };

@@ -1,0 +1,434 @@
+Final expansion + inner-layer platform pass.
+
+Do NOT redesign the site from scratch.
+Do NOT weaken the homepage.
+Do NOT change the established visual identity.
+
+Refine, expand, and connect the current build only.
+
+MAIN GOAL
+Take the current RSR Intelligence Network build from a strong public-facing environment into a richer, more explorable platform with:
+- clickable drill-down records
+- deeper file and dossier navigation
+- a real inner-layer access flow
+- Signal Room
+- Investigation Room
+- strong cross-linking across the ecosystem
+- optional groundwork for a future Sage Terminal / quick brief layer
+
+PRESERVE
+- black base
+- restrained emerald accents
+- thin borders
+- premium command-interface feel
+- monospace micro-labels
+- large clean headlines
+- serious intelligence-network tone
+
+CRITICAL RULES
+- No gimmicky cyberpunk effects
+- No full-screen blinking
+- No green wash overlays
+- No fake AI automation claims
+- No flattening homepage into another systems page
+- No generic social/chat app styling
+- No Discord clone
+- Keep everything disciplined, premium, tactical, and coherent
+
+==================================================
+1. HOMEPAGE — PRESERVE + LIGHT REFINEMENT ONLY
+==================================================
+
+The homepage is already strong. Keep it.
+
+Maintain:
+- the hero statement
+- the front-door / arrival feeling
+- the homepage hierarchy
+- systems preview
+- live signal feed preview
+- network status
+- access node
+
+Do not flatten it into another internal page.
+
+Refine only if needed:
+- keep the hero seal/logo intentionally paired with the hero copy
+- preserve its subtle reveal behavior if already working
+- keep the logo aligned visually with the “Mapping power / Tracking systems / Exposing reality” composition
+- preserve the homepage-to-systems distinction
+
+Homepage should still feel like:
+arrival / identity / invitation to explore
+
+==================================================
+2. SYSTEMS PAGE — KEEP AS DEEPER COMMAND LAYER
+==================================================
+
+Preserve the Systems page as the deeper threshold into the RSR OS.
+
+Do not make it feel like the homepage.
+Keep it more tactical, modular, and command-layer oriented.
+
+Ensure system cards remain strong entry points into:
+- system detail pages
+- related files
+- related dossiers
+- related world layer where appropriate
+
+==================================================
+3. FILE DETAIL PAGES — FULL CASE FILES
+==================================================
+
+Ensure every file record opens into a real detail page.
+
+If not already complete, implement or refine routes such as:
+- /files/:id
+
+Each file detail page should feel like opening a serious intelligence case file.
+
+Required content:
+- file ID
+- title
+- status
+- classification
+- category
+- region
+- last updated
+- systems involved
+- summary / overview
+- 3–5 key findings
+- analyst observation or assessment
+- linked entities / linked dossiers
+- related files
+- optional related world / signal references where appropriate
+
+Tone:
+- structured
+- factual
+- serious
+- believable
+- not bloggy
+- not startup-like
+
+==================================================
+4. DOSSIER DETAIL PAGES — FULL ENTITY RECORDS
+==================================================
+
+Ensure every dossier/entity opens into a real detail page.
+
+If not already complete, implement or refine routes such as:
+- /dossiers/:id
+
+Each dossier detail page should feel like opening the ATLAS layer for that entity.
+
+Required content:
+- entity/dossier ID
+- entity name
+- type
+- status
+- classification
+- region
+- network / role
+- analyst notes
+- current activity summary
+- linked files
+- linked systems
+- connected entities / related nodes
+- posture / relevance summary
+- last updated if useful
+
+Goal:
+The dossier pages should feel rich, navigable, and meaningfully linked.
+
+==================================================
+5. CROSS-LINK EVERYTHING
+==================================================
+
+This is one of the most important priorities.
+
+Make the site feel like one connected environment.
+
+Examples:
+- Files should link to related Dossiers
+- Dossiers should link to related Files
+- Files and Dossiers should reference relevant Systems
+- World signals should reference relevant Systems or Files where appropriate
+- System detail pages should point toward related Files / Dossiers / World sections
+- Investigation Room threads should link inline to Files and Dossiers
+- Signal Room should feel connected to systems and signal records
+
+Do this tastefully and consistently.
+
+==================================================
+6. ACCESS NODE EVOLUTION
+==================================================
+
+Replace generic access behavior with a coherent inner-layer gateway.
+
+The homepage Access Node should use:
+- REQUEST BRIEFING
+- ENTER SIGNAL ROOM
+- INVESTIGATION ROOM
+
+All buttons must route somewhere real and useful.
+
+Definitions:
+- REQUEST BRIEFING = serious inquiry / partner / media / institutional / analyst route
+- ENTER SIGNAL ROOM = monitored live analysis / observation layer
+- INVESTIGATION ROOM = deeper collaboration / case-building environment
+
+Do not leave any dead buttons.
+Do not create fake login walls unless they route meaningfully.
+
+If auth is not implemented yet, it is acceptable to keep these as meaningful public or preview routes, as long as they go somewhere real.
+
+==================================================
+7. SIGNAL ROOM — CONTROLLED LIVE ANALYSIS LAYER
+==================================================
+
+Create or refine:
+- /signal-room
+
+This should NOT feel like a generic chat app.
+
+It should feel like:
+- a monitored analysis channel
+- public-facing or semi-public observation layer
+- system alerts + analyst interpretation
+- tactical, controlled, premium
+
+Keep / refine:
+- room title
+- active topic banner
+- message stream
+- timestamps
+- user handles / analyst labels / system labels
+- side panel with channel info / active analysts / room notes / referenced records if useful
+
+Signal Room should be:
+- observation-oriented
+- alert-oriented
+- “live feed” oriented
+
+Do not make it casual.
+
+==================================================
+8. INVESTIGATION ROOM — INNER TEAM WORKSPACE
+==================================================
+
+Create or refine:
+- /investigation-room
+
+This is NOT a generic chat room.
+This is a case-building workspace for trusted collaborators.
+
+It should feel like:
+- a private case collaboration environment
+- tactical
+- structured
+- evidence-chain oriented
+- premium
+- consistent with the RSR world
+
+Required concepts:
+A. Header / room identity
+- room name
+- current cycle / case cycle
+- restricted/team note
+
+B. Case threads / discussion stream
+- thread cards or message-style entries
+- timestamps
+- analyst handles / role labels
+- inline links to files and dossiers
+
+C. Workspace logic
+Use statuses such as:
+- NEW
+- REVIEW
+- BUILDING
+- MONITORING
+- READY
+
+D. Side panel
+- room status
+- active cases
+- analyst roster
+- room objective
+- referenced files / dossiers if useful
+
+Important:
+This should feel like a structured investigation workspace, not social chat.
+
+==================================================
+9. OPTIONAL FUN INNER-LAYER TERMINAL FEEL
+==================================================
+
+If tasteful and consistent, add subtle terminal-style inner-layer features to the Signal Room or Investigation Room:
+
+Allowed ideas:
+- room/channel list
+- active topic strip
+- quiet news scroll
+- subtle market/stock ticker strip
+- terminal-style labels and thread styling
+
+But:
+- keep it minimal
+- keep it premium
+- no arcade / fallout parody energy
+- no visual clutter
+- no novelty over function
+
+If added, these should support immersion and hangout value for the inner circle without breaking credibility.
+
+==================================================
+10. FILES PAGE — FINAL DENSITY + FILTER SUPPORT
+==================================================
+
+Files page should now feel dense and worth exploring.
+
+Ensure:
+- enough records across all categories/statuses
+- filters feel meaningful
+- content feels cohesive
+- entries sound specific and intelligence-like
+- titles, summaries, classifications, tags, and regions all feel grounded
+
+Categories can include:
+- corruption
+- influence
+- contractors
+- procurement
+- governance
+- budgets
+- policy
+- monitoring
+
+Statuses:
+- ACTIVE
+- MONITORING
+- CLOSED
+
+Use subtle labels like:
+- SAMPLE FILE
+- DEMO RECORD
+only where helpful and tasteful.
+
+==================================================
+11. DOSSIERS PAGE — FINAL DENSITY + NETWORK FEEL
+==================================================
+
+Dossiers page should now feel like the ATLAS layer is truly populated.
+
+Ensure there is a strong range of entities:
+- contractor groups
+- advisory bodies
+- nonprofits / NGOs
+- media / influence entities
+- funding vehicles
+- programs
+- regional actors
+- financial nodes
+
+The page should feel like a navigable entity catalog with real depth.
+
+Use subtle labels like:
+- EXAMPLE ENTITY
+- DEMO RECORD
+only where helpful and tasteful.
+
+==================================================
+12. WORLD PAGE — FINAL DENSITY + SPECIFICITY
+==================================================
+
+Keep the World page layout strong.
+
+Improve:
+- signal specificity
+- region posture variation
+- lane density
+- activity descriptions
+- cross-links to related systems/files if useful
+
+Signals should sound intelligence-like and specific.
+Use themes such as:
+- procurement watch
+- energy posture
+- influence channels
+- contractor routing
+- policy movement
+- regional escalation indicators
+- infrastructure watch
+
+Do NOT pretend it is a live battlefield engine if it is not.
+
+==================================================
+13. SYSTEM DETAIL PAGES — FINAL DEPTH PASS
+==================================================
+
+Refine all system detail pages so they feel complete and serious:
+- AXION
+- ATLAS
+- ORION
+- BLACK DOG
+- WHITE WING
+
+Each should clearly show:
+- what the system is
+- what it does
+- why it exists
+- how it fits into the RSR network
+- why it matters
+
+Include or refine:
+- overview
+- capabilities
+- mission applications
+- operational preview / command panel
+- related files / dossiers / world links
+
+They should feel like public infrastructure briefings.
+
+==================================================
+14. PREP THE GROUND FOR SAGE TERMINAL (BUT DO NOT OVERBUILD IT YET)
+==================================================
+
+Do not fully implement a complex AI assistant in this pass unless it is easy and clean.
+
+But do prepare the structure for a future:
+- SAGE TERMINAL
+- FACT CHECK
+- QUICK BRIEF / SITREP
+
+This can be as simple as:
+- room space reserved for future query panel
+- placeholder architecture hooks
+- clear routing possibility
+- a small “coming online” or “query terminal” panel if tasteful
+
+The actual full Sage Terminal can be the next major pass.
+
+==================================================
+15. IMPLEMENTATION DELIVERABLES
+==================================================
+
+Please do all of the following:
+1. Explain the routing for Files, Dossiers, Signal Room, and Investigation Room
+2. Explain how Access Node now works
+3. Explain the difference between Signal Room and Investigation Room
+4. Explain how Files, Dossiers, and World were further connected
+5. Explain how the homepage and systems page distinction was preserved
+6. Implement or refine file detail pages and dossier detail pages
+7. Implement or refine the Investigation Room
+8. Implement or refine the Signal Room
+9. Add strong cross-links between records and layers
+10. Preserve the current visual language and page hierarchy
+
+FINAL GUARDRAILS
+- Preserve homepage identity first
+- Preserve premium black + emerald command aesthetic second
+- Preserve clean structure third
+- Do not overwrite strong working sections
+- Complete, connect, and deepen them

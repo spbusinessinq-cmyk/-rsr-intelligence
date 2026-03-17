@@ -297,7 +297,7 @@ export default function SignalRoom() {
                 {["F-001", "F-003", "F-006", "F-009", "F-010", "F-014", "F-016", "F-017", "F-019"].map(ref => (
                   <Link
                     key={ref}
-                    href="/files"
+                    href={`/files/${ref}`}
                     className="flex items-center gap-2 group"
                   >
                     <span className="font-mono text-[9px] tracking-widest text-zinc-700 group-hover:text-emerald-500 transition-colors">{ref}</span>
@@ -307,13 +307,58 @@ export default function SignalRoom() {
                 {["D-004", "D-007", "D-010"].map(ref => (
                   <Link
                     key={ref}
-                    href="/dossiers"
+                    href={`/dossiers/${ref}`}
                     className="flex items-center gap-2 group"
                   >
                     <span className="font-mono text-[9px] tracking-widest text-zinc-700 group-hover:text-emerald-500 transition-colors">{ref}</span>
                     <span className="font-mono text-[8px] tracking-widest text-zinc-800 group-hover:text-zinc-600 transition-colors">→ DOSSIER</span>
                   </Link>
                 ))}
+              </div>
+            </div>
+
+            {/* Cross-navigation */}
+            <div className="border border-zinc-900 p-5">
+              <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-600 mb-4">INNER LAYER</div>
+              <div className="space-y-2">
+                <Link
+                  href="/investigation-room"
+                  className="flex items-center justify-between group"
+                >
+                  <span className="font-mono text-[10px] tracking-widest text-zinc-600 group-hover:text-zinc-300 transition-colors">INVESTIGATION ROOM</span>
+                  <span className="font-mono text-[8px] text-zinc-800 group-hover:text-emerald-600 transition-colors">→</span>
+                </Link>
+                <Link
+                  href="/dossiers"
+                  className="flex items-center justify-between group"
+                >
+                  <span className="font-mono text-[10px] tracking-widest text-zinc-600 group-hover:text-zinc-300 transition-colors">ENTITY DOSSIERS</span>
+                  <span className="font-mono text-[8px] text-zinc-800 group-hover:text-emerald-600 transition-colors">→</span>
+                </Link>
+                <Link
+                  href="/world"
+                  className="flex items-center justify-between group"
+                >
+                  <span className="font-mono text-[10px] tracking-widest text-zinc-600 group-hover:text-zinc-300 transition-colors">WORLD MONITOR</span>
+                  <span className="font-mono text-[8px] text-zinc-800 group-hover:text-emerald-600 transition-colors">→</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* SAGE Terminal teaser */}
+            <div className="border border-zinc-900 bg-zinc-950/30 p-5">
+              <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-800 mb-3 flex items-center gap-2">
+                <span className="w-1 h-1 bg-zinc-800" />
+                SAGE TERMINAL
+              </div>
+              <div className="font-mono text-[9px] tracking-widest text-zinc-800 mb-3 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-zinc-800 animate-pulse" />
+                COMING ONLINE...
+              </div>
+              <div className="border border-zinc-900 bg-black px-3 py-2.5">
+                <span className="font-mono text-[9px] tracking-widest text-zinc-800 italic">
+                  Query interface initializing. SAGE will provide rapid brief synthesis, fact verification, and signal summarization.
+                </span>
               </div>
             </div>
 
