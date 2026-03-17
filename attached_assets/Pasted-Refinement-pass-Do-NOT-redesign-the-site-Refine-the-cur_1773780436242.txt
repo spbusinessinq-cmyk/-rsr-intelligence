@@ -1,0 +1,87 @@
+Refinement pass.
+
+Do NOT redesign the site.
+Refine the current build only.
+
+Main goal:
+Make the site feel more alive and more real, without fake or misleading “intelligence” automation.
+
+CRITICAL CORRECTION — HEADER LOGO
+The previous direction about a circular logo container was wrong.
+Do NOT use any circle, badge, border, glow ring, or background shape behind the logo.
+
+Correct logo requirements:
+- render the logo as a standalone image only
+- no circular container
+- no green badge
+- no border
+- no glow treatment
+- make the logo larger and clearly visible in the header
+- keep it sharp, centered, unclipped, and with correct aspect ratio
+- reduce dead space around it
+- the logo should feel like a dominant brand mark, not an icon inside a UI element
+
+Recommended implementation:
+- use only an img element for the logo
+- increase logo height to a strong visible size
+- keep the header text block next to it
+- tighten spacing between logo and text slightly
+
+LIVE + ACCURATE LAYER
+Add lightweight real-time behavior where appropriate:
+- live UTC clock in header or world page
+- “last updated” timestamps
+- rotating or scrolling signal ticker
+- system counters that come from structured mock data now but can be dynamic later
+- subtle status dots for LIVE / ACTIVE items
+
+DATA STRUCTURE FOR FUTURE ACCURACY
+Refactor content so Files, Dossiers, World signals, and feed entries all come from structured data arrays or JSON-like objects.
+I want the app ready to connect to a real backend later.
+
+This means:
+- central mock data source(s)
+- typed/structured objects if helpful
+- reusable rendering components
+- easy future replacement with API data
+
+DOSSIERS / FILES POSITIONING
+For now, dossiers and files may be example showcase records.
+That is acceptable.
+
+Label them tastefully where appropriate with:
+- DEMO RECORD
+- SAMPLE FILE
+- EXAMPLE ENTITY
+
+Do not overdo these labels.
+They should feel subtle and professional.
+
+KEEP IT PREMIUM
+Do NOT add:
+- fake dashboards
+- blinking backgrounds
+- green wash overlays
+- heavy glitch effects
+- gimmicky cyberpunk animations
+
+Allowed:
+- subtle motion only
+- restrained hover behavior
+- small status pulses
+- soft page/panel reveal transitions
+- controlled signal/ticker movement
+
+IMPLEMENTATION GOAL
+Make the site feel like:
+- a real intelligence network front-end
+- live where appropriate
+- manually controlled where needed
+- structured for future backend integration
+
+SPECIFIC DELIVERABLES
+1. explain what parts are being made live-ready
+2. explain how the data is being structured
+3. implement the corrected header logo treatment with NO container behind it
+4. implement subtle live behaviors
+5. preserve the current visual identity and page architecture
