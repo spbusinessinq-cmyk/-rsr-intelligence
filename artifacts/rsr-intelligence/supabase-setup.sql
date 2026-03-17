@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT NOT NULL,
   handle TEXT NOT NULL,
-  role TEXT NOT NULL DEFAULT 'ANALYST',
+  role TEXT NOT NULL DEFAULT 'member',
+  approval_status TEXT NOT NULL DEFAULT 'pending',
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -67,6 +68,14 @@ CREATE POLICY "Users manage own profile"
   ON profiles FOR ALL TO authenticated
   USING (auth.uid() = id);
 
+-- Admins can update any profile (required for Command Console)
+DROP POLICY IF EXISTS "Admins can update any profile" ON profiles;
+CREATE POLICY "Admins can update any profile"
+  ON profiles FOR UPDATE TO authenticated
+  USING (
+    (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
+  );
+
 -- Channels: authenticated users can read
 DROP POLICY IF EXISTS "Anyone can read channels" ON room_channels;
 CREATE POLICY "Anyone can read channels"
@@ -76,3 +85,17 @@ CREATE POLICY "Anyone can read channels"
 -- In Supabase Dashboard: Database → Replication → enable supabase_realtime for room_messages
 -- Or run:
 ALTER PUBLICATION supabase_realtime ADD TABLE room_messages;
+
+
+-- ============================================================
+-- MIGRATION: Approval Workflow (run if profiles table exists)
+-- ============================================================
+
+-- Add approval_status column if upgrading from earlier schema
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS approval_status TEXT NOT NULL DEFAULT 'pending';
+
+-- Approve the test analyst account
+UPDATE profiles SET approval_status = 'approved' WHERE handle = 'TEST-ANALYST';
+
+-- To grant yourself admin access after registering, run:
+-- UPDATE profiles SET role = 'admin', approval_status = 'approved' WHERE email = 'your@email.com';

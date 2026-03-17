@@ -13,6 +13,7 @@ import SignalRoom from "@/pages/SignalRoom";
 import InvestigationRoom from "@/pages/InvestigationRoom";
 import Access from "@/pages/Access";
 import Briefing from "@/pages/Briefing";
+import Command from "@/pages/Command";
 
 function Router() {
   return (
@@ -28,6 +29,9 @@ function Router() {
       <Route path="/signal-room"             component={SignalRoom} />
       <Route path="/investigation-room">
         {() => <ProtectedRoute component={InvestigationRoom} />}
+      </Route>
+      <Route path="/command">
+        {() => <ProtectedRoute component={Command} adminOnly />}
       </Route>
       <Route path="/access"                  component={Access} />
       <Route path="/briefing"               component={Briefing} />
