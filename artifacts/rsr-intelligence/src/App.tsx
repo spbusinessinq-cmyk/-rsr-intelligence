@@ -1,4 +1,5 @@
 import { Switch, Route, Router as WouterRouter } from "wouter";
+import { AuthProvider, ProtectedRoute } from "@/lib/auth";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Systems from "@/pages/Systems";
@@ -10,6 +11,8 @@ import DossierDetail from "@/pages/DossierDetail";
 import World from "@/pages/World";
 import SignalRoom from "@/pages/SignalRoom";
 import InvestigationRoom from "@/pages/InvestigationRoom";
+import Access from "@/pages/Access";
+import Briefing from "@/pages/Briefing";
 
 function Router() {
   return (
@@ -23,7 +26,11 @@ function Router() {
       <Route path="/dossiers/:id"            component={DossierDetail} />
       <Route path="/world"                   component={World} />
       <Route path="/signal-room"             component={SignalRoom} />
-      <Route path="/investigation-room"      component={InvestigationRoom} />
+      <Route path="/investigation-room">
+        {() => <ProtectedRoute component={InvestigationRoom} />}
+      </Route>
+      <Route path="/access"                  component={Access} />
+      <Route path="/briefing"               component={Briefing} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -32,7 +39,9 @@ function Router() {
 function App() {
   return (
     <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-      <Router />
+      <AuthProvider>
+        <Router />
+      </AuthProvider>
     </WouterRouter>
   );
 }

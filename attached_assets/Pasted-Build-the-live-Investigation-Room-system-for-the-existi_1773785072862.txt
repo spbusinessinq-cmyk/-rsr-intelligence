@@ -1,0 +1,284 @@
+Build the live Investigation Room system for the existing RSR Intelligence Network project.
+
+Do NOT redesign the site.
+Do NOT weaken the homepage.
+Do NOT change the established visual identity.
+
+Refine and expand the current build only.
+
+MAIN GOAL
+Turn /investigation-room into a real, authenticated, live collaboration environment for the inner circle.
+
+This is NOT a generic chat app.
+It is a tactical case collaboration workspace inside the RSR Intelligence Network.
+
+TECH STACK
+Use Supabase for:
+- authentication
+- message persistence
+- realtime subscriptions
+- optional lightweight presence
+
+Use the existing app/router/layout structure and visual language.
+
+PRESERVE
+- black base
+- restrained emerald accents
+- thin borders
+- premium command-interface feel
+- monospace micro-labels
+- large clean headlines
+- serious intelligence-network tone
+
+CRITICAL RULES
+- No Discord clone
+- No generic social media styling
+- No colorful chat bubbles
+- No gimmicky cyberpunk effects
+- No fake automation claims
+- Keep it tactical, structured, and premium
+
+==================================================
+1. AUTH + ACCESS FLOW
+==================================================
+
+Implement real auth using Supabase.
+
+Required:
+- sign up
+- sign in
+- sign out
+- session persistence
+- protected Investigation Room route
+
+Create a serious access page at:
+- /access
+
+The homepage Access Node should route like this:
+- REQUEST BRIEFING -> /briefing (or /access if briefing is combined there)
+- ENTER SIGNAL ROOM -> /signal-room
+- INVESTIGATION ROOM -> /investigation-room
+
+Protected route behavior:
+- if unauthenticated user visits /investigation-room, redirect to /access
+- after successful login, send them into /investigation-room
+
+Do NOT build a generic SaaS auth page.
+It must feel like part of the same RSR world.
+
+==================================================
+2. INVESTIGATION ROOM = LIVE TEAM WORKSPACE
+==================================================
+
+Create/refine /investigation-room as a real live room.
+
+This room should support:
+- real-time message feed
+- authenticated posting
+- persistent history
+- room/channel navigation
+- linked case references
+
+Layout:
+
+LEFT COLUMN
+- channels / nodes list
+Examples:
+  # general
+  # investigations
+  # west-coast-case
+  # signals
+  # off-grid
+
+CENTER COLUMN
+- room header / current channel
+- live message feed
+- message composer
+- timestamps
+- user handles
+- optional role labels (LEAD-ANALYST, CASE-BUILD-01, RESEARCH-01, etc.)
+
+RIGHT COLUMN
+- room status
+- active cases
+- linked files
+- linked dossiers
+- analyst roster
+- SAGE TERMINAL panel placeholder
+
+This must feel like:
+- a tactical collaboration terminal
+- a case-building environment
+- a premium inner-layer workspace
+
+==================================================
+3. MESSAGE STYLE + UX
+==================================================
+
+Messages should NOT look like consumer chat bubbles.
+
+Each message should render like:
+- timestamp
+- handle
+- optional role
+- message body
+- optional linked references
+
+Example style:
+[21:22] LEAD-ANALYST
+Clearwater procurement chain now confirmed at five layers.
+
+Use structured lines, tight spacing, and premium borders.
+
+Add:
+- smooth autoscroll to latest
+- loading states
+- empty state for channels
+- good focus states on input
+- clean error handling
+
+Optional but useful:
+- lightweight typing indicator
+- online presence dots
+- “last seen” style timestamps
+
+But do NOT overbuild if it risks quality.
+
+==================================================
+4. CHANNEL / ROOM MODEL
+==================================================
+
+Implement simple channel support.
+
+Suggested channels:
+- general
+- investigations
+- west-coast-case
+- signals
+- off-grid
+
+Messages should belong to a channel.
+Switching channels updates the feed.
+
+Keep this simple and clean.
+
+==================================================
+5. SUPABASE DATA MODEL
+==================================================
+
+Set up the room with a clean Supabase-friendly schema.
+
+Suggested tables:
+
+profiles
+- id (uuid, auth user id)
+- email
+- handle
+- role
+- created_at
+
+room_channels
+- id
+- slug
+- name
+- description
+- is_private
+- created_at
+
+room_messages
+- id
+- channel_id
+- user_id
+- handle
+- role
+- body
+- created_at
+
+Optional:
+message_links
+- id
+- message_id
+- linked_type (file | dossier | system)
+- linked_id
+
+If message_links is too much for this pass, keep it simple and parse lightweight inline references later.
+
+==================================================
+6. LIVE REALTIME BEHAVIOR
+==================================================
+
+Use Supabase realtime or subscriptions so multiple authenticated users in the same channel can see new messages appear live.
+
+At minimum:
+- new messages appear without refresh
+- history persists
+- authenticated users can post
+- multiple users can see the same feed
+
+This is a real live collaboration room, not a local mock.
+
+==================================================
+7. SIGNAL ROOM DISTINCTION
+==================================================
+
+Do NOT collapse Signal Room and Investigation Room into the same thing.
+
+Keep the distinction:
+- Signal Room = monitored live analysis / observation layer
+- Investigation Room = authenticated collaboration workspace
+
+Signal Room can remain lighter/public-facing.
+Investigation Room is where the inner circle actually works.
+
+==================================================
+8. SAGE TERMINAL — STRUCTURE ONLY FOR NOW
+==================================================
+
+Inside the Investigation Room sidebar, keep or refine a SAGE TERMINAL panel.
+
+For THIS pass, do not build full AI behavior yet unless trivial.
+Instead, prepare the structure:
+- terminal-style header
+- query input placeholder or disabled field
+- “coming online” or “ready for integration” status
+- space for future:
+  - FACT CHECK
+  - QUICK BRIEF
+  - SITREP
+
+This should feel intentional, not broken.
+
+==================================================
+9. BRIEFING / ACCESS UX
+==================================================
+
+Create a clean briefing/access experience.
+If briefing and login are split, keep both routes meaningful.
+
+Minimum:
+- /access = sign in / sign up
+- /briefing = inquiry / interest form or structured placeholder
+
+No dead buttons.
+
+==================================================
+10. IMPLEMENTATION DELIVERABLES
+==================================================
+
+Please do all of the following:
+1. Explain the Supabase setup required
+2. Implement auth and protected Investigation Room access
+3. Implement live real-time channel messaging
+4. Implement channels on the left
+5. Implement the structured Investigation Room layout
+6. Keep Signal Room distinct
+7. Preserve current site design language
+8. Add or preserve SAGE TERMINAL as a structured placeholder for the next pass
+9. Ensure all homepage Access Node routes go somewhere real and useful
+
+FINAL GUARDRAILS
+- Preserve homepage identity first
+- Preserve premium black + emerald command aesthetic second
+- Preserve clean structure third
+- Do not overwrite strong working sections
+- Build the live Investigation Room as a real product layer

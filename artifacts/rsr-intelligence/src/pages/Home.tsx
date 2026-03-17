@@ -134,9 +134,12 @@ export default function Home() {
                 Partner, media, and institutional inquiries. Analyst access to Signal Room and Investigation Room.
               </p>
               <div className="flex flex-col gap-2">
-                <button className="w-full border border-emerald-500/25 bg-emerald-500/5 py-2.5 text-emerald-500/80 font-mono text-[9px] tracking-[0.3em] hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/40 transition-colors text-left px-4">
-                  REQUEST BRIEFING
-                </button>
+                <Link
+                  href="/briefing"
+                  className="w-full border border-emerald-500/25 bg-emerald-500/5 py-2.5 text-emerald-500/80 font-mono text-[9px] tracking-[0.3em] hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/40 transition-colors text-left px-4 block"
+                >
+                  REQUEST BRIEFING →
+                </Link>
                 <Link
                   href="/signal-room"
                   className="w-full border border-zinc-800 py-2.5 text-zinc-500 font-mono text-[9px] tracking-[0.3em] hover:border-zinc-600 hover:text-zinc-300 transition-colors text-left px-4 block"
