@@ -1,0 +1,159 @@
+FINAL DATABASE + CONTROL FORCE FIX PASS
+
+Do NOT redesign the site.
+Do NOT change the layout architecture.
+Do NOT weaken the homepage.
+Do NOT change the established visual identity.
+
+This is the final launch-lock bug-fix pass.
+No new concepts. No feature expansion. No cosmetic detours.
+Only make the existing controls fully functional and consistent with the actual database schema.
+
+MAIN GOAL
+Fix the remaining real failures:
+- delete case error
+- create case not working from the right sidebar
+- saved name not updating in message/chat display
+- controls referencing missing DB columns
+- final stale/mock roster behavior
+- final channel/case save reliability
+
+PRESERVE
+- black base
+- restrained emerald accents
+- thin borders
+- premium command-interface feel
+- monospace micro-labels
+- serious intelligence-network tone
+
+CRITICAL RULES
+- Do not claim a control works unless it is verified working end-to-end
+- If a control depends on a DB column/table/policy, verify the schema exists first
+- If a visible control cannot be made reliable in this pass, disable or remove it honestly
+- No dead buttons
+- No stale UI after save
+
+==================================================
+1. DB SCHEMA AUDIT FIRST
+==================================================
+
+Before changing UI behavior, audit the live Supabase schema actually being used by the app.
+
+Verify that all required tables/columns/policies exist for:
+- profiles.title
+- profiles.requested_role
+- room_channels.archived
+- investigation_cases table and all required fields
+- room_messages edited/pinned fields if used
+- any case/channel relation fields used in Investigation Room or Command Console
+
+If columns are missing, update the migration SQL and make the app resilient until the migration is applied.
+
+Do not keep code that assumes columns exist when they do not.
+
+==================================================
+2. ROOM CHANNELS — ARCHIVED COLUMN ERROR
+==================================================
+
+Fix the current error:
+“Could not find the 'archived' column of 'room_channels'”
+
+Do the following:
+- ensure room_channels.archived exists in schema/migration
+- if migration has not been run yet, provide/update one clean SQL block
+- make the UI fail gracefully instead of throwing raw errors
+- verify archive/remove channel works only after schema is valid
+
+==================================================
+3. CASES — CREATE / DELETE MUST WORK
+==================================================
+
+The right sidebar case creation still does not work, and delete case behavior is failing.
+
+Fix end-to-end:
+- create case from Active Cases sidebar works
+- create case from workspace/new case works
+- delete case works
+- case appears immediately after creation
+- case disappears immediately after deletion
+- active cases panel reflects DB-backed cases only
+- no static/mock leftover cases if real DB data exists
+
+If any required case schema/policy is missing, fix it.
+
+==================================================
+4. MESSAGE DISPLAY — UPDATED NAME MUST REFLECT
+==================================================
+
+Saved identity changes are not fully reflected in the chat/message feed.
+
+Fix this.
+
+Requirements:
+- when handle/title is changed, message display updates correctly
+- message rows should use current profile handle, not stale cached/mock value
+- analyst roster should also reflect updated saved name
+- refresh should not revert to old values
+
+If current message rows store stale handle text directly, fix the rendering path so displayed identity is consistent.
+
+==================================================
+5. ANALYST ROSTER — REAL DATA ONLY
+==================================================
+
+The roster must be driven by real profile data, not stale placeholders.
+
+Requirements:
+- saved handles show correctly
+- no old mock/static names if real operator data exists
+- roles accurate
+- updated names visible after save
+
+==================================================
+6. STRICT CONTROL AUDIT
+==================================================
+
+Audit every visible control related to channels/cases/messages/identity and ensure it works:
+- create channel
+- rename channel
+- archive channel
+- create case
+- delete case
+- change case status
+- attach case
+- edit identity
+- message send
+- message delete
+- message edit/pin if visible
+
+If any visible control is not fully implemented, fix it or remove it.
+
+==================================================
+7. ERROR HANDLING
+==================================================
+
+Replace raw DB error exposure with clean on-brand UI feedback.
+
+Examples:
+- “ARCHIVE FAILED — migration required”
+- “CASE CREATE FAILED — missing schema/policy”
+- “IDENTITY SAVE FAILED — [reason]”
+
+Still surface the reason clearly, but do not leave raw broken states hanging.
+
+==================================================
+8. FINAL VERIFICATION
+==================================================
+
+Before finishing, explicitly test and confirm:
+- create case from right sidebar
+- create case from workspace
+- delete case
+- save handle/title
+- updated handle appears in message feed
+- updated handle appears in analyst roster
+- archive/remove channel no longer throws missing-column error
+- no stale loading states remain
+
+Do not just say “implemented.”
+Verify each interaction works end-to-end against the actual DB schema.

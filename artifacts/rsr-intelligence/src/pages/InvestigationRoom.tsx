@@ -24,6 +24,7 @@ interface Message {
   created_at: string;
   pinned?: boolean;
   edited_at?: string | null;
+  profiles?: { handle: string; role: string | null; title: string | null } | null;
 }
 
 interface Case {
@@ -209,7 +210,9 @@ function MessageRow({
   const [editing,  setEditing]  = useState(false);
   const [editBody, setEditBody] = useState(msg.body);
   const { files, dossiers, cleanBody } = extractRefs(msg.body);
-  const roleCls = roleBadge(msg.role);
+  const displayHandle = msg.profiles?.handle ?? msg.handle;
+  const displayRole   = (msg.profiles?.role   ?? msg.role) as string | null;
+  const roleCls = roleBadge(displayRole);
 
   function startEdit()  { setEditing(true); setEditBody(msg.body); }
   function cancelEdit() { setEditing(false); }
@@ -263,10 +266,10 @@ function MessageRow({
         <div className="flex-1 min-w-0 pr-10">
           {/* Header */}
           <div className="flex items-center gap-3 flex-wrap mb-2">
-            <span className="font-mono text-xs tracking-[0.1em] text-zinc-200 font-medium">{msg.handle}</span>
-            {roleCls && msg.role && (
+            <span className="font-mono text-xs tracking-[0.1em] text-zinc-200 font-medium">{displayHandle}</span>
+            {roleCls && displayRole && (
               <span className={`font-mono text-[10px] tracking-[0.15em] border px-1.5 py-0.5 ${roleCls}`}>
-                {msg.role.toUpperCase()}
+                {displayRole.toUpperCase()}
               </span>
             )}
             <span className="font-mono text-[11px] text-zinc-600">{fmtTime(msg.created_at)}</span>
@@ -621,13 +624,15 @@ function AnalystRoster({ configured, user }: { configured: boolean; user: unknow
       .select("handle, role, approval_status")
       .eq("approval_status", "approved")
       .order("role", { ascending: false });
-    if (data && data.length > 0) {
-      setAnalysts(data.map((p: { handle: string; role: string }) => ({
-        handle: p.handle,
-        role:   p.role ?? "member",
-        status: "ACTIVE",
-      })));
-    }
+    setAnalysts(
+      data && data.length > 0
+        ? data.map((p: { handle: string; role: string }) => ({
+            handle: p.handle,
+            role:   p.role ?? "member",
+            status: "ACTIVE",
+          }))
+        : []
+    );
   }, [configured, user]);
 
   useEffect(() => { loadRoster(); }, [loadRoster]);
@@ -650,24 +655,30 @@ function AnalystRoster({ configured, user }: { configured: boolean; user: unknow
     member:  "text-zinc-700",
   };
 
+  const displayAnalysts = configured ? analysts : STATIC_ANALYSTS;
+
   return (
     <div className="border-b border-zinc-900 p-4">
       <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-600 mb-3">ANALYST ROSTER</div>
-      <div className="space-y-2.5">
-        {analysts.map(a => (
-          <div key={a.handle} className="flex items-center justify-between font-mono">
-            <div className="flex items-center gap-2">
-              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${a.status === "ACTIVE" ? "bg-zinc-500" : "bg-zinc-800"}`} />
-              <span className={`text-[11px] tracking-[0.06em] ${a.status === "ACTIVE" ? "text-zinc-300" : "text-zinc-600"}`}>
-                {a.handle}
+      {displayAnalysts.length === 0 ? (
+        <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-800">NO APPROVED OPERATORS</div>
+      ) : (
+        <div className="space-y-2.5">
+          {displayAnalysts.map(a => (
+            <div key={a.handle} className="flex items-center justify-between font-mono">
+              <div className="flex items-center gap-2">
+                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${a.status === "ACTIVE" ? "bg-zinc-500" : "bg-zinc-800"}`} />
+                <span className={`text-[11px] tracking-[0.06em] ${a.status === "ACTIVE" ? "text-zinc-300" : "text-zinc-600"}`}>
+                  {a.handle}
+                </span>
+              </div>
+              <span className={`text-[9px] tracking-[0.2em] ${roleCls[a.role] ?? "text-zinc-700"}`}>
+                {a.role?.toUpperCase() ?? "MEMBER"}
               </span>
             </div>
-            <span className={`text-[9px] tracking-[0.2em] ${roleCls[a.role] ?? "text-zinc-700"}`}>
-              {a.role?.toUpperCase() ?? "MEMBER"}
-            </span>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -723,14 +734,28 @@ export default function InvestigationRoom() {
     return () => clearTimeout(t);
   }, [chError]);
 
-  /* ── Load channels from DB ── */
+  /* ── Load channels from DB (resilient to missing archived column) ── */
   const loadChannels = useCallback(async () => {
     if (!configured) return;
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("room_channels")
       .select("*")
       .eq("archived", false)
       .order("created_at", { ascending: true });
+    if (error) {
+      // If archived column doesn't exist yet (migration not run), fetch all channels
+      if (error.message.includes("archived") || error.message.includes("column") || error.code === "42703") {
+        const { data: allData } = await supabase
+          .from("room_channels")
+          .select("*")
+          .order("created_at", { ascending: true });
+        setChannels(allData && allData.length > 0 ? (allData as Channel[]) : DEFAULT_CHANNELS);
+        setChError("SCHEMA UPDATE NEEDED — run supabase-setup.sql to enable channel management");
+      } else {
+        setChError("CHANNEL LOAD FAILED: " + error.message);
+      }
+      return;
+    }
     setChannels(data && data.length > 0 ? (data as Channel[]) : DEFAULT_CHANNELS);
   }, [configured]);
 
@@ -847,7 +872,7 @@ export default function InvestigationRoom() {
     }
   }
 
-  /* ── Load messages ── */
+  /* ── Load messages (join profiles for live handle/role) ── */
   const loadMessages = useCallback(async () => {
     if (!configured) {
       const mock = MOCK_THREADS.filter(m => m.channel_id === activeChannel);
@@ -857,11 +882,11 @@ export default function InvestigationRoom() {
     }
     const { data } = await supabase
       .from("room_messages")
-      .select("*")
+      .select("*, profiles(handle, role, title)")
       .eq("channel_id", activeChannel)
       .order("created_at", { ascending: true })
       .limit(100);
-    setMessages(data ?? []);
+    setMessages((data ?? []) as Message[]);
     setLoading(false);
   }, [activeChannel, configured]);
 
@@ -879,9 +904,22 @@ export default function InvestigationRoom() {
     const sub = supabase
       .channel("room:" + activeChannel)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "room_messages", filter: `channel_id=eq.${activeChannel}` },
-        payload => { setMessages(prev => [...prev, payload.new as Message]); })
+        async payload => {
+          const raw = payload.new as Message;
+          const { data: p } = await supabase
+            .from("profiles")
+            .select("handle, role, title")
+            .eq("id", raw.user_id)
+            .single();
+          setMessages(prev => [...prev, { ...raw, profiles: p ?? null }]);
+        })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "room_messages", filter: `channel_id=eq.${activeChannel}` },
-        payload => { setMessages(prev => prev.map(m => m.id === (payload.new as Message).id ? payload.new as Message : m)); })
+        payload => {
+          const updated = payload.new as Message;
+          setMessages(prev => prev.map(m =>
+            m.id === updated.id ? { ...updated, profiles: m.profiles } : m
+          ));
+        })
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "room_messages", filter: `channel_id=eq.${activeChannel}` },
         payload => { setMessages(prev => prev.filter(m => m.id !== (payload.old as Message).id)); })
       .subscribe();
