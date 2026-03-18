@@ -1,0 +1,129 @@
+FINAL HARD LOCK PASS — FIX OR REMOVE BROKEN CONTROLS
+
+Do NOT redesign the site.
+Do NOT change layout structure.
+Do NOT weaken the homepage.
+Do NOT change the visual identity.
+
+This is the final hard-lock launch pass.
+No new features.
+No cosmetic detours.
+Only fix or remove the remaining broken controls.
+
+MAIN GOAL
+Resolve the last real failures in Investigation Room:
+
+- create case from the right Active Cases panel still fails
+- left-side x/rename channel controls are still ambiguous and not reliably functional
+- the UI still shows controls that do not consistently work end-to-end
+- any stale schema assumptions must be removed
+
+CRITICAL RULES
+- If a control exists, it must work
+- If a control cannot be made reliable in this pass, remove or disable it honestly
+- Do not describe functionality that is not actually verified
+- Do not leave dead buttons/icons in the launch UI
+
+==================================================
+1. CREATE CASE — FIX OR REMOVE
+==================================================
+
+The right sidebar Active Cases create form still fails.
+
+Do a true end-to-end audit:
+- inspect the exact insert payload
+- inspect the exact Supabase response/error
+- verify the table/columns/policies being used match the live DB
+- verify channel_id type handling matches the real room_channels.id type
+- verify required fields are correct
+
+If the right-sidebar create flow can be fixed cleanly, fix it.
+If not, remove/disable that create form for launch and keep only one working case creation path.
+
+No fake create button.
+
+==================================================
+2. LEFT CHANNEL CONTROLS — FIX OR REMOVE
+==================================================
+
+The left-side icons (rename / x) are still not reliable and are visually ambiguous.
+
+Do a strict audit:
+- verify what each icon is supposed to do
+- verify each click path works end-to-end
+- verify archive/remove channel works against the live DB
+- verify rename persists
+- make sure the icons are large enough and clear enough
+
+If any of these controls still cannot be made reliable, remove them from the launch UI.
+Do not leave a dead x icon in the channel list.
+
+==================================================
+3. REMOVE RAW/GENERIC FAILURE LOOP
+==================================================
+
+Right now the UI still lands in “CREATE FAILED — SCHEMA INCOMPLETE” even after schema work.
+
+Fix this properly:
+- show the exact failing reason during debugging
+- then either fix the root cause or disable the broken control
+- do not keep generic failure panels attached to controls that remain visible but unusable
+
+==================================================
+4. CASES — REAL STATE ONLY
+==================================================
+
+If no DB-backed cases can be created yet, the UI should honestly show:
+- no cases
+- disabled or hidden create/delete controls until ready
+
+If DB-backed cases work, then:
+- create must work
+- delete must work
+- status must work
+- sidebar must refresh immediately
+
+No in-between state.
+
+==================================================
+5. MESSAGE / NAME CONSISTENCY
+==================================================
+
+Preserve the current identity fixes.
+
+Verify:
+- updated handle appears in analyst roster
+- updated handle appears in message feed rows
+- no stale old names remain
+
+Do not regress this.
+
+==================================================
+6. FINAL LAUNCH RULE
+==================================================
+
+Before finishing, audit every visible control in Investigation Room:
+
+- channel rename
+- channel remove/archive
+- case create
+- case delete
+- message send
+- message edit/delete/pin if visible
+- workspace controls
+- hover icons
+
+If it works, keep it.
+If it does not work, remove or disable it for launch.
+
+==================================================
+7. REQUIRED FINAL VERIFICATION
+==================================================
+
+Before finishing, explicitly verify and report:
+
+- whether right-sidebar create case now works
+- whether left-side x now works
+- whether rename channel now works
+- which controls were removed/disabled if not launch-ready
+- that no dead controls remain in the visible UI
