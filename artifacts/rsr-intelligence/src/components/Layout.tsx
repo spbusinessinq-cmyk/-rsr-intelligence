@@ -11,11 +11,20 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const [location] = useLocation();
-  const { user: authUser } = useAuth();
+  const [location, setLocation] = useLocation();
+  const { user: authUser, signOut } = useAuth();
   const inboxUnread = useInboxCount(authUser?.id ?? null);
-  const [inboxOpen, setInboxOpen] = useState(false);
+  const [inboxOpen,   setInboxOpen]   = useState(false);
+  const [signingOut,  setSigningOut]  = useState(false);
   const { clearInboxNav } = useInboxNav();
+
+  async function handleSignOut() {
+    setSigningOut(true);
+    clearInboxNav();
+    await signOut();
+    setLocation("/access");
+    setSigningOut(false);
+  }
 
   const navLinks = [
     { name: "HOME",     path: "/" },
@@ -86,26 +95,38 @@ export default function Layout({ children }: LayoutProps) {
               })}
             </nav>
 
-            {/* Inbox trigger — only when logged in */}
+            {/* Inbox + Sign-out — only when logged in */}
             {authUser && (
-              <div
-                role="button"
-                tabIndex={0}
-                onClick={() => setInboxOpen(true)}
-                onKeyDown={e => e.key === "Enter" && setInboxOpen(true)}
-                className="relative cursor-pointer group ml-1"
-                title="Open inbox"
-                aria-label="Open notifications inbox"
-              >
-                <div className="font-mono text-[10px] tracking-[0.25em] text-zinc-600 group-hover:text-zinc-300 border border-zinc-900 group-hover:border-zinc-700 px-3 py-2 transition-all duration-150 whitespace-nowrap">
-                  INBOX
+              <>
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setInboxOpen(true)}
+                  onKeyDown={e => e.key === "Enter" && setInboxOpen(true)}
+                  className="relative cursor-pointer group ml-1"
+                  title="Open inbox"
+                  aria-label="Open notifications inbox"
+                >
+                  <div className="font-mono text-[10px] tracking-[0.25em] text-zinc-600 group-hover:text-zinc-300 border border-zinc-900 group-hover:border-zinc-700 px-3 py-2 transition-all duration-150 whitespace-nowrap">
+                    INBOX
+                  </div>
+                  {inboxUnread > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-[16px] rounded-full bg-amber-500 flex items-center justify-center font-mono text-[8px] text-black font-bold px-0.5 leading-none">
+                      {inboxUnread > 9 ? "9+" : inboxUnread}
+                    </span>
+                  )}
                 </div>
-                {inboxUnread > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-[16px] rounded-full bg-amber-500 flex items-center justify-center font-mono text-[8px] text-black font-bold px-0.5 leading-none">
-                    {inboxUnread > 9 ? "9+" : inboxUnread}
-                  </span>
-                )}
-              </div>
+
+                <button
+                  onClick={handleSignOut}
+                  disabled={signingOut}
+                  title="Sign out"
+                  aria-label="Sign out"
+                  className="font-mono text-[10px] tracking-[0.25em] text-zinc-700 hover:text-red-400 border border-transparent hover:border-red-900/50 px-3 py-2 transition-all duration-150 whitespace-nowrap disabled:opacity-40 ml-1"
+                >
+                  {signingOut ? "..." : "SIGN OUT"}
+                </button>
+              </>
             )}
           </div>
 

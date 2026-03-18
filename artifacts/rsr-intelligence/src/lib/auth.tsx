@@ -197,9 +197,88 @@ export function useAuth() {
   return ctx;
 }
 
+/* ── Session recovery helper (exported for use anywhere) ─────────────── */
+export async function clearSession(): Promise<void> {
+  try {
+    // Local-only sign-out — doesn't need network, works even with stale tokens
+    await supabase.auth.signOut({ scope: "local" });
+  } catch {}
+  // Wipe all Supabase auth keys from localStorage
+  try {
+    Object.keys(localStorage).forEach(k => {
+      if (k.startsWith("sb-")) localStorage.removeItem(k);
+    });
+  } catch {}
+}
+
 /* ── Screens ─────────────────────────────────────────────────────────── */
 
+/**
+ * Shown during auth boot. After 3 s with no resolution, automatically
+ * switches to the recovery UI (retry / clear session). The auth provider's
+ * own 5 s timeout ensures loading eventually resolves regardless.
+ */
 function VerifyingScreen() {
+  const [showRecovery, setShowRecovery] = useState(false);
+  const [clearing,     setClearing]     = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setShowRecovery(true), 3000);
+    return () => clearTimeout(t);
+  }, []);
+
+  async function handleClear() {
+    setClearing(true);
+    await clearSession();
+    // Hard reload to clean page state completely
+    const base = window.location.href.split("#")[0];
+    window.location.replace(base + "#/access");
+  }
+
+  function handleRetry() {
+    window.location.reload();
+  }
+
+  if (showRecovery) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="max-w-xs w-full px-6 text-center space-y-6">
+          <div className="space-y-2">
+            <div className="font-mono text-[10px] tracking-[0.45em] text-zinc-600">
+              SESSION CHECK DELAYED
+            </div>
+            <div className="w-20 h-px bg-zinc-900 mx-auto" />
+            <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-800 leading-relaxed">
+              Authentication is taking longer than expected.
+              <br />Select an option below.
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <button
+              onClick={handleRetry}
+              className="w-full font-mono text-[10px] tracking-[0.3em] text-zinc-400 border border-zinc-800 hover:border-zinc-600 hover:text-zinc-200 px-4 py-3 transition-all duration-150"
+            >
+              RETRY SESSION
+            </button>
+
+            <button
+              onClick={handleClear}
+              disabled={clearing}
+              className="w-full font-mono text-[10px] tracking-[0.3em] text-emerald-600 border border-emerald-900/50 hover:border-emerald-700 hover:text-emerald-400 px-4 py-3 transition-all duration-150 disabled:opacity-40"
+            >
+              {clearing ? "CLEARING..." : "CLEAR SESSION + SIGN IN"}
+            </button>
+          </div>
+
+          <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-800">
+            RSR INTELLIGENCE NETWORK
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-black flex items-center justify-center">
       <div className="text-center space-y-3">
