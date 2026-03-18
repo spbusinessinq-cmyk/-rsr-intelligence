@@ -1,0 +1,100 @@
+Final channel-management completion pass — add true channel delete in Command Console.
+
+Do NOT redesign the site.
+Do NOT change the visual identity.
+Do NOT weaken the homepage.
+Do NOT move channel management out of Command Console.
+Do NOT break the working archive flow, back navigation, chat, auth, or one-deploy EdgeOne setup.
+
+MAIN GOAL
+Channel archive now works. The last missing piece is true channel deletion from Command Console.
+
+I want a real DELETE action for channels in Command Console, in addition to archive.
+
+This is a focused completion pass only.
+
+==================================================
+1. COMMAND CONSOLE — ADD TRUE CHANNEL DELETE
+==================================================
+
+Add a real DELETE button for channels in Command Console.
+
+Requirements:
+- keep existing ARCHIVE behavior
+- add a separate DELETE action
+- DELETE must be visibly more destructive than archive
+- preserve current styling language
+- do not redesign the table
+
+Behavior requirements:
+- DELETE must actually remove the channel from the database when safe
+- if hard delete is blocked by foreign key dependencies, linked cases, or messages, do NOT fake success
+- instead show the exact reason clearly in UI and console
+- if the app should require the channel to be empty first, enforce that explicitly
+- if there are linked messages/cases, surface a clear message like:
+  "DELETE BLOCKED — channel still contains linked records"
+- after successful delete, refresh the channel list immediately
+- deleted channel must remain gone after refresh
+
+==================================================
+2. SAFETY RULES
+==================================================
+
+Do NOT allow silent destructive failure.
+
+Requirements:
+- use confirmation before true delete
+- use a loading/disabled state while delete is running
+- verify delete success with a real DB confirmation, not optimistic UI only
+- if RLS or DB constraints block the delete, show the exact reason clearly
+
+==================================================
+3. SCHEMA / POLICY AUDIT
+==================================================
+
+Audit the relevant Supabase schema and policies for channel deletion.
+
+Check:
+- room_channels foreign keys
+- linked investigation cases
+- linked messages
+- RLS permissions for admin delete
+
+If direct delete is not currently possible because of constraints, implement the cleanest correct behavior:
+- either require empty channel first
+- or explain why delete is blocked
+- but do NOT leave a dead button
+
+==================================================
+4. KEEP WORKING FEATURES INTACT
+==================================================
+
+Do NOT break:
+- working archive / restore
+- working channel creation
+- working chat
+- working auth
+- working back buttons
+- working case creation/editing
+- current Command Console layout
+
+==================================================
+5. FINAL VERIFICATION
+==================================================
+
+Before finishing, explicitly verify:
+- ARCHIVE still works
+- DELETE now exists in Command Console
+- DELETE either succeeds correctly or shows a clear blocking reason
+- no silent failures
+- no fake success
+- deleted channels stay deleted after refresh
+- UI remains visually unchanged except for the added delete action
+
+SUCCESS CRITERIA
+
+This pass is complete only if:
+- channel delete is now a real working Command Console action
+- destructive failures are handled clearly
+- archive still works
+- no existing working systems are broken

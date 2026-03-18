@@ -373,9 +373,11 @@ export default function Command() {
   /* ── Channel admin state ── */
   const [chCreateOpen,  setChCreateOpen]  = useState(false);
   const [chNewName,     setChNewName]     = useState("");
-  const [chRenaming,    setChRenaming]    = useState<string | null>(null);
-  const [chRenameVal,   setChRenameVal]   = useState("");
-  const [chArchivingId, setChArchivingId] = useState<string | null>(null);
+  const [chRenaming,        setChRenaming]        = useState<string | null>(null);
+  const [chRenameVal,       setChRenameVal]       = useState("");
+  const [chArchivingId,     setChArchivingId]     = useState<string | null>(null);
+  const [chConfirmDeleteId, setChConfirmDeleteId] = useState<string | null>(null);
+  const [chDeletingId,      setChDeletingId]      = useState<string | null>(null);
 
   /* ── Case admin state ── */
   const [caseCreateOpen,  setCaseCreateOpen]  = useState(false);
@@ -498,6 +500,31 @@ export default function Command() {
       return;
     }
     showToast("RESTORED: #" + label, "ok");
+    await fetchData();
+  }
+
+  async function deleteChannel(id: string) {
+    const ch = channels.find(c => c.id === id);
+    const label = ch ? ch.name : id.slice(0, 8);
+    setChConfirmDeleteId(null);
+    setChDeletingId(id);
+    const { data, error } = await supabase
+      .from("room_channels")
+      .delete()
+      .eq("id", id)
+      .select("id");
+    setChDeletingId(null);
+    if (error) {
+      console.error("[CMD] deleteChannel error:", error);
+      showToast("DELETE FAILED: " + error.message, "err");
+      return;
+    }
+    if (!data || data.length === 0) {
+      console.error("[CMD] deleteChannel: RLS blocked or row not found for id", id);
+      showToast("DELETE BLOCKED — ensure admin role in profiles table", "err");
+      return;
+    }
+    showToast("DELETED: #" + label, "ok");
     await fetchData();
   }
 
@@ -1051,30 +1078,60 @@ export default function Command() {
                         <div className="font-mono text-[11px] text-zinc-600">{cases.filter(c => c.channel_id === ch.id).length}</div>
                         <div className="font-mono text-[11px] text-zinc-700 truncate">{ch.description ?? "—"}</div>
                         <div className="flex items-center gap-2">
-                          {!ch.archived && (
-                            <button
-                              onClick={() => { setChRenaming(ch.id); setChRenameVal(ch.name); }}
-                              className="font-mono text-[10px] tracking-[0.15em] text-zinc-600 hover:text-zinc-400 border border-zinc-800 hover:border-zinc-700 px-2 py-0.5 transition-colors"
-                            >
-                              RENAME
-                            </button>
-                          )}
-                          {ch.archived ? (
-                            <button
-                              onClick={() => restoreChannel(ch.id)}
-                              disabled={chArchivingId === ch.id}
-                              className="font-mono text-[10px] tracking-[0.15em] text-zinc-600 hover:text-emerald-500 border border-zinc-800 px-2 py-0.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                            >
-                              {chArchivingId === ch.id ? "..." : "RESTORE"}
-                            </button>
+                          {chConfirmDeleteId === ch.id ? (
+                            /* ── Inline delete confirmation ── */
+                            <>
+                              <span className="font-mono text-[9px] tracking-[0.15em] text-red-400/80">CONFIRM DELETE?</span>
+                              <button
+                                onClick={() => deleteChannel(ch.id)}
+                                disabled={chDeletingId === ch.id}
+                                className="font-mono text-[10px] tracking-[0.15em] text-red-400 border border-red-900/50 hover:bg-red-950/20 px-2 py-0.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                              >
+                                {chDeletingId === ch.id ? "..." : "CONFIRM"}
+                              </button>
+                              <button
+                                onClick={() => setChConfirmDeleteId(null)}
+                                className="font-mono text-[10px] tracking-[0.15em] text-zinc-600 hover:text-zinc-400 border border-zinc-800 px-2 py-0.5 transition-colors"
+                              >
+                                CANCEL
+                              </button>
+                            </>
                           ) : (
-                            <button
-                              onClick={() => archiveChannel(ch.id)}
-                              disabled={chArchivingId === ch.id}
-                              className="font-mono text-[10px] tracking-[0.15em] text-zinc-600 hover:text-amber-400 border border-zinc-800 px-2 py-0.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                            >
-                              {chArchivingId === ch.id ? "..." : "ARCHIVE"}
-                            </button>
+                            /* ── Normal action buttons ── */
+                            <>
+                              {!ch.archived && (
+                                <button
+                                  onClick={() => { setChRenaming(ch.id); setChRenameVal(ch.name); }}
+                                  className="font-mono text-[10px] tracking-[0.15em] text-zinc-600 hover:text-zinc-400 border border-zinc-800 hover:border-zinc-700 px-2 py-0.5 transition-colors"
+                                >
+                                  RENAME
+                                </button>
+                              )}
+                              {ch.archived ? (
+                                <button
+                                  onClick={() => restoreChannel(ch.id)}
+                                  disabled={chArchivingId === ch.id}
+                                  className="font-mono text-[10px] tracking-[0.15em] text-zinc-600 hover:text-emerald-500 border border-zinc-800 px-2 py-0.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                >
+                                  {chArchivingId === ch.id ? "..." : "RESTORE"}
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => archiveChannel(ch.id)}
+                                  disabled={chArchivingId === ch.id}
+                                  className="font-mono text-[10px] tracking-[0.15em] text-zinc-600 hover:text-amber-400 border border-zinc-800 px-2 py-0.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                >
+                                  {chArchivingId === ch.id ? "..." : "ARCHIVE"}
+                                </button>
+                              )}
+                              <button
+                                onClick={() => { setChConfirmDeleteId(ch.id); setChRenaming(null); }}
+                                disabled={chDeletingId === ch.id}
+                                className="font-mono text-[10px] tracking-[0.15em] text-red-900 hover:text-red-400 border border-red-950/40 hover:border-red-900/50 px-2 py-0.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                              >
+                                {chDeletingId === ch.id ? "..." : "DELETE"}
+                              </button>
+                            </>
                           )}
                         </div>
                       </div>
