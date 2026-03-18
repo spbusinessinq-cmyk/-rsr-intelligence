@@ -780,7 +780,8 @@ export default function InvestigationRoom() {
       .select("*")
       .order("created_at", { ascending: true });
     if (error) {
-      setCaseOpError(dbErr(error.message, "CASE LOAD FAILED"));
+      console.error("[loadCases] Supabase error:", error.code, error.message, error.details, error.hint);
+      setCaseOpError(`CASE LOAD FAILED [${error.code ?? "?"}]: ${error.message}`);
       return;
     }
     setCases((data ?? []) as Case[]);
@@ -804,11 +805,8 @@ export default function InvestigationRoom() {
   async function archiveChannel(id: string) {
     const { error } = await supabase.from("room_channels").update({ archived: true }).eq("id", id);
     if (error) {
-      setChError(
-        error.message.includes("archived") || error.message.includes("column")
-          ? "SCHEMA UPDATE NEEDED — run supabase-setup.sql to enable channel archiving"
-          : dbErr(error.message, "ARCHIVE FAILED")
-      );
+      console.error("[archiveChannel] Supabase error:", error.code, error.message, error.details, error.hint);
+      setChError(`ARCHIVE FAILED [${error.code ?? "?"}]: ${error.message}`);
       return;
     }
     if (activeChannel === id) setActiveChannel(channels.find(c => c.id !== id && !c.archived)?.id ?? "general");
@@ -837,7 +835,11 @@ export default function InvestigationRoom() {
       channel_id: newCaseForm.channel_id || null,
       created_by: authUser?.id ?? null,
     });
-    if (error) { setNewCaseError(dbErr(error.message, "CREATE FAILED")); return; }
+    if (error) {
+      console.error("[createCase] Supabase error:", error.code, error.message, error.details, error.hint);
+      setNewCaseError(`CREATE FAILED [${error.code ?? "?"}]: ${error.message}`);
+      return;
+    }
     setNewCaseOpen(false);
     setNewCaseForm({ ref: "", name: "", stage: "NEW", priority: "NORMAL", channel_id: "" });
     await loadCases();

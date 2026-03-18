@@ -1,0 +1,103 @@
+FINAL DIAGNOSTIC + FORCE FIX PASS
+
+Do NOT redesign the site.
+Do NOT add new features.
+Do NOT change the visual identity.
+
+This is the final diagnostic and force-fix pass.
+The current problem is that the UI is masking the actual Supabase error for case creation and channel archive, so we cannot finish the last bugs cleanly.
+
+MAIN GOAL
+Expose the exact failing DB reason for:
+- create case from the right sidebar
+- archive/remove channel from the left sidebar
+
+Then fix those two controls end-to-end.
+
+CRITICAL RULES
+- Do not hide raw DB errors behind generic "SCHEMA INCOMPLETE" messaging during this debug pass
+- Temporarily surface the exact Supabase error text for createCase and archiveChannel
+- Verify each failing interaction against the live DB schema
+- If a control still cannot be made reliable, disable it for launch instead of leaving it broken
+
+==================================================
+1. CREATE CASE — SHOW EXACT ERROR
+==================================================
+
+Right now the right sidebar create case action still fails, but the UI only shows:
+CREATE FAILED — SCHEMA INCOMPLETE
+
+For this debug pass:
+- surface the exact Supabase error string returned by the create case insert
+- log it clearly in the UI and console
+- include the failing query path / payload shape if helpful
+
+Then fix the root cause and verify:
+- create case from right sidebar works
+- case appears immediately in Active Cases
+- no silent or generic failure remains
+
+==================================================
+2. CHANNEL ARCHIVE/REMOVE — SHOW EXACT ERROR
+==================================================
+
+The left-side x still does not work.
+
+For this debug pass:
+- surface the exact Supabase error string returned by archive/remove channel
+- do not hide it behind generic messaging
+- verify whether the app is using archived boolean soft-delete logic or some other delete path
+
+Then fix the root cause and verify:
+- left-side x works
+- channel updates immediately in the list
+- no raw DB failure remains
+
+==================================================
+3. DB SCHEMA ALIGNMENT
+==================================================
+
+Audit the live schema the app is actually using.
+
+Verify exact types and existence of:
+- room_channels.id
+- room_channels.archived
+- investigation_cases.id
+- investigation_cases.ref
+- investigation_cases.name
+- investigation_cases.stage
+- investigation_cases.priority
+- investigation_cases.channel_id
+- investigation_cases.description
+- investigation_cases.created_at
+
+Also verify RLS/policies are actually allowing:
+- insert into investigation_cases
+- delete/update investigation_cases
+- update room_channels for archive logic
+
+Do not assume schema is correct just because SQL ran without error.
+
+==================================================
+4. MESSAGE / NAME CONSISTENCY
+==================================================
+
+Saved handle changes are now partially working. Finish the last inconsistency.
+
+Requirements:
+- current saved handle appears in message feed rows
+- current saved handle appears in analyst roster
+- refresh does not revert old message display name when live profile data is available
+
+==================================================
+5. FINAL VERIFICATION
+==================================================
+
+Before finishing, explicitly test and confirm:
+- create case from right sidebar
+- archive/remove channel from left sidebar
+- updated handle appears in message feed
+- updated handle appears in analyst roster
+
+Do not just say implemented.
+Show the exact failing reason first, then fix it, then verify it works.

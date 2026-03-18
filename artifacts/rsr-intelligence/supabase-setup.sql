@@ -75,6 +75,12 @@ CREATE TABLE IF NOT EXISTS investigation_cases (
   updated_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Idempotent column additions for existing databases (covers older schema versions)
+ALTER TABLE investigation_cases ADD COLUMN IF NOT EXISTS channel_id  TEXT;
+ALTER TABLE investigation_cases ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE investigation_cases ADD COLUMN IF NOT EXISTS created_by  UUID;
+ALTER TABLE investigation_cases ADD COLUMN IF NOT EXISTS updated_at  TIMESTAMPTZ DEFAULT NOW();
+
 -- ── 5. ENABLE ROW LEVEL SECURITY ──────────────────────────────
 
 ALTER TABLE profiles           ENABLE ROW LEVEL SECURITY;
