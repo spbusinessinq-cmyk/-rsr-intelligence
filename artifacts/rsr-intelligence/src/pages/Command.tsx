@@ -312,8 +312,16 @@ export default function Command() {
   async function createChannel() {
     const slug = chNewName.trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
     if (!slug) return;
-    const { error } = await supabase.from("room_channels").insert({ id: slug, slug, name: slug, description: null });
-    if (error) { showToast("FAILED: " + error.message, "err"); return; }
+    const id = crypto.randomUUID();
+    const { error } = await supabase.from("room_channels").insert({ id, slug, name: slug, description: null });
+    if (error) {
+      if (error.code === "23505") {
+        showToast("CHANNEL ALREADY EXISTS: #" + slug, "err");
+      } else {
+        showToast("FAILED: " + error.message, "err");
+      }
+      return;
+    }
     showToast("CHANNEL CREATED: #" + slug, "ok");
     setChCreateOpen(false); setChNewName(""); await fetchData();
   }

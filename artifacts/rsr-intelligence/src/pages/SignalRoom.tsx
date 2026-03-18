@@ -82,7 +82,7 @@ export default function SignalRoom() {
 
   async function fetchNews(retryOnFetching = true) {
     try {
-      const res = await fetch("/api/news");
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL ?? ""}/api/news`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = (await res.json()) as NewsResponse;
       if (data.fetching && retryOnFetching) {

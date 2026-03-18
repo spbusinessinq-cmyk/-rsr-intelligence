@@ -1,0 +1,155 @@
+Full working beta pass — live deployment stabilization and backend restoration
+
+Do NOT redesign the site.
+Do NOT change the visual identity.
+Do NOT weaken the homepage.
+
+MAIN GOAL
+Take the now-live EdgeOne deployment and make the beta fully functional by restoring backend-powered features and fixing the remaining production issues.
+
+CONTEXT
+The frontend is live and users are actively using the platform.
+Realtime chat is working and must NOT be broken.
+
+Current issues in production:
+
+- Signal Room news feed fails (HTML returned instead of JSON)
+- Sage Terminal requests fail
+- Command Console channel creation throws duplicate key error
+- Admin message actions (pin/edit) are unreliable or missing
+- Case links route incorrectly to Entity Dossiers
+- Some auth/session behavior may be inconsistent on live domain
+
+CRITICAL RULE
+Do NOT break:
+- realtime messaging
+- authentication
+- existing UI structure
+
+==================================================
+1. BACKEND RESTORATION (REQUIRED)
+==================================================
+
+Restore working backend for production.
+
+Requirements:
+- `/api/news` must return valid JSON in production
+- `/api/sage` must return valid responses in production
+- these endpoints must be accessible from the deployed frontend
+
+Choose fastest stable approach:
+- deploy api-server separately OR
+- expose required endpoints via deployable functions
+
+==================================================
+2. FRONTEND API CONFIG (CRITICAL)
+==================================================
+
+Remove dependency on local `/api/*` routes.
+
+Requirements:
+- introduce env-based API routing using:
+  VITE_API_BASE_URL
+
+- update all fetch calls:
+  `/api/news` → `${VITE_API_BASE_URL}/api/news`
+  `/api/sage` → `${VITE_API_BASE_URL}/api/sage`
+
+- local development must still work
+- production must NOT return HTML for API calls
+
+==================================================
+3. SIGNAL ROOM — FIX LIVE NEWS
+==================================================
+
+Requirements:
+- news feed must load real JSON data in production
+- no "Unexpected token '<'" errors
+- preserve layout and styling
+- do not redesign UI
+
+==================================================
+4. SAGE TERMINAL — RESTORE FUNCTION
+==================================================
+
+Requirements:
+- Sage must return real responses
+- no "Request failed" errors
+- preserve terminal UI exactly
+- no raw error text shown to users
+
+==================================================
+5. COMMAND CONSOLE — FIX CHANNEL CREATION
+==================================================
+
+IMPORTANT
+Keep channel creation inside Command Console.
+Do NOT move this workflow.
+
+Requirements:
+- inspect `room_channels` schema
+- inspect insert payload
+- DO NOT send `id` if DB should generate it
+- fix duplicate key error on `room_channels_pkey`
+- ensure new channels save correctly
+- refresh list after creation
+
+==================================================
+6. MESSAGE ADMIN ACTIONS — FIX RELIABILITY
+==================================================
+
+Requirements:
+- admin can reliably:
+  - edit messages
+  - pin messages
+  - delete messages
+- actions must persist in Supabase
+- verify RLS policies allow admin actions
+- if controls are hidden, make them slightly more visible (no redesign)
+
+==================================================
+7. CASE LINK ROUTING — FIX
+==================================================
+
+Requirements:
+- case refs must NOT route to Entity Dossiers incorrectly
+- clicking a case should:
+  - select it in Investigation Room OR
+  - route to correct case view
+- preserve UI and structure
+
+==================================================
+8. AUTH HARDENING — LIVE DOMAIN
+==================================================
+
+Requirements:
+- verify Supabase auth works on EdgeOne domain
+- confirm session persistence
+- confirm protected routes function correctly
+
+==================================================
+9. FINAL VERIFICATION
+==================================================
+
+Before finishing, confirm ALL of the following in the LIVE deployed site:
+
+- Signal Room shows real data
+- Sage returns responses
+- channel creation works
+- admin message actions work
+- case links route correctly
+- no raw errors shown to users
+- realtime chat still works
+- UI remains unchanged
+
+==================================================
+SUCCESS CRITERIA
+==================================================
+
+This pass is complete ONLY if:
+
+- backend endpoints return real data in production
+- frontend is correctly wired to backend
+- all admin controls function correctly
+- no broken features remain visible to users
+- deployment is stable and usable for beta users

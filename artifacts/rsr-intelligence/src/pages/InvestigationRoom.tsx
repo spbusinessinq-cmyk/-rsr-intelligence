@@ -177,7 +177,7 @@ async function runSageQuery(
   const id = crypto.randomUUID();
   onStart({ id, action, query, response: null, loading: true });
   try {
-    const res = await fetch("/api/sage", {
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL ?? ""}/api/sage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query, action }),
@@ -769,17 +769,23 @@ export default function InvestigationRoom() {
     if (!newBody.trim() || !configured) return;
     const edited_at = new Date().toISOString();
     const { error } = await supabase.from("room_messages").update({ body: newBody, edited_at }).eq("id", id);
-    if (!error) {
-      setMessages(prev => prev.map(m => m.id === id ? { ...m, body: newBody, edited_at } : m));
+    if (error) {
+      console.error("[IR] updateMessage error:", error);
+      setMsgOpError("EDIT FAILED: " + error.message);
+      return;
     }
+    setMessages(prev => prev.map(m => m.id === id ? { ...m, body: newBody, edited_at } : m));
   }
 
   async function togglePin(id: string, pinned: boolean) {
     if (!configured) return;
     const { error } = await supabase.from("room_messages").update({ pinned }).eq("id", id);
-    if (!error) {
-      setMessages(prev => prev.map(m => m.id === id ? { ...m, pinned } : m));
+    if (error) {
+      console.error("[IR] togglePin error:", error);
+      setMsgOpError("PIN FAILED: " + error.message);
+      return;
     }
+    setMessages(prev => prev.map(m => m.id === id ? { ...m, pinned } : m));
   }
 
   /* ── Load messages (join profiles for live handle/role) ── */
@@ -1145,12 +1151,16 @@ export default function InvestigationRoom() {
                   const isLinked = c.channel_id === activeChannel;
                   return (
                     <div key={c.ref} className="flex items-center gap-2 py-1.5">
-                      <Link
-                        href={c.ref.startsWith("F") ? `/files/${c.ref}` : `/dossiers/${c.ref}`}
-                        className="font-mono text-[10px] tracking-[0.1em] text-zinc-600 hover:text-emerald-500 transition-colors shrink-0"
-                      >
-                        {c.ref}
-                      </Link>
+                      {/^F-\d+/.test(c.ref) || /^D-\d+/.test(c.ref) ? (
+                        <Link
+                          href={/^F-\d+/.test(c.ref) ? `/files/${c.ref}` : `/dossiers/${c.ref}`}
+                          className="font-mono text-[10px] tracking-[0.1em] text-zinc-600 hover:text-emerald-500 transition-colors shrink-0"
+                        >
+                          {c.ref}
+                        </Link>
+                      ) : (
+                        <span className="font-mono text-[10px] tracking-[0.1em] text-zinc-600 shrink-0">{c.ref}</span>
+                      )}
                       <span className={`font-mono text-[10px] tracking-[0.04em] truncate flex-1 ${isLinked ? "text-emerald-700/80" : "text-zinc-600"}`}>
                         {c.name}
                       </span>

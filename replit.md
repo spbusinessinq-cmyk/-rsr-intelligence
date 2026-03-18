@@ -94,3 +94,50 @@ Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHea
 ### `scripts` (`@workspace/scripts`)
 
 Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+
+---
+
+## RSR Intelligence Network (`artifacts/rsr-intelligence`)
+
+React + Vite + Tailwind v4 intelligence platform. Black/emerald CIA-terminal aesthetic.
+
+### Pages
+- `/` — Home (live signal feed)
+- `/systems`, `/systems/:slug` — System Architecture
+- `/files`, `/files/:id` — File Detail
+- `/dossiers`, `/dossiers/:id` — Dossier Detail
+- `/world` — Global Posture
+- `/signal-room` — Live GDELT news feed (public)
+- `/investigation-room` — Realtime chat, SAGE AI, case tracking (authenticated + approved)
+- `/command` — Admin console: user/channel/case management (admin only)
+- `/access` — Login/registration
+- `/briefing` — Public briefing
+
+### Backend API (`artifacts/api-server`)
+Express server, port 8080 in dev.
+- `GET /api/news` — GDELT geopolitical news, 10-min cache, startup prefetch
+- `POST /api/sage` — SAGE AI terminal (OpenAI gpt-5.2, 600 token max, RSR context)
+- `GET /api/health` — Health check
+
+### API Routing
+In development, Vite proxies `/api/*` → `http://localhost:8080` automatically.
+
+In **production**, the frontend needs `VITE_API_BASE_URL` set to the deployed API server URL:
+```
+VITE_API_BASE_URL=https://your-api-server.example.com
+```
+All fetch calls use: `` `${import.meta.env.VITE_API_BASE_URL ?? ""}/api/...` ``
+
+The api-server must be deployed separately (it is a standard Node/Express app — deploy to any Node host, then set VITE_API_BASE_URL in the frontend build environment and redeploy the frontend).
+
+### Supabase
+- `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` — frontend auth and realtime
+- `SUPABASE_SERVICE_ROLE_KEY` — server-side only (not currently used in api-server routes)
+- Schema: `profiles`, `room_channels`, `room_messages`, `investigation_cases`
+- Run `supabase-setup.sql` in Supabase SQL editor to create tables, RLS policies, and seed data
+
+### Key design decisions
+- `room_channels.id` is TEXT PRIMARY KEY; new channels use `crypto.randomUUID()` for id, separate slug field
+- `room_messages` requires `REPLICA IDENTITY FULL` for reliable realtime DELETE events
+- Admin message actions (edit/pin/delete) use RLS: `role = 'admin'` in profiles
+- Case ref links: `F-\d+` → `/files/:ref`, `D-\d+` → `/dossiers/:ref`, all others display as plain text (no bad route)
