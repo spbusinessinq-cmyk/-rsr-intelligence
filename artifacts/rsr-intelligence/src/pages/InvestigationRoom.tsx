@@ -897,6 +897,9 @@ export default function InvestigationRoom() {
         <div className="w-56 shrink-0 border-r border-zinc-900 flex flex-col overflow-y-auto">
 
           <div className="border-b border-zinc-900 p-4">
+            <Link href="/signal-room">
+              <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-700 hover:text-zinc-500 transition-colors cursor-pointer mb-2.5">← SIGNAL ROOM</div>
+            </Link>
             <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-600 mb-0.5">INVESTIGATION ROOM</div>
             <div className="font-mono text-[9px] tracking-[0.25em] text-zinc-800">SECURE ANALYST WORKSPACE</div>
           </div>

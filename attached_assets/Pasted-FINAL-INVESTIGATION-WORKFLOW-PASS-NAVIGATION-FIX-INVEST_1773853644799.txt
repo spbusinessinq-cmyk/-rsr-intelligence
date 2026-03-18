@@ -1,0 +1,146 @@
+FINAL INVESTIGATION WORKFLOW PASS — NAVIGATION FIX + INVESTIGATION SAGE + NEWS FEED STABILIZATION
+
+Do NOT redesign the site.
+Do NOT change the visual identity.
+Do NOT weaken the homepage.
+Do NOT break working chat, auth, command console, brief requests, or the current live deployment.
+
+MAIN GOAL
+Fix the remaining investigation workflow issues only:
+
+1. Command Console back button currently routes to Home, but it should route back to Investigation Room
+2. Investigation Room currently has no small back button/control
+3. Sage inside Investigation Room needs to be more helpful for building cases/investigations
+4. Signal Room / news feed is still collapsing to only one article and must be stabilized
+
+This is a focused production pass only.
+
+==================================================
+1. COMMAND CONSOLE — BACK BUTTON FIX
+==================================================
+
+Current issue:
+The back button in Command Console routes to Home, but this workflow should return the user to Investigation Room.
+
+Fix this.
+
+Requirements:
+- Command Console back control should route to Investigation Room
+- do NOT send the user to Home
+- preserve the current visual style and small breadcrumb/back aesthetic
+- do not redesign header/navigation
+
+==================================================
+2. INVESTIGATION ROOM — ADD SMALL BACK CONTROL
+==================================================
+
+Current issue:
+There is no clean back button in Investigation Room.
+
+Add one.
+
+Requirements:
+- add a small subtle back control consistent with the current terminal/intelligence aesthetic
+- place it in a logical top-area position
+- do NOT redesign the page
+- this back control should route to the most logical parent page, not trap the user
+- preserve current header/nav structure
+
+==================================================
+3. INVESTIGATION ROOM — SAGE SHOULD HELP BUILD CASES
+==================================================
+
+Current issue:
+Sage is improved, but inside Investigation Room it needs to act more like a case-building and investigation-support assistant.
+
+Fix this behavior without redesigning the terminal.
+
+Requirements:
+- preserve current Sage terminal UI and modes
+- make Sage specifically useful for investigation/case building inside Investigation Room
+- Sage should help with:
+  - identifying likely investigation angles
+  - organizing facts into a case structure
+  - suggesting linked files/dossiers/systems/signals
+  - proposing next steps
+  - summarizing current known information into investigation-ready form
+  - helping convert loose information into a structured case concept
+
+Desired behavior:
+- if a user asks Sage to help build a case, it should respond like an internal investigation assistant
+- if a user asks broad questions inside Investigation Room, Sage should bias toward:
+  - case development
+  - cross-referencing records
+  - linking related systems/files/dossiers
+  - turning fragments into a usable investigation outline
+
+Important rules:
+- do NOT invent fake internal records
+- do NOT become fluffy or generic
+- stay grounded in real internal data first
+- if exact data is missing, still help by structuring what is known and suggesting next investigation steps
+- avoid dead-end “NO RSR RECORDS” responses if a useful structured case-building answer can still be given
+
+Modes should remain intact, but make them more investigation-aware:
+- QUERY → useful case-building answer
+- BRIEF → structured case/investigation brief
+- SUMMARIZE → concise case summary
+- FACT CHECK → grounded verification pass
+- TRACE → cross-reference related records and case connections
+
+==================================================
+4. SIGNAL ROOM / NEWS FEED — STOP COLLAPSING TO ONE ITEM
+==================================================
+
+Current issue:
+The feed is still sometimes surfacing only one article.
+
+Fix this practically.
+
+Requirements:
+- preserve the current Signal Room layout
+- do not let weak live query response collapse the visible feed to a single item
+- if live fetch returns too few items, merge with recent cached items
+- target a fuller stable feed for beta
+- keep dedupe sensible (exact duplicate only)
+- keep category representation where possible
+
+Verification:
+- confirm the feed can surface more than one item reliably
+- confirm frontend is rendering the full returned dataset
+- no raw errors shown to users
+
+==================================================
+5. DO NOT BREAK EXISTING GOOD STATE
+==================================================
+
+Do NOT break:
+- working chat
+- auth/session behavior
+- command console
+- brief requests
+- channel management
+- case create/edit
+- current back button styling language
+- current one-deploy EdgeOne structure
+
+==================================================
+6. FINAL VERIFICATION
+==================================================
+
+Before finishing, explicitly verify:
+- Command Console back button now goes to Investigation Room
+- Investigation Room now has a small back button/control
+- Sage in Investigation Room is materially more useful for building investigations/cases
+- Sage stays grounded and does not invent fake records
+- news feed no longer collapses to one item when more cached/recent items exist
+- no raw errors shown to users
+- visual identity remains unchanged
+
+SUCCESS CRITERIA
+
+This pass is complete only if:
+- investigation workflow navigation feels correct
+- Sage is genuinely useful for case-building inside Investigation Room
+- news feed is more stable and populated
+- no existing working features are broken

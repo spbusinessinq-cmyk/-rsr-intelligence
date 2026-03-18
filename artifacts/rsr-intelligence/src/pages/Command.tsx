@@ -870,7 +870,7 @@ export default function Command() {
         <div className="max-w-7xl mx-auto px-8 py-10 space-y-10">
 
           <div className="flex items-center gap-4 font-mono text-[10px] tracking-[0.45em] text-zinc-700">
-            <Link href="/" className="text-zinc-700 hover:text-zinc-400 transition-colors">← HOME</Link>
+            <Link href="/investigation-room" className="text-zinc-700 hover:text-zinc-400 transition-colors">← INVESTIGATION ROOM</Link>
             <span className="text-zinc-800">·</span>
             <span>» RSR // COMMAND CONSOLE // SYSTEM ADMINISTRATION</span>
           </div>

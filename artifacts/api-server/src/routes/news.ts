@@ -161,12 +161,28 @@ async function refreshCache() {
 
 setTimeout(() => refreshCache(), 1000);
 
+/** Pad a result set with backup cache items when live feed is thin */
+function padWithBackup(live: NewsItem[]): NewsItem[] {
+  if (!backupCache || live.length >= MIN_GOOD) return live;
+  const seenUrls = new Set(live.map(i => i.url));
+  const padded = [...live];
+  for (const item of backupCache.data) {
+    if (padded.length >= 30) break;
+    if (!seenUrls.has(item.url)) {
+      seenUrls.add(item.url);
+      padded.push({ ...item, id: item.id.endsWith("-stale") ? item.id : item.id + "-stale" });
+    }
+  }
+  return sortArticles(padded);
+}
+
 router.get("/news", async (_req, res) => {
   try {
-    // Serve valid cached data immediately (full or partial)
+    // Serve valid cached data immediately (full or partial), padded if thin
     if (cache && Date.now() - cache.timestamp < CACHE_TTL) {
+      const articles = padWithBackup(cache.data);
       return res.json({
-        articles:    cache.data,
+        articles,
         cached:      true,
         fetching,
         cachedAt:    new Date(cache.timestamp).toISOString(),
@@ -174,15 +190,16 @@ router.get("/news", async (_req, res) => {
       });
     }
 
-    // No cache yet — kick off background refresh and wait up to 14 s for first query
+    // No cache yet — kick off background refresh and wait up to 18 s for first query
     if (!fetching) refreshCache();
-    for (let i = 0; i < 14; i++) {
+    for (let i = 0; i < 18; i++) {
       await sleep(1000);
       if (cache && cache.data.length > 0) break;
     }
 
+    const articles = padWithBackup(cache?.data ?? []);
     res.json({
-      articles:    cache?.data ?? [],
+      articles,
       cached:      false,
       fetching,
       cachedAt:    new Date().toISOString(),
@@ -190,7 +207,12 @@ router.get("/news", async (_req, res) => {
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Unknown error";
-    res.status(500).json({ articles: [], error: "GDELT fetch failed: " + msg });
+    // Serve backup cache on error if available so feed never shows empty
+    const fallback = backupCache ? padWithBackup([]) : [];
+    res.status(fallback.length > 0 ? 200 : 500).json({
+      articles: fallback,
+      error:    fallback.length > 0 ? undefined : "GDELT fetch failed: " + msg,
+    });
   }
 });
 

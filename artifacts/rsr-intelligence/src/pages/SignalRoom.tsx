@@ -91,7 +91,9 @@ export default function SignalRoom() {
       } else {
         setError(null);
         if (data.articles.length > 0) {
-          setArticles(data.articles);
+          // Only update articles if new response has at least as many items as what's
+          // currently showing — prevents collapsing a full feed to a thin partial result
+          setArticles(prev => data.articles.length >= prev.length ? data.articles : prev);
           setCachedAt(data.cachedAt);
           setIsCached(data.cached);
         }
