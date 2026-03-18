@@ -87,33 +87,47 @@ export default function SignalRoom() {
       const data = (await res.json()) as NewsResponse;
 
       if (data.error && data.articles.length === 0) {
-        setError("GDELT feed unavailable — retrying next cycle");
+        // Only show error if we have nothing to show
+        setArticles(prev => {
+          if (prev.length === 0) setError("Feed unavailable — retrying next cycle");
+          return prev;
+        });
       } else {
         setError(null);
         if (data.articles.length > 0) {
-          // Only update articles if new response has at least as many items as what's
-          // currently showing — prevents collapsing a full feed to a thin partial result
-          setArticles(prev => data.articles.length >= prev.length ? data.articles : prev);
+          // NEVER downgrade: only replace current articles if new set is at least as large
+          setArticles(prev => {
+            const next = data.articles;
+            // Accept new data if it meaningfully improves on what we have, or if we have nothing
+            if (prev.length === 0) return next;
+            if (next.length >= Math.max(prev.length, 8)) return next;
+            if (next.length >= prev.length) return next;
+            return prev; // keep stronger feed
+          });
           setCachedAt(data.cachedAt);
           setIsCached(data.cached);
         }
       }
 
-      // If server is still building cache (partial or no data), retry with backoff
+      // If server is still fetching (partial result), retry with backoff
       if (data.fetching && attempt < 6) {
-        const delay = attempt < 2 ? 8000 : attempt < 4 ? 12000 : 20000;
+        const delay = attempt < 2 ? 6000 : attempt < 4 ? 10000 : 18000;
         setTimeout(() => fetchNews(attempt + 1), delay);
         return;
       }
 
-      // If genuinely empty with no error, retry a couple times
-      if (data.articles.length === 0 && !data.error && attempt < 3) {
-        setTimeout(() => fetchNews(attempt + 1), 15000);
+      // If empty with no error, retry
+      if (data.articles.length === 0 && !data.error && attempt < 4) {
+        setTimeout(() => fetchNews(attempt + 1), 10000);
         return;
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "FEED UNAVAILABLE");
-      if (attempt < 3) setTimeout(() => fetchNews(attempt + 1), 20000);
+      // On error, keep whatever we're already showing
+      setArticles(prev => {
+        if (prev.length === 0) setError(e instanceof Error ? e.message : "FEED UNAVAILABLE");
+        return prev;
+      });
+      if (attempt < 4) setTimeout(() => fetchNews(attempt + 1), 15000);
     } finally {
       setLoading(false);
     }

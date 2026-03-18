@@ -1,0 +1,111 @@
+FINAL SIGNAL ROOM HARD FLOOR PASS — force a populated feed and diagnose why only one item is being served.
+
+Do NOT redesign the site.
+Do NOT change the visual identity.
+Do NOT change Signal Room layout.
+Do NOT touch working chat, auth, command console, Sage, or navigation unless required for this fix.
+
+MAIN GOAL
+The news feed is STILL collapsing to one visible article.
+
+I do not want another pass that says the logic was improved while the live result still shows one item.
+
+This pass must identify the actual failing point and enforce a hard minimum usable feed size.
+
+==================================================
+1. ROOT CAUSE DIAGNOSIS — TRACE THE FULL NEWS PIPELINE
+==================================================
+
+Audit the full path end-to-end:
+
+- GDELT/API fetch result count per query
+- merged live result count before dedupe
+- result count after dedupe
+- result count written to live cache
+- result count written to backup cache
+- result count returned by the API route
+- result count received by frontend
+- result count rendered by frontend
+
+I need the REAL bottleneck identified, not guessed.
+
+Add explicit console diagnostics during development so it is obvious where the feed is collapsing.
+
+==================================================
+2. HARD MINIMUM FEED FLOOR
+==================================================
+
+Implement a hard floor so Signal Room does not visually collapse to one item.
+
+Requirements:
+- target minimum visible feed floor of 8 items
+- if live result count is below 8:
+  - merge with recent cached articles
+  - if still below 8, reuse prior successful feed payload
+  - if still below 8, use a retained rolling fallback pool of recent valid items
+- do NOT allow the response to shrink to 1 item if previously valid items exist
+
+Important:
+- this is for stability and launch usability
+- prioritize a populated monitored feed over a brittle “purely current” but nearly empty feed
+
+==================================================
+3. CACHE STRATEGY FIX
+==================================================
+
+Current issue strongly suggests backup cache is not actually helping.
+
+Fix cache strategy.
+
+Requirements:
+- maintain a rolling recent-articles pool, not just the latest single fetch result
+- preserve prior successful feed payloads
+- do not overwrite a strong cache with a thin one-item refresh result
+- only promote a new cache payload if it meets a reasonable threshold OR genuinely improves freshness without collapsing volume
+
+==================================================
+4. DEDUPE FIX
+==================================================
+
+Audit dedupe logic carefully.
+
+Requirements:
+- dedupe only exact duplicates:
+  - same normalized URL
+  - or truly identical title
+- do NOT dedupe broad topic similarity
+- do NOT collapse multiple valid articles from same region/topic into one
+
+==================================================
+5. FRONTEND RENDER PROTECTION
+==================================================
+
+Harden frontend rendering.
+
+Requirements:
+- never downgrade a healthy visible feed to a one-item payload during refresh
+- if a new response is too thin, keep the stronger previously rendered feed
+- preserve current Signal Room layout and styling
+
+==================================================
+6. FINAL VERIFICATION
+==================================================
+
+Before finishing, explicitly verify with actual counts:
+
+- live fetch count
+- merged count
+- cached count
+- API response count
+- frontend rendered count
+
+This pass is NOT complete unless Signal Room visibly shows a populated feed, not one item.
+
+SUCCESS CRITERIA
+
+This pass is complete only if:
+- the real collapse point is identified
+- the API consistently returns a fuller payload
+- frontend no longer drops to one visible article
+- Signal Room feels populated and stable for launch
+- no visual redesign occurs

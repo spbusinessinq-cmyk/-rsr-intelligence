@@ -2,19 +2,6 @@ import { Router } from "express";
 
 const router = Router();
 
-interface GdeltArticle {
-  url: string;
-  title: string;
-  seendate: string;
-  domain: string;
-  language: string;
-  sourcecountry: string;
-}
-
-interface GdeltResponse {
-  articles?: GdeltArticle[];
-}
-
 export interface NewsItem {
   id: string;
   title: string;
@@ -26,69 +13,147 @@ export interface NewsItem {
   region: string;
 }
 
-let cache:       { data: NewsItem[]; timestamp: number } | null = null;
-let backupCache: { data: NewsItem[]; timestamp: number } | null = null;
-let fetching = false;
+/* ── RSS source registry ─────────────────────────────────────────────── */
 
-const CACHE_TTL    = 10 * 60  * 1000;    // 10 min active cache
-const BACKUP_TTL   = 24 * 3600 * 1000;   // 24 hr backup — padded when live feed is thin
-const MIN_GOOD     = 8;                   // threshold for "healthy" result set
+interface RssSource {
+  url:      string;
+  label:    string;
+  category: NewsItem["category"];
+  priority: NewsItem["priority"];
+}
 
-// Broader queries + 168H timespan (7 days) → much more coverage than 72H
-const QUERIES: Array<{ q: string; category: NewsItem["category"]; priority: NewsItem["priority"] }> = [
-  { q: "war conflict military strike attack explosion frontline combat sourcelang:english",                 category: "GEOPOLITICAL", priority: "HIGH" },
-  { q: "ukraine russia israel iran nato offensive ceasefire missile airstrikes sourcelang:english",         category: "GEOPOLITICAL", priority: "HIGH" },
-  { q: "intelligence espionage surveillance nuclear sanctions diplomatic coup sourcelang:english",          category: "INTELLIGENCE", priority: "HIGH" },
-  { q: "military defense weapons army navy air force procurement contractor security sourcelang:english",   category: "DEFENSE",      priority: "HIGH" },
-  { q: "energy oil gas pipeline electricity grid crisis geopolitics supply sourcelang:english",            category: "ENERGY",       priority: "NORMAL" },
-  { q: "government policy legislation sanctions regulation parliament elections sourcelang:english",        category: "POLICY",       priority: "NORMAL" },
+const RSS_SOURCES: RssSource[] = [
+  // Geopolitical — world news
+  { url: "https://feeds.bbci.co.uk/news/world/rss.xml",              label: "bbc.co.uk",        category: "GEOPOLITICAL", priority: "HIGH"   },
+  { url: "https://feeds.bbci.co.uk/news/world/middle_east/rss.xml",  label: "bbc.co.uk",        category: "GEOPOLITICAL", priority: "HIGH"   },
+  { url: "https://feeds.bbci.co.uk/news/world/europe/rss.xml",       label: "bbc.co.uk",        category: "GEOPOLITICAL", priority: "HIGH"   },
+  { url: "https://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml",label: "bbc.co.uk",        category: "GEOPOLITICAL", priority: "NORMAL" },
+  { url: "https://www.aljazeera.com/xml/rss/all.xml",                 label: "aljazeera.com",    category: "GEOPOLITICAL", priority: "HIGH"   },
+  { url: "https://www.theguardian.com/world/rss",                     label: "theguardian.com",  category: "GEOPOLITICAL", priority: "NORMAL" },
+  { url: "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",   label: "nytimes.com",      category: "GEOPOLITICAL", priority: "NORMAL" },
+  // Defense
+  { url: "https://www.defensenews.com/arc/outboundfeeds/rss/",       label: "defensenews.com",  category: "DEFENSE",      priority: "HIGH"   },
+  { url: "https://breakingdefense.com/feed/",                         label: "breakingdefense.com", category: "DEFENSE",  priority: "HIGH"   },
+  // Policy
+  { url: "https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml",label: "nytimes.com",      category: "POLICY",       priority: "NORMAL" },
+  { url: "https://www.theguardian.com/politics/rss",                  label: "theguardian.com",  category: "POLICY",       priority: "NORMAL" },
 ];
 
-function inferRegion(article: GdeltArticle): string {
-  const text = (article.title + " " + (article.sourcecountry ?? "")).toLowerCase();
-  if (/israel|iran|iraq|syria|lebanon|yemen|saudi|qatar|gulf|hormuz|middle east|gaza|hamas|hezbollah/.test(text)) return "Middle East";
-  if (/ukraine|russia|poland|nato|eastern europe|moldova|belarus|crimea|zaporizhzhia/.test(text)) return "Eastern Europe";
-  if (/china|taiwan|japan|korea|asia|pacific|india|beijing|hong kong|xinjiang/.test(text)) return "Asia-Pacific";
-  if (/europe|eu |germany|france|britain|uk |brussels|spain|italy|paris/.test(text)) return "European Union";
-  if (/canada|mexico|washington|congress|senate|white house| us |united states|pentagon/.test(text)) return "North America";
-  if (/africa|nigeria|ethiopia|kenya|sahel|sudan|somalia|mali|libya/.test(text)) return "Africa";
-  if (/brazil|venezuela|colombia|argentina|latin|south america/.test(text)) return "Latin America";
+/* ── RSS parser ──────────────────────────────────────────────────────── */
+
+interface RawItem { title: string; url: string; pubDate: string }
+
+function stripCdata(s: string): string {
+  return s.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1").trim();
+}
+
+function parseRss(xml: string): RawItem[] {
+  const items: RawItem[] = [];
+  // Split on <item> boundaries
+  const itemChunks = xml.split(/<item[\s>]/i).slice(1);
+  for (const chunk of itemChunks) {
+    const end = chunk.indexOf("</item>");
+    const body = end >= 0 ? chunk.slice(0, end) : chunk;
+
+    const titleMatch = body.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+    // prefer <link> text content over atom:link href
+    const linkMatch  = body.match(/<link[^>]*>(https?[^<]+)<\/link>/i)
+                    || body.match(/<link[^>]+href="(https?[^"]+)"/i);
+    const dateMatch  = body.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i)
+                    || body.match(/<published[^>]*>([\s\S]*?)<\/published>/i)
+                    || body.match(/<updated[^>]*>([\s\S]*?)<\/updated>/i);
+
+    const title = titleMatch ? stripCdata(titleMatch[1]) : "";
+    const url   = linkMatch  ? linkMatch[1].trim() : "";
+    const date  = dateMatch  ? stripCdata(dateMatch[1]).trim() : "";
+
+    if (title && url && url.startsWith("http")) {
+      items.push({ title, url, pubDate: date });
+    }
+  }
+  return items;
+}
+
+function parsePubDate(d: string): string {
+  if (!d) return new Date().toISOString();
+  try { return new Date(d).toISOString(); } catch { return new Date().toISOString(); }
+}
+
+/* ── Category & region inference ─────────────────────────────────────── */
+
+const INTELLIGENCE_KW = /intelligenc|espionage|surveillance|spy|cia|mi6|mossad|fsb|intercept|covert|sanction|nuclear|cyber.attack|hack/i;
+const ENERGY_KW       = /\boil\b|\bgas\b|pipeline|energy|crude|opec|petrol|lng|electricity grid|power station|fuel|renewabl/i;
+const DEFENSE_KW      = /military|defence|defense|weapon|missile|drone|navy|army|air force|combat|warship|nuke|bomber|nato|pentagon/i;
+
+function refineCategory(title: string, base: NewsItem["category"]): NewsItem["category"] {
+  if (INTELLIGENCE_KW.test(title)) return "INTELLIGENCE";
+  if (ENERGY_KW.test(title))       return "ENERGY";
+  if (base !== "DEFENSE" && base !== "POLICY" && DEFENSE_KW.test(title)) return "DEFENSE";
+  return base;
+}
+
+const HIGH_KW = /kill|attack|strike|war|conflict|bomb|explosion|offens|crisis|critical|urgent|breaking|frontline|invasion|ceasefire|hostage|assassination/i;
+
+function refinePriority(title: string, base: NewsItem["priority"]): NewsItem["priority"] {
+  if (HIGH_KW.test(title)) return "HIGH";
+  return base;
+}
+
+function inferRegion(title: string): string {
+  const t = title.toLowerCase();
+  if (/israel|iran|iraq|syria|lebanon|yemen|saudi|qatar|gulf|middle east|gaza|hamas|hezbollah|hormuz/.test(t)) return "Middle East";
+  if (/ukraine|russia|poland|nato|eastern europe|moldova|belarus|crimea|zaporizhzhia|kyiv|moscow/.test(t)) return "Eastern Europe";
+  if (/china|taiwan|japan|korea|asia|pacific|india|beijing|hong kong|xinjiang|vietnam|myanmar/.test(t)) return "Asia-Pacific";
+  if (/europe|eu |germany|france|britain|uk |brussels|spain|italy|paris|berlin|london/.test(t)) return "European Union";
+  if (/canada|mexico|washington|congress|senate|white house| us |united states|pentagon|american|trump|biden|harris/.test(t)) return "North America";
+  if (/africa|nigeria|ethiopia|kenya|sahel|sudan|somalia|mali|libya|egypt/.test(t)) return "Africa";
+  if (/brazil|venezuela|colombia|argentina|latin|south america/.test(t)) return "Latin America";
   return "Global";
 }
 
-function parseSeen(seendate: string): string {
-  try {
-    const y  = seendate.slice(0, 4);
-    const mo = seendate.slice(4, 6);
-    const d  = seendate.slice(6, 8);
-    const h  = seendate.slice(9, 11);
-    const m  = seendate.slice(11, 13);
-    const s  = seendate.slice(13, 15);
-    return `${y}-${mo}-${d}T${h}:${m}:${s}Z`;
-  } catch {
-    return new Date().toISOString();
-  }
-}
+/* ── Fetch one RSS feed ───────────────────────────────────────────────── */
 
-function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function fetchGdelt(query: string): Promise<GdeltArticle[]> {
-  const url =
-    `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(query)}`
-    + `&mode=artlist&maxrecords=25&format=json&timespan=168H`;
+async function fetchRss(src: RssSource): Promise<NewsItem[]> {
   try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(12000) });
-    if (!res.ok) return [];
-    const text = await res.text();
-    if (!text.startsWith("{") && !text.startsWith("[")) return [];
-    const data = JSON.parse(text) as GdeltResponse;
-    return data.articles ?? [];
-  } catch {
+    const res = await fetch(src.url, {
+      signal: AbortSignal.timeout(10000),
+      headers: { "User-Agent": "RSR-Intelligence-Monitor/1.0" },
+    });
+    if (!res.ok) {
+      console.log(`[news] ${src.label} (${src.category}) HTTP ${res.status}`);
+      return [];
+    }
+    const xml  = await res.text();
+    const raw  = parseRss(xml);
+    console.log(`[news] ${src.label} (${src.category}): ${raw.length} items parsed from ${xml.length} bytes`);
+    return raw.map((r, i) => ({
+      id:       `rss-${src.category.toLowerCase()}-${Date.now()}-${i}`,
+      title:    r.title,
+      domain:   src.label,
+      url:      r.url,
+      seendate: parsePubDate(r.pubDate),
+      category: refineCategory(r.title, src.category),
+      priority: refinePriority(r.title, src.priority),
+      region:   inferRegion(r.title),
+    }));
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.log(`[news] ${src.label} ERROR: ${msg.slice(0, 60)}`);
     return [];
   }
 }
+
+/* ── Cache state ─────────────────────────────────────────────────────── */
+
+let cache:       { data: NewsItem[]; timestamp: number } | null = null;
+let backupCache: { data: NewsItem[]; timestamp: number } | null = null;
+let rollingPool: NewsItem[] = [];   // accumulated distinct valid items across cycles
+let fetching = false;
+
+const CACHE_TTL    = 12 * 60  * 1000;   // 12 min active cache
+const BACKUP_TTL   = 24 * 3600 * 1000;  // 24 hr backup
+const MIN_GOOD     = 8;                  // threshold for "healthy" result set
+const ROLLING_MAX  = 120;               // max items to keep in rolling pool
 
 function sortArticles(items: NewsItem[]): NewsItem[] {
   return [...items].sort((a, b) => {
@@ -98,89 +163,116 @@ function sortArticles(items: NewsItem[]): NewsItem[] {
   });
 }
 
+function dedupe(items: NewsItem[]): NewsItem[] {
+  const seenUrl   = new Set<string>();
+  const seenTitle = new Set<string>();
+  const out: NewsItem[] = [];
+  for (const item of items) {
+    // Normalize URL: strip query params for dedup but keep original for link
+    const urlKey   = item.url.split("?")[0].toLowerCase().replace(/\/+$/, "");
+    // Only dedupe on EXACT title (first 100 chars) — NOT similarity
+    const titleKey = item.title.trim().toLowerCase().slice(0, 100);
+    if (!seenUrl.has(urlKey) && !seenTitle.has(titleKey)) {
+      seenUrl.add(urlKey);
+      seenTitle.add(titleKey);
+      out.push(item);
+    }
+  }
+  return out;
+}
+
 async function refreshCache() {
   if (fetching) return;
   fetching = true;
-  const all: NewsItem[]  = [];
-  const seenUrl          = new Set<string>();
-  const seenTitle        = new Set<string>();
+  console.log("[news] Starting RSS refresh from", RSS_SOURCES.length, "sources");
 
   try {
-    for (let i = 0; i < QUERIES.length; i++) {
-      if (i > 0) await sleep(5500);   // GDELT rate limit: 1 req / 5 s
-      const q = QUERIES[i];
-      try {
-        const articles = await fetchGdelt(q.q);
-        for (const [j, a] of articles.entries()) {
-          const titleKey = a.title?.trim().toLowerCase().slice(0, 80);
-          if (!seenUrl.has(a.url) && (!titleKey || !seenTitle.has(titleKey))) {
-            seenUrl.add(a.url);
-            if (titleKey) seenTitle.add(titleKey);
-            all.push({
-              id:       `gdelt-${q.category.toLowerCase()}-${j}-${Date.now()}`,
-              title:    a.title,
-              domain:   a.domain,
-              url:      a.url,
-              seendate: parseSeen(a.seendate),
-              category: q.category,
-              priority: q.priority,
-              region:   inferRegion(a),
-            });
-          }
-        }
-      } catch { /* continue on individual query failure */ }
-
-      // Update cache incrementally after every query so partial results are served immediately
-      if (all.length > 0) {
-        cache = { data: sortArticles(all), timestamp: Date.now() };
-      }
+    // Fetch all RSS feeds in parallel (no rate limit like GDELT)
+    const results = await Promise.allSettled(RSS_SOURCES.map(fetchRss));
+    const all: NewsItem[] = [];
+    for (const r of results) {
+      if (r.status === "fulfilled") all.push(...r.value);
     }
 
-    // If this cycle produced a good result set, update the long-term backup
-    if (all.length >= MIN_GOOD) {
-      backupCache = { data: sortArticles(all), timestamp: Date.now() };
-    } else if (all.length > 0 && backupCache && Date.now() - backupCache.timestamp < BACKUP_TTL) {
-      // Pad thin live result with stale backup items (deduplicated)
-      const padded = [...all];
-      for (const item of backupCache.data) {
-        if (padded.length >= 30) break;
-        if (!seenUrl.has(item.url)) {
-          seenUrl.add(item.url);
-          padded.push({ ...item, id: item.id + "-stale" });
-        }
+    console.log(`[news] Raw total before dedupe: ${all.length} items`);
+    const deduped = dedupe(sortArticles(all));
+    console.log(`[news] After dedupe: ${deduped.length} items`);
+
+    // Update rolling pool — add new items, keep only the most recent ROLLING_MAX
+    const poolUrls = new Set(rollingPool.map(i => i.url.split("?")[0].toLowerCase().replace(/\/+$/, "")));
+    for (const item of deduped) {
+      const urlKey = item.url.split("?")[0].toLowerCase().replace(/\/+$/, "");
+      if (!poolUrls.has(urlKey)) {
+        rollingPool.push(item);
+        poolUrls.add(urlKey);
       }
-      cache = { data: sortArticles(padded), timestamp: Date.now() };
-    } else if (all.length === 0 && backupCache && Date.now() - backupCache.timestamp < BACKUP_TTL) {
-      // No live results at all — serve backup cache
-      cache = { data: backupCache.data, timestamp: backupCache.timestamp };
     }
+    // Trim rolling pool to ROLLING_MAX most recent
+    if (rollingPool.length > ROLLING_MAX) {
+      rollingPool = sortArticles(rollingPool).slice(0, ROLLING_MAX);
+    }
+
+    // Update backup cache only if this cycle is good (don't downgrade)
+    if (deduped.length >= MIN_GOOD) {
+      backupCache = { data: deduped, timestamp: Date.now() };
+      console.log(`[news] Backup cache updated: ${deduped.length} items`);
+    }
+
+    // Set live cache — always set it with the best available data
+    const liveData = deduped.length >= MIN_GOOD
+      ? deduped
+      : padWithPool(deduped);
+
+    cache = { data: liveData, timestamp: Date.now() };
+    console.log(`[news] Live cache set: ${liveData.length} items`);
   } finally {
     fetching = false;
   }
 }
 
-setTimeout(() => refreshCache(), 1000);
+/* ── Pad helpers ─────────────────────────────────────────────────────── */
 
-/** Pad a result set with backup cache items when live feed is thin */
-function padWithBackup(live: NewsItem[]): NewsItem[] {
-  if (!backupCache || live.length >= MIN_GOOD) return live;
-  const seenUrls = new Set(live.map(i => i.url));
-  const padded = [...live];
-  for (const item of backupCache.data) {
+/** Pad live results with rolling pool items when below floor */
+function padWithPool(live: NewsItem[]): NewsItem[] {
+  if (live.length >= MIN_GOOD) return live;
+
+  // Collect candidates from: backup cache first, then rolling pool
+  const candidates: NewsItem[] = [
+    ...(backupCache?.data ?? []),
+    ...rollingPool,
+  ];
+
+  const seenUrls  = new Set(live.map(i => i.url.split("?")[0].toLowerCase().replace(/\/+$/, "")));
+  const padded    = [...live];
+
+  for (const item of candidates) {
     if (padded.length >= 30) break;
-    if (!seenUrls.has(item.url)) {
-      seenUrls.add(item.url);
-      padded.push({ ...item, id: item.id.endsWith("-stale") ? item.id : item.id + "-stale" });
+    const urlKey = item.url.split("?")[0].toLowerCase().replace(/\/+$/, "");
+    if (!seenUrls.has(urlKey)) {
+      seenUrls.add(urlKey);
+      padded.push({ ...item, id: item.id.includes("-pad") ? item.id : item.id + "-pad" });
     }
   }
+
+  console.log(`[news] padWithPool: ${live.length} live → ${padded.length} padded`);
   return sortArticles(padded);
+}
+
+// Start initial fetch
+setTimeout(() => refreshCache(), 500);
+
+/* ── GET /news ───────────────────────────────────────────────────────── */
+
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 router.get("/news", async (_req, res) => {
   try {
-    // Serve valid cached data immediately (full or partial), padded if thin
+    // Serve valid cached data immediately
     if (cache && Date.now() - cache.timestamp < CACHE_TTL) {
-      const articles = padWithBackup(cache.data);
+      const articles = cache.data.length < MIN_GOOD ? padWithPool(cache.data) : cache.data;
+      console.log(`[news] Serving cached response: ${articles.length} items`);
       return res.json({
         articles,
         cached:      true,
@@ -190,14 +282,17 @@ router.get("/news", async (_req, res) => {
       });
     }
 
-    // No cache yet — kick off background refresh and wait up to 18 s for first query
+    // Cache expired or missing — trigger refresh, wait up to 15s
     if (!fetching) refreshCache();
-    for (let i = 0; i < 18; i++) {
+    for (let i = 0; i < 15; i++) {
       await sleep(1000);
-      if (cache && cache.data.length > 0) break;
+      if (cache && cache.data.length >= MIN_GOOD) break;
     }
 
-    const articles = padWithBackup(cache?.data ?? []);
+    const liveData = cache?.data ?? [];
+    const articles = liveData.length >= MIN_GOOD ? liveData : padWithPool(liveData);
+    console.log(`[news] Serving fresh response: ${articles.length} items`);
+
     res.json({
       articles,
       cached:      false,
@@ -207,11 +302,12 @@ router.get("/news", async (_req, res) => {
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Unknown error";
-    // Serve backup cache on error if available so feed never shows empty
-    const fallback = backupCache ? padWithBackup([]) : [];
+    console.error("[news] GET handler error:", msg);
+    // Serve rolling pool or backup on error — never serve empty
+    const fallback = padWithPool([]);
     res.status(fallback.length > 0 ? 200 : 500).json({
       articles: fallback,
-      error:    fallback.length > 0 ? undefined : "GDELT fetch failed: " + msg,
+      error:    fallback.length > 0 ? undefined : "News fetch failed: " + msg,
     });
   }
 });
