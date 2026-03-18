@@ -28,72 +28,131 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  async function loadProfile(userId: string) {
-    const { data } = await supabase
+/* ── Profile loader (never throws, never hangs the auth gate) ─────────── */
+async function loadProfileSafe(
+  userId: string,
+  userEmail: string | undefined,
+  setProfile: (p: Profile | null) => void
+): Promise<void> {
+  try {
+    const { data, error } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", userId)
       .single();
-    if (data) {
+
+    if (data && !error) {
       setProfile(data as Profile);
-    } else {
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      if (authUser) {
-        const handle = (authUser.email ?? "operator")
-          .split("@")[0]
-          .toUpperCase()
-          .replace(/[^A-Z0-9-]/g, "-")
-          .slice(0, 24);
-        await supabase.from("profiles").upsert({
-          id: userId,
-          email: authUser.email ?? "",
-          handle,
-          role: "member",
-          approval_status: "pending",
-          account_status: "active",
-        }, { onConflict: "id" });
-        setProfile({
-          id: userId,
-          handle,
-          role: "member",
-          approval_status: "pending",
-          account_status: "active",
-          email: authUser.email ?? "",
-        });
-      }
+      return;
     }
+
+    // Profile row missing — create a default one
+    const handle = (userEmail ?? "operator")
+      .split("@")[0]
+      .toUpperCase()
+      .replace(/[^A-Z0-9-]/g, "-")
+      .slice(0, 24);
+
+    await supabase.from("profiles").upsert(
+      {
+        id: userId,
+        email: userEmail ?? "",
+        handle,
+        role: "member",
+        approval_status: "pending",
+        account_status: "active",
+      },
+      { onConflict: "id" }
+    );
+    setProfile({
+      id: userId,
+      handle,
+      role: "member",
+      approval_status: "pending",
+      account_status: "active",
+      email: userEmail ?? "",
+    });
+  } catch (err) {
+    console.warn("[auth] profile load error:", err);
+    // Don't throw — caller continues without profile
   }
+}
+
+/* ── AuthProvider ─────────────────────────────────────────────────────── */
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user,    setUser]    = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!isConfigured) {
+      console.log("[auth] Supabase not configured");
       setLoading(false);
       return;
     }
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) loadProfile(session.user.id);
-      setLoading(false);
-    });
+    console.log("[auth] boot start");
+    let settled = false;
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        await loadProfile(session.user.id);
-      } else {
-        setProfile(null);
+    function settle(reason: string) {
+      if (!settled) {
+        settled = true;
+        console.log("[auth] settled →", reason);
+        setLoading(false);
       }
-    });
+    }
 
-    return () => subscription.unsubscribe();
+    /* Hard guarantee — loading resolves within 5 s no matter what */
+    const timer = setTimeout(() => {
+      settle("5 s timeout");
+    }, 5000);
+
+    /*
+     * onAuthStateChange is the authoritative source of truth.
+     * In Supabase v2, INITIAL_SESSION fires synchronously after subscription.
+     * We settle loading as soon as we know the auth state (before profile loads).
+     * Profile loads asynchronously and updates state after — no blocking.
+     */
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, s) => {
+        console.log("[auth] event:", event, s ? s.user.email : "no session");
+
+        setSession(s);
+        setUser(s?.user ?? null);
+
+        if (!s?.user) {
+          setProfile(null);
+        }
+
+        /*
+         * Settle immediately on any event that represents a definitive state.
+         * We don't await profile here — profile loads in background and
+         * updates state independently, which causes a second render.
+         * This keeps the loading gate fast.
+         */
+        if (
+          event === "INITIAL_SESSION" ||
+          event === "SIGNED_IN"       ||
+          event === "SIGNED_OUT"      ||
+          event === "TOKEN_REFRESHED" ||
+          event === "USER_UPDATED"
+        ) {
+          clearTimeout(timer);
+          settle(event);
+        }
+
+        /* Kick off profile load in the background (non-blocking) */
+        if (s?.user) {
+          loadProfileSafe(s.user.id, s.user.email, setProfile);
+        }
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timer);
+    };
   }, []);
 
   async function signIn(email: string, password: string) {
@@ -118,8 +177,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function signOut() {
+    console.log("[auth] signing out");
     await supabase.auth.signOut();
     setProfile(null);
+    setUser(null);
+    setSession(null);
   }
 
   return (
@@ -134,6 +196,8 @@ export function useAuth() {
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }
+
+/* ── Screens ─────────────────────────────────────────────────────────── */
 
 function VerifyingScreen() {
   return (
@@ -169,29 +233,19 @@ function PendingScreen({ profile }: { profile: Profile }) {
             <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-700">INDEPENDENT ANALYSIS SYSTEM</div>
           </div>
         </div>
-        <button
-          onClick={signOut}
-          className="font-mono text-[10px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 transition-colors"
-        >
-          SIGN OUT
-        </button>
+        <button onClick={signOut} className="font-mono text-[10px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 transition-colors">SIGN OUT</button>
       </div>
 
       <div className="flex-1 flex items-center justify-center px-6">
         <div className="max-w-md w-full">
-          <div className="font-mono text-[10px] tracking-[0.45em] text-zinc-700 mb-8">
-            » ACCESS PROTOCOL // RSR INTELLIGENCE NETWORK
-          </div>
+          <div className="font-mono text-[10px] tracking-[0.45em] text-zinc-700 mb-8">» ACCESS PROTOCOL // RSR INTELLIGENCE NETWORK</div>
 
           <div className="border border-amber-500/20 bg-amber-500/5 px-6 py-4 mb-8">
             <div className="font-mono text-[9px] tracking-[0.4em] text-amber-500/70 mb-1">CLEARANCE STATUS</div>
             <div className="font-mono text-xs tracking-[0.2em] text-amber-400">PENDING AUTHORIZATION</div>
           </div>
 
-          <h1 className="font-mono text-3xl font-bold tracking-[0.12em] text-white mb-2">
-            CLEARANCE
-            <br />PENDING
-          </h1>
+          <h1 className="font-mono text-3xl font-bold tracking-[0.12em] text-white mb-2">CLEARANCE<br />PENDING</h1>
           <div className="w-16 h-px bg-zinc-800 mb-8" />
 
           <div className="space-y-1 mb-8">
@@ -216,14 +270,10 @@ function PendingScreen({ profile }: { profile: Profile }) {
 
           <div className="flex items-center gap-6">
             <Link href="/signal-room">
-              <span className="font-mono text-[10px] tracking-[0.3em] text-emerald-500 hover:text-emerald-400 transition-colors cursor-pointer">
-                → SIGNAL ROOM
-              </span>
+              <span className="font-mono text-[10px] tracking-[0.3em] text-emerald-500 hover:text-emerald-400 transition-colors cursor-pointer">→ SIGNAL ROOM</span>
             </Link>
             <Link href="/">
-              <span className="font-mono text-[10px] tracking-[0.3em] text-zinc-600 hover:text-zinc-400 transition-colors cursor-pointer">
-                ← RETURN HOME
-              </span>
+              <span className="font-mono text-[10px] tracking-[0.3em] text-zinc-600 hover:text-zinc-400 transition-colors cursor-pointer">← RETURN HOME</span>
             </Link>
           </div>
         </div>
@@ -234,7 +284,6 @@ function PendingScreen({ profile }: { profile: Profile }) {
 
 function DeniedScreen({ profile }: { profile: Profile }) {
   const { signOut } = useAuth();
-
   return (
     <div className="min-h-screen bg-black flex flex-col">
       <div className="border-b border-zinc-900 px-8 py-4 flex items-center justify-between">
@@ -247,58 +296,35 @@ function DeniedScreen({ profile }: { profile: Profile }) {
             <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-700">INDEPENDENT ANALYSIS SYSTEM</div>
           </div>
         </div>
-        <button
-          onClick={signOut}
-          className="font-mono text-[10px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 transition-colors"
-        >
-          SIGN OUT
-        </button>
+        <button onClick={signOut} className="font-mono text-[10px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 transition-colors">SIGN OUT</button>
       </div>
-
       <div className="flex-1 flex items-center justify-center px-6">
         <div className="max-w-md w-full">
-          <div className="font-mono text-[10px] tracking-[0.45em] text-zinc-700 mb-8">
-            » ACCESS PROTOCOL // RSR INTELLIGENCE NETWORK
-          </div>
-
+          <div className="font-mono text-[10px] tracking-[0.45em] text-zinc-700 mb-8">» ACCESS PROTOCOL // RSR INTELLIGENCE NETWORK</div>
           <div className="border border-red-500/20 bg-red-500/5 px-6 py-4 mb-8">
             <div className="font-mono text-[9px] tracking-[0.4em] text-red-500/70 mb-1">CLEARANCE STATUS</div>
             <div className="font-mono text-xs tracking-[0.2em] text-red-400">AUTHORIZATION DENIED</div>
           </div>
-
-          <h1 className="font-mono text-3xl font-bold tracking-[0.12em] text-white mb-2">
-            ACCESS
-            <br />DENIED
-          </h1>
+          <h1 className="font-mono text-3xl font-bold tracking-[0.12em] text-white mb-2">ACCESS<br />DENIED</h1>
           <div className="w-16 h-px bg-zinc-800 mb-8" />
-
           <div className="space-y-1 mb-8">
-            {[
-              ["OPERATOR", profile.handle],
-              ["STATUS", "AUTHORIZATION DENIED"],
-            ].map(([label, val]) => (
+            {[["OPERATOR", profile.handle], ["STATUS", "AUTHORIZATION DENIED"]].map(([label, val]) => (
               <div key={label} className="flex items-center gap-4 py-2 border-b border-zinc-900">
                 <span className="font-mono text-[9px] tracking-[0.35em] text-zinc-600 w-28 shrink-0">{label}</span>
                 <span className="font-mono text-[10px] tracking-[0.2em] text-zinc-400">{val}</span>
               </div>
             ))}
           </div>
-
           <p className="font-mono text-[10px] tracking-[0.15em] text-zinc-600 leading-relaxed mb-8">
             Your access request has been denied by the RSR analysis team.
             Contact team leadership via the Signal Room if you believe this is an error.
           </p>
-
           <div className="flex items-center gap-6">
             <Link href="/signal-room">
-              <span className="font-mono text-[10px] tracking-[0.3em] text-emerald-500 hover:text-emerald-400 transition-colors cursor-pointer">
-                → SIGNAL ROOM
-              </span>
+              <span className="font-mono text-[10px] tracking-[0.3em] text-emerald-500 hover:text-emerald-400 transition-colors cursor-pointer">→ SIGNAL ROOM</span>
             </Link>
             <Link href="/">
-              <span className="font-mono text-[10px] tracking-[0.3em] text-zinc-600 hover:text-zinc-400 transition-colors cursor-pointer">
-                ← RETURN HOME
-              </span>
+              <span className="font-mono text-[10px] tracking-[0.3em] text-zinc-600 hover:text-zinc-400 transition-colors cursor-pointer">← RETURN HOME</span>
             </Link>
           </div>
         </div>
@@ -397,15 +423,24 @@ function BannedScreen({ profile }: { profile: Profile }) {
   );
 }
 
-export function ProtectedRoute({ component: Component, adminOnly = false }: { component: React.ComponentType; adminOnly?: boolean }) {
+/* ── ProtectedRoute ───────────────────────────────────────────────────── */
+export function ProtectedRoute({
+  component: Component,
+  adminOnly = false,
+}: {
+  component: React.ComponentType;
+  adminOnly?: boolean;
+}) {
   const { user, profile, loading, configured } = useAuth();
   const [, setLocation] = useLocation();
 
   useEffect(() => {
     if (!loading && configured && !user) {
+      console.log("[auth] no user — redirecting to /access");
       setLocation("/access");
     }
     if (!loading && adminOnly && profile && profile.role !== "admin") {
+      console.log("[auth] non-admin on admin route — redirecting home");
       setLocation("/");
     }
   }, [user, profile, loading, configured, adminOnly, setLocation]);
@@ -419,12 +454,12 @@ export function ProtectedRoute({ component: Component, adminOnly = false }: { co
     }
 
     const acctStatus = profile.account_status ?? "active";
-    if (acctStatus === "banned") return <BannedScreen profile={profile} />;
+    if (acctStatus === "banned")    return <BannedScreen    profile={profile} />;
     if (acctStatus === "suspended") return <SuspendedScreen profile={profile} />;
 
-    const status = profile.approval_status ?? "approved";
-    if (status === "pending") return <PendingScreen profile={profile} />;
-    if (status === "denied") return <DeniedScreen profile={profile} />;
+    const approvalStatus = profile.approval_status ?? "approved";
+    if (approvalStatus === "pending") return <PendingScreen profile={profile} />;
+    if (approvalStatus === "denied")  return <DeniedScreen  profile={profile} />;
   }
 
   return <Component />;
