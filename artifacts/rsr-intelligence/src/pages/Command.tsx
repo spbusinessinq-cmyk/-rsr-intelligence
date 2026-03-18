@@ -501,8 +501,15 @@ export default function Command() {
 
                         {/* Handle + title */}
                         <div className="flex items-center gap-2 min-w-0">
-                          <button onClick={() => setExpandedOp(isExpanded ? null : op.id)} className="text-zinc-600 hover:text-zinc-400 transition-colors shrink-0 font-mono text-[10px]">
-                            {isExpanded ? "▾" : "▸"}
+                          <button
+                            onClick={() => setExpandedOp(isExpanded ? null : op.id)}
+                            className={`shrink-0 font-mono text-[8px] tracking-[0.15em] border px-2 py-0.5 transition-colors whitespace-nowrap ${
+                              isExpanded
+                                ? "text-emerald-600 border-emerald-900/50 bg-emerald-950/20"
+                                : "text-zinc-600 border-zinc-800 hover:text-zinc-300 hover:border-zinc-600"
+                            }`}
+                          >
+                            {isExpanded ? "▾ COLLAPSE" : "▸ DETAILS"}
                           </button>
                           <div className="min-w-0">
                             <div className="font-mono text-[10px] tracking-[0.12em] text-zinc-200 truncate flex items-center gap-2">
@@ -548,7 +555,13 @@ export default function Command() {
                               )}
                             </>
                           )}
-                          {isSelf && <span className="font-mono text-[9px] text-zinc-800 tracking-[0.2em]">—</span>}
+                          <ActionBtn
+                            label="EDIT IDENTITY"
+                            color="zinc"
+                            loading={false}
+                            disabled={!!actionLoading}
+                            onClick={() => setEditingOp(op)}
+                          />
                         </div>
                       </div>
 

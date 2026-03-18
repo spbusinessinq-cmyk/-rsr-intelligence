@@ -1,0 +1,156 @@
+Final identity control + operator panel fix.
+
+Do NOT redesign the site.
+Do NOT change the established visual identity.
+Do NOT weaken the homepage.
+
+Refine and complete the current build only.
+
+MAIN GOAL
+Fix the operator identity editing flow so it is actually visible and usable in Command Console, and make the remaining admin/operator controls explicit and launch-ready.
+
+PRESERVE
+- black base
+- restrained emerald accents
+- thin borders
+- premium command-interface feel
+- monospace micro-labels
+- serious intelligence-network tone
+
+CRITICAL RULES
+- No hidden essential controls
+- No vague “expand to edit” behavior unless it is visually obvious
+- No describing controls that are not clearly visible in the UI
+- Keep everything minimal, readable, and operational
+
+==================================================
+1. COMMAND CONSOLE — MAKE OPERATOR RECORD VISIBLE
+==================================================
+
+Right now the operator record panel is not clearly visible/useful.
+
+Fix this.
+
+For each operator row:
+- make the expand/collapse affordance obvious
+- when expanded, clearly show an OPERATOR RECORD panel directly under that row
+- the panel must visibly include:
+  - full user/operator ID
+  - handle
+  - title if present
+  - email
+  - role
+  - approval status
+  - account status
+  - requested role if present
+  - joined date
+
+Do not hide this behind unclear UI.
+It must be obvious how to open it.
+
+==================================================
+2. HANDLE / TITLE EDITING — MUST BE OBVIOUS AND WORK
+==================================================
+
+This is the main missing control.
+
+I need to be able to edit:
+- my own handle
+- my own title
+- other users’ handles/titles (admin only)
+
+Implement a clearly visible EDIT IDENTITY action in the operator row/panel.
+
+Best implementation:
+- an obvious button in the operator row OR expanded operator panel
+- clicking it opens a modal or inline editor
+- fields:
+  - handle
+  - title
+
+On save:
+- update profiles table
+- reflect immediately across UI:
+  - Investigation Room
+  - Command Console
+  - Analyst roster
+  - any user references
+
+Do not leave this hidden or implied.
+Make it explicit and working.
+
+==================================================
+3. COMMAND CONSOLE — OWNER VISIBILITY
+==================================================
+
+Ensure Command Console shows what I need as owner/admin.
+
+Display clearly:
+- operator id
+- handle
+- title
+- email
+- role
+- approval status
+- account status
+- joined date
+- recent activity if available
+
+Also make admin action buttons slightly larger and easier to use.
+
+==================================================
+4. INVESTIGATION CHANNELS = REAL INVESTIGATION WORKSPACES
+==================================================
+
+If a channel is an investigation channel, it should support real investigation-building inside that room.
+
+Implement/refine:
+- linked cases visible in context bar
+- attach existing case to channel
+- create case from channel
+- linked files/dossiers available from channel context
+- make the room feel like an investigation workspace, not just generic chat
+
+Do not redesign the whole room.
+Keep the current structure.
+
+==================================================
+5. INVESTIGATION ROOM READABILITY
+==================================================
+
+Increase Investigation Room text size slightly again:
+- messages
+- role labels
+- active cases
+- analyst roster
+- composer text
+
+Do not overdo it.
+Just make it easier to read.
+
+==================================================
+6. FINAL FUNCTIONAL VERIFICATION
+==================================================
+
+Before finishing, verify these actually work:
+- expand operator row
+- see operator record panel
+- edit own handle
+- edit other user handle
+- save handle/title to profiles
+- see change reflected in Investigation Room and roster
+- create/attach case in investigation channel
+- no hidden/broken controls
+
+==================================================
+7. DO NOT TOUCH WHAT IS ALREADY GOOD
+==================================================
+
+Keep:
+- local date/time header
+- homepage demo notice
+- Sage terminal
+- real signal feed
+- current page architecture
+
+This pass is about making identity/admin control obvious and real, not introducing new concepts.

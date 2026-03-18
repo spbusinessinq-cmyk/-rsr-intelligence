@@ -638,16 +638,16 @@ function AnalystRoster({ configured, user }: { configured: boolean; user: unknow
   return (
     <div className="border-b border-zinc-900 p-4">
       <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-600 mb-3">ANALYST ROSTER</div>
-      <div className="space-y-2">
+      <div className="space-y-2.5">
         {analysts.map(a => (
           <div key={a.handle} className="flex items-center justify-between font-mono">
             <div className="flex items-center gap-2">
               <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${a.status === "ACTIVE" ? "bg-zinc-500" : "bg-zinc-800"}`} />
-              <span className={`text-[10px] tracking-[0.08em] ${a.status === "ACTIVE" ? "text-zinc-400" : "text-zinc-700"}`}>
+              <span className={`text-[11px] tracking-[0.06em] ${a.status === "ACTIVE" ? "text-zinc-300" : "text-zinc-600"}`}>
                 {a.handle}
               </span>
             </div>
-            <span className={`text-[8px] tracking-[0.2em] ${roleCls[a.role] ?? "text-zinc-700"}`}>
+            <span className={`text-[9px] tracking-[0.2em] ${roleCls[a.role] ?? "text-zinc-700"}`}>
               {a.role?.toUpperCase() ?? "MEMBER"}
             </span>
           </div>
@@ -687,6 +687,8 @@ export default function InvestigationRoom() {
   const [selectedCaseRef, setSelectedCaseRef] = useState<string | null>(null);
   const [newCaseOpen, setNewCaseOpen] = useState(false);
   const [newCaseForm, setNewCaseForm] = useState({ ref: "", name: "", stage: "NEW", priority: "NORMAL", channel_id: "" });
+  const [attachCaseOpen, setAttachCaseOpen] = useState(false);
+  const [attachCaseId,   setAttachCaseId]   = useState("");
 
   const activeChannelData = channels.find(c => c.id === activeChannel);
 
@@ -771,6 +773,16 @@ export default function InvestigationRoom() {
     await loadCases();
   }
 
+  async function attachCaseToChannel() {
+    if (!attachCaseId) return;
+    await supabase.from("investigation_cases")
+      .update({ channel_id: activeChannel, updated_at: new Date().toISOString() })
+      .eq("id", attachCaseId);
+    setAttachCaseOpen(false);
+    setAttachCaseId("");
+    await loadCases();
+  }
+
   /* ── Message ops ── */
   async function deleteMessage(id: string) {
     if (!isAdmin || !configured) return;
@@ -817,6 +829,8 @@ export default function InvestigationRoom() {
     setLoading(true);
     setMessages([]);
     loadMessages();
+    setAttachCaseOpen(false);
+    setAttachCaseId("");
   }, [loadMessages]);
 
   /* ── Realtime subscription ── */
@@ -1064,35 +1078,82 @@ export default function InvestigationRoom() {
             </div>
           </div>
 
-          {/* Investigation context bar — linked cases */}
+          {/* Investigation context bar — workspace cases */}
           {(() => {
-            const linked = cases.filter(c => c.channel_id === activeChannel);
-            if (linked.length === 0) return null;
+            const linked   = cases.filter(c => c.channel_id === activeChannel);
+            const unlinked = isAdmin ? cases.filter(c => !c.channel_id) : [];
+            if (!isAdmin && linked.length === 0) return null;
             return (
-              <div className="border-b border-zinc-900/60 px-5 py-2 flex items-center gap-3 bg-zinc-950/20 flex-wrap shrink-0">
-                <span className="font-mono text-[8px] tracking-[0.3em] text-zinc-700 shrink-0">LINKED</span>
-                {linked.map(c => (
-                  <button
-                    key={c.ref}
-                    onClick={() => setSelectedCaseRef(selectedCaseRef === c.ref ? null : c.ref)}
-                    className={`font-mono text-[9px] tracking-[0.06em] border px-2 py-0.5 transition-colors ${
-                      selectedCaseRef === c.ref
-                        ? "border-emerald-900/40 text-emerald-600 bg-emerald-950/20"
-                        : "border-zinc-900 text-zinc-600 hover:border-emerald-900/30 hover:text-emerald-600"
-                    }`}
-                  >
-                    {c.ref} · {c.name}
-                  </button>
-                ))}
-                {isAdmin && configured && (
-                  <button
-                    onClick={() => setNewCaseOpen(true)}
-                    className="font-mono text-[8px] tracking-[0.2em] text-zinc-700 hover:text-emerald-500 transition-colors ml-auto"
-                  >
-                    + CASE
-                  </button>
+              <>
+                <div className="border-b border-zinc-900/60 px-5 py-2 flex items-center gap-3 bg-zinc-950/20 flex-wrap shrink-0">
+                  <span className="font-mono text-[8px] tracking-[0.3em] text-zinc-700 shrink-0">WORKSPACE</span>
+                  {linked.length === 0 ? (
+                    <span className="font-mono text-[9px] text-zinc-800">No cases linked to this channel</span>
+                  ) : linked.map(c => (
+                    <button
+                      key={c.ref}
+                      onClick={() => setSelectedCaseRef(selectedCaseRef === c.ref ? null : c.ref)}
+                      className={`font-mono text-[9px] tracking-[0.06em] border px-2 py-0.5 transition-colors ${
+                        selectedCaseRef === c.ref
+                          ? "border-emerald-900/40 text-emerald-600 bg-emerald-950/20"
+                          : "border-zinc-900 text-zinc-600 hover:border-emerald-900/30 hover:text-emerald-600"
+                      }`}
+                    >
+                      {c.ref} · {c.name}
+                    </button>
+                  ))}
+                  {isAdmin && configured && (
+                    <div className="flex items-center gap-2 ml-auto">
+                      <button
+                        onClick={() => setNewCaseOpen(true)}
+                        className="font-mono text-[8px] tracking-[0.2em] text-zinc-700 hover:text-emerald-500 border border-zinc-900 hover:border-emerald-900/30 px-2 py-0.5 transition-colors"
+                      >
+                        + NEW CASE
+                      </button>
+                      {unlinked.length > 0 && (
+                        <button
+                          onClick={() => { setAttachCaseOpen(v => !v); setAttachCaseId(""); }}
+                          className={`font-mono text-[8px] tracking-[0.2em] border px-2 py-0.5 transition-colors ${
+                            attachCaseOpen
+                              ? "text-emerald-600 border-emerald-900/50"
+                              : "text-zinc-700 border-zinc-900 hover:text-emerald-500 hover:border-emerald-900/30"
+                          }`}
+                        >
+                          ATTACH ▾
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+                {attachCaseOpen && isAdmin && configured && (
+                  <div className="border-b border-zinc-900/60 px-5 py-2.5 flex items-center gap-3 bg-zinc-950/40 shrink-0">
+                    <span className="font-mono text-[8px] tracking-[0.25em] text-zinc-700 shrink-0">ATTACH TO CHANNEL:</span>
+                    <select
+                      value={attachCaseId}
+                      onChange={e => setAttachCaseId(e.target.value)}
+                      className="bg-black border border-zinc-800 focus:border-zinc-600 font-mono text-[9px] text-zinc-400 px-2 py-1 outline-none flex-1 max-w-xs transition-colors"
+                    >
+                      <option value="">— select existing case —</option>
+                      {unlinked.map(c => (
+                        <option key={c.id} value={c.id}>{c.ref} · {c.name} [{c.stage}]</option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={attachCaseToChannel}
+                      disabled={!attachCaseId}
+                      className="font-mono text-[8px] tracking-[0.2em] text-emerald-700 hover:text-emerald-500 border border-emerald-900/30 hover:border-emerald-800/40 px-3 py-1 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                    >
+                      ATTACH
+                    </button>
+                    <button
+                      onClick={() => { setAttachCaseOpen(false); setAttachCaseId(""); }}
+                      className="font-mono text-[9px] text-zinc-700 hover:text-zinc-400 transition-colors"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 )}
-              </div>
+              </>
             );
           })()}
 
@@ -1281,10 +1342,10 @@ export default function InvestigationRoom() {
                         >
                           {c.ref}
                         </Link>
-                        <span className={`font-mono text-[8px] tracking-widest truncate flex-1 ${isLinked ? "text-emerald-700/80" : "text-zinc-700"}`}>
+                        <span className={`font-mono text-[9px] tracking-[0.04em] truncate flex-1 ${isLinked ? "text-emerald-700/80" : "text-zinc-600"}`}>
                           {c.name}
                         </span>
-                        <span className={`font-mono text-[8px] tracking-widest shrink-0 ${stageStyle[c.stage] ?? "text-zinc-600"}`}>
+                        <span className={`font-mono text-[9px] tracking-[0.1em] shrink-0 ${stageStyle[c.stage] ?? "text-zinc-600"}`}>
                           {c.stage}
                         </span>
                       </div>
