@@ -1,0 +1,136 @@
+ONE-DEPLOY EDGEONE PASS — MOVE BACKEND INTO EDGEONE FUNCTIONS
+
+Do NOT redesign the site.
+Do NOT change the visual identity.
+Do NOT weaken the homepage.
+Do NOT create a second deployment.
+The goal is ONE GitHub repo → ONE EdgeOne deployment with frontend + backend together.
+
+MAIN GOAL
+Convert the current backend-dependent features into EdgeOne-compatible serverless functions so the live EdgeOne deployment fully works on a single URL.
+
+IMPORTANT PLATFORM TARGET
+Use EdgeOne Pages Functions / Node Functions in the same repo.
+Do NOT rely on a separately deployed api-server.
+
+TARGET BEHAVIOR
+The live EdgeOne deployment must support:
+- `/api/news`
+- `/api/sage`
+
+from the same deployed site, with no separate backend host.
+
+==================================================
+1. EDGEONE FUNCTIONS STRUCTURE
+==================================================
+
+Move the existing backend logic for news and sage into EdgeOne-compatible functions using the correct filesystem-based function structure.
+
+Use the EdgeOne Node Functions / Pages Functions pattern so that:
+- `cloud-functions/api/news.*` serves `/api/news`
+- `cloud-functions/api/sage.*` serves `/api/sage`
+
+Use the cleanest compatible implementation for EdgeOne Pages.
+
+==================================================
+2. NEWS FUNCTION
+==================================================
+
+Port the current news backend logic into `/api/news` as an EdgeOne function.
+
+Requirements:
+- return valid JSON in production
+- preserve the current frontend contract as much as possible
+- keep Signal Room working without changing its layout
+- no HTML response where JSON is expected
+- no raw backend errors shown to users
+
+==================================================
+3. SAGE FUNCTION
+==================================================
+
+Port the current Sage backend logic into `/api/sage` as an EdgeOne function.
+
+Requirements:
+- preserve current frontend request/response contract as much as possible
+- keep Sage Terminal working in production
+- no raw request failure text shown to users
+
+If the current Sage implementation depends on Node-only APIs or package structure, adapt it cleanly for EdgeOne’s function runtime.
+
+==================================================
+4. FRONTEND API CALLS
+==================================================
+
+If possible, keep frontend calls using relative same-origin paths:
+- `/api/news`
+- `/api/sage`
+
+Do NOT require a second backend URL if EdgeOne functions are now serving them in the same deployment.
+
+If any temporary env-based API logic exists, simplify it for same-deployment behavior where appropriate.
+
+==================================================
+5. EDGEONE BUILD / REPO COMPATIBILITY
+==================================================
+
+Make whatever repo/build adjustments are required so the single EdgeOne deployment works cleanly.
+
+Requirements:
+- preserve the current frontend build
+- ensure EdgeOne can build and publish the app
+- ensure the functions are included in the deployment
+- do not break the existing Supabase frontend integration
+
+==================================================
+6. ENVIRONMENT VARIABLES
+==================================================
+
+Clearly list every environment variable that must be configured in EdgeOne for the single deployment.
+
+This should include:
+- existing Supabase frontend vars
+- any vars needed by the Sage/news functions
+- any AI provider keys if needed
+
+Be explicit and production-ready.
+
+==================================================
+7. CHANNEL CREATION / ADMIN ACTIONS
+==================================================
+
+Do NOT lose the recent fixes.
+
+Preserve:
+- realtime chat
+- auth
+- command console
+- channel creation path in Command Console
+- case handling
+- message delete persistence
+
+Only fix what is necessary to make the one-deploy EdgeOne setup work.
+
+==================================================
+8. FINAL VERIFICATION
+==================================================
+
+Before finishing, verify all of these on the single EdgeOne deployment:
+- homepage loads
+- Signal Room news works
+- Sage works
+- chat still works
+- command console still works
+- channel creation still works
+- no broken raw API errors remain
+- no second deployment is required
+
+==================================================
+9. DELIVERABLE
+==================================================
+
+At the end, provide:
+1. exact files added/moved for EdgeOne functions
+2. exact env vars to configure in EdgeOne
+3. any build setting changes required
+4. confirmation that the project now supports one EdgeOne deployment only

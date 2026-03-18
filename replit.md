@@ -120,15 +120,45 @@ Express server, port 8080 in dev.
 - `GET /api/health` — Health check
 
 ### API Routing
-In development, Vite proxies `/api/*` → `http://localhost:8080` automatically.
+In development, Vite proxies `/api/*` → `http://localhost:8080` (api-server) automatically via the proxy in `vite.config.ts`.
 
-In **production**, the frontend needs `VITE_API_BASE_URL` set to the deployed API server URL:
-```
-VITE_API_BASE_URL=https://your-api-server.example.com
-```
-All fetch calls use: `` `${import.meta.env.VITE_API_BASE_URL ?? ""}/api/...` ``
+In **production (EdgeOne single deployment)**, `/api/news` and `/api/sage` are served by EdgeOne Node Functions defined in `cloud-functions/api/`. No separate api-server is needed. Frontend calls use `` `${import.meta.env.VITE_API_BASE_URL ?? ""}/api/...` `` — when `VITE_API_BASE_URL` is unset (production), it resolves to the relative same-origin `/api/...`.
 
-The api-server must be deployed separately (it is a standard Node/Express app — deploy to any Node host, then set VITE_API_BASE_URL in the frontend build environment and redeploy the frontend).
+### EdgeOne Single Deployment Setup
+
+**Repository structure:**
+```
+cloud-functions/
+  api/
+    news.js       → serves GET /api/news  (GDELT live news)
+    sage.js       → serves POST /api/sage (SAGE AI terminal)
+artifacts/rsr-intelligence/
+  src/            → React frontend source
+  dist/public/    → Vite build output (EdgeOne serves this)
+edgeone.json      → build config (repo root)
+```
+
+**EdgeOne project settings (configure in EdgeOne Pages console):**
+- **Root Directory**: `/` (repo root — leave blank or set to root)
+- **Build Command**: `pnpm --filter @workspace/rsr-intelligence run build`
+- **Output Directory**: `artifacts/rsr-intelligence/dist/public`
+- **Install Command**: `pnpm install`
+
+**Environment variables to set in EdgeOne Pages console:**
+| Variable | Required | Description |
+|---|---|---|
+| `VITE_SUPABASE_URL` | ✓ | Your Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | ✓ | Your Supabase anon key |
+| `AI_INTEGRATIONS_OPENAI_API_KEY` | ✓ | OpenAI (or compatible) API key for SAGE |
+| `AI_INTEGRATIONS_OPENAI_BASE_URL` | optional | Custom OpenAI base URL — defaults to `https://api.openai.com/v1` |
+
+**Notes:**
+- `VITE_*` vars are embedded at build time into the frontend JS bundle
+- `AI_INTEGRATIONS_*` vars are runtime secrets used only by the cloud functions (never sent to the browser)
+- No `VITE_API_BASE_URL` is needed in production — cloud functions are same-origin
+
+### vite.config.ts build defaults
+PORT and BASE_PATH are optional in production builds — they default to `3000` and `/` respectively when `NODE_ENV=production`. Required in Replit dev (always set by the workflow).
 
 ### Supabase
 - `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` — frontend auth and realtime

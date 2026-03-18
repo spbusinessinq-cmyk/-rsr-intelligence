@@ -1,0 +1,5 @@
+{
+  "buildCommand": "pnpm --filter @workspace/rsr-intelligence run build",
+  "outputDirectory": "artifacts/rsr-intelligence/dist/public",
+  "installCommand": "pnpm install"
+}
