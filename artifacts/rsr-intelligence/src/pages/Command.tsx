@@ -229,6 +229,129 @@ function IdentityModal({
   );
 }
 
+/* ── Case Edit Modal ─────────────────────────────────────────────────── */
+
+function CaseEditModal({
+  c,
+  channels,
+  onSave,
+  onClose,
+}: {
+  c: Case;
+  channels: Channel[];
+  onSave: (id: string, update: { name: string; channel_id: string | null; description: string | null }) => Promise<boolean>;
+  onClose: () => void;
+}) {
+  const [name,        setName]        = useState(c.name);
+  const [channelId,   setChannelId]   = useState(c.channel_id ?? "");
+  const [description, setDescription] = useState(c.description ?? "");
+  const [saving,      setSaving]      = useState(false);
+  const [saveError,   setSaveError]   = useState<string | null>(null);
+  const [saved,       setSaved]       = useState(false);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) { if (e.key === "Escape") onClose(); }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  async function submit() {
+    const trimmedName = name.trim().toUpperCase();
+    if (!trimmedName) { setSaveError("NAME is required"); return; }
+    setSaving(true);
+    setSaveError(null);
+    const ok = await onSave(c.id, {
+      name:        trimmedName,
+      channel_id:  channelId || null,
+      description: description.trim() || null,
+    });
+    setSaving(false);
+    if (!ok) { setSaveError("Save failed — check admin role in DB"); }
+    else      { setSaved(true); setTimeout(onClose, 700); }
+  }
+
+  const activeChannels = channels.filter(ch => !ch.archived);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.85)" }}>
+      <div className="bg-black border border-zinc-800 w-full max-w-md mx-6 p-6 space-y-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-500">EDIT CASE</div>
+          <button onClick={onClose} className="font-mono text-[10px] text-zinc-700 hover:text-zinc-400 transition-colors">✕</button>
+        </div>
+
+        <div className="border border-zinc-900 bg-zinc-950/50 px-4 py-2.5 flex items-center gap-3">
+          <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-600">REF</div>
+          <div className="font-mono text-[11px] text-emerald-600 tracking-widest">{c.ref}</div>
+          <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-700 ml-auto">ID: {c.id.slice(0, 8)}…</div>
+        </div>
+
+        <div>
+          <label className="block font-mono text-[9px] tracking-[0.35em] text-zinc-600 mb-2">
+            NAME <span className="text-zinc-800">— required</span>
+          </label>
+          <input
+            value={name}
+            onChange={e => setName(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && submit()}
+            autoFocus
+            className="w-full bg-black border border-zinc-700 focus:border-zinc-500 font-mono text-xs tracking-[0.12em] text-zinc-300 px-3 py-2.5 outline-none transition-colors"
+          />
+        </div>
+
+        <div>
+          <label className="block font-mono text-[9px] tracking-[0.35em] text-zinc-600 mb-2">CHANNEL</label>
+          <select
+            value={channelId}
+            onChange={e => setChannelId(e.target.value)}
+            className="w-full bg-black border border-zinc-700 font-mono text-[11px] text-zinc-400 px-3 py-2.5 outline-none"
+          >
+            <option value="">— NONE —</option>
+            {activeChannels.map(ch => <option key={ch.id} value={ch.id}>{ch.name}</option>)}
+          </select>
+        </div>
+
+        <div>
+          <label className="block font-mono text-[9px] tracking-[0.35em] text-zinc-600 mb-2">
+            DESCRIPTION <span className="text-zinc-800">— optional</span>
+          </label>
+          <input
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && submit()}
+            placeholder="Brief case description"
+            className="w-full bg-black border border-zinc-700 focus:border-zinc-500 font-mono text-xs tracking-[0.06em] text-zinc-300 px-3 py-2.5 outline-none transition-colors placeholder-zinc-800"
+          />
+        </div>
+
+        {saveError && (
+          <div className="border border-red-900/40 bg-red-950/10 px-3 py-2">
+            <div className="font-mono text-[10px] tracking-[0.2em] text-red-400">SAVE FAILED: {saveError}</div>
+          </div>
+        )}
+        {saved && (
+          <div className="border border-emerald-900/30 bg-emerald-950/10 px-3 py-2">
+            <div className="font-mono text-[10px] tracking-[0.2em] text-emerald-400">CASE UPDATED ✓</div>
+          </div>
+        )}
+
+        <div className="flex items-center gap-4 pt-2 border-t border-zinc-900">
+          <button
+            onClick={submit}
+            disabled={!name.trim() || saving || saved}
+            className="font-mono text-[11px] tracking-[0.25em] text-emerald-600 hover:text-emerald-400 border border-emerald-900/30 hover:border-emerald-800/40 px-5 py-2.5 transition-colors disabled:opacity-30"
+          >
+            {saving ? "SAVING..." : saved ? "SAVED ✓" : "SAVE CASE"}
+          </button>
+          <button onClick={onClose} className="font-mono text-[11px] text-zinc-600 hover:text-zinc-400 transition-colors">
+            CANCEL
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── Main Command Console ───────────────────────────────────────────── */
 
 export default function Command() {
@@ -254,7 +377,10 @@ export default function Command() {
   const [chRenameVal,  setChRenameVal]  = useState("");
 
   /* ── Case admin state ── */
-  const [caseCreateOpen, setCaseCreateOpen] = useState(false);
+  const [caseCreateOpen,  setCaseCreateOpen]  = useState(false);
+  const [caseCreating,    setCaseCreating]    = useState(false);
+  const [caseCreateError, setCaseCreateError] = useState<string | null>(null);
+  const [caseEditTarget,  setCaseEditTarget]  = useState<Case | null>(null);
   const [newCaseForm, setNewCaseForm] = useState({
     ref: "", name: "", stage: "NEW", priority: "NORMAL", channel_id: "", description: "",
   });
@@ -349,17 +475,40 @@ export default function Command() {
   async function createCase() {
     const ref  = newCaseForm.ref.trim().toUpperCase();
     const name = newCaseForm.name.trim().toUpperCase();
-    if (!ref || !name) return;
-    const { error } = await supabase.from("investigation_cases").insert({
-      ref, name,
-      stage:       newCaseForm.stage,
-      priority:    newCaseForm.priority,
-      channel_id:  newCaseForm.channel_id || null,
-      description: newCaseForm.description || null,
-    });
-    if (error) { showToast("FAILED: " + error.message, "err"); return; }
+    if (!ref)  { setCaseCreateError("REF is required"); return; }
+    if (!name) { setCaseCreateError("NAME is required"); return; }
+    setCaseCreating(true);
+    setCaseCreateError(null);
+    const { data, error } = await supabase
+      .from("investigation_cases")
+      .insert({
+        ref, name,
+        stage:       newCaseForm.stage,
+        priority:    newCaseForm.priority,
+        channel_id:  newCaseForm.channel_id || null,
+        description: newCaseForm.description || null,
+      })
+      .select("id, ref");
+    setCaseCreating(false);
+    if (error) {
+      console.error("[CMD] createCase error:", error);
+      const msg = error.code === "23505"
+        ? `REF ALREADY EXISTS: ${ref}`
+        : error.message;
+      setCaseCreateError(msg);
+      showToast("FAILED: " + msg, "err");
+      return;
+    }
+    if (!data || data.length === 0) {
+      const msg = "INSERT BLOCKED — ensure your account has admin role in the DB";
+      console.error("[CMD] createCase: no rows returned, RLS may be blocking");
+      setCaseCreateError(msg);
+      showToast("FAILED: " + msg, "err");
+      return;
+    }
     showToast("CASE CREATED: " + ref, "ok");
     setCaseCreateOpen(false);
+    setCaseCreateError(null);
     setNewCaseForm({ ref: "", name: "", stage: "NEW", priority: "NORMAL", channel_id: "", description: "" });
     await fetchData();
   }
@@ -368,6 +517,23 @@ export default function Command() {
     const { error } = await supabase.from("investigation_cases").update({ ...update, updated_at: new Date().toISOString() }).eq("id", id);
     if (error) { showToast("FAILED: " + error.message, "err"); return; }
     await fetchData();
+  }
+
+  async function updateCaseMeta(
+    id: string,
+    update: { name: string; channel_id: string | null; description: string | null },
+  ): Promise<boolean> {
+    const { error } = await supabase
+      .from("investigation_cases")
+      .update({ ...update, updated_at: new Date().toISOString() })
+      .eq("id", id);
+    if (error) {
+      console.error("[CMD] updateCaseMeta error:", error);
+      showToast("FAILED: " + error.message, "err");
+      return false;
+    }
+    await fetchData();
+    return true;
   }
 
   async function deleteCase(id: string, ref: string) {
@@ -477,6 +643,16 @@ export default function Command() {
       {/* Identity edit modal */}
       {editingOp && (
         <IdentityModal op={editingOp} onSave={saveIdentity} onClose={() => setEditingOp(null)} />
+      )}
+
+      {/* Case edit modal */}
+      {caseEditTarget && (
+        <CaseEditModal
+          c={caseEditTarget}
+          channels={channels}
+          onSave={updateCaseMeta}
+          onClose={() => setCaseEditTarget(null)}
+        />
       )}
 
       <div className="flex-1 overflow-auto">
@@ -922,16 +1098,27 @@ export default function Command() {
                     onChange={e => setNewCaseForm(f => ({ ...f, description: e.target.value }))}
                     className="w-full bg-black border border-zinc-800 focus:border-zinc-600 font-mono text-[11px] text-zinc-300 px-3 py-2 outline-none placeholder-zinc-800 transition-colors" />
                 </div>
+                {caseCreateError && (
+                  <div className="border border-red-900/40 bg-red-950/10 px-3 py-2">
+                    <div className="font-mono text-[10px] tracking-[0.2em] text-red-400">{caseCreateError}</div>
+                  </div>
+                )}
                 <div className="flex items-center gap-4 pt-1">
-                  <button onClick={createCase} className="font-mono text-[10px] tracking-[0.25em] text-emerald-600 hover:text-emerald-400 border border-emerald-900/30 px-4 py-2 transition-colors">CREATE CASE</button>
-                  <button onClick={() => setCaseCreateOpen(false)} className="font-mono text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors">CANCEL</button>
+                  <button
+                    onClick={createCase}
+                    disabled={caseCreating}
+                    className="font-mono text-[10px] tracking-[0.25em] text-emerald-600 hover:text-emerald-400 border border-emerald-900/30 px-4 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {caseCreating ? "CREATING..." : "CREATE CASE"}
+                  </button>
+                  <button onClick={() => { setCaseCreateOpen(false); setCaseCreateError(null); }} className="font-mono text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors">CANCEL</button>
                 </div>
               </div>
             )}
 
             <div className="border border-zinc-900">
-              <div className="grid grid-cols-[70px_1fr_110px_70px_90px_1fr_60px] gap-3 px-5 py-2.5 border-b border-zinc-900 bg-zinc-950">
-                {["REF", "NAME", "STAGE", "PRI", "CHANNEL", "DESCRIPTION", "ACT"].map(h => (
+              <div className="grid grid-cols-[70px_1fr_110px_70px_90px_1fr_100px] gap-3 px-5 py-2.5 border-b border-zinc-900 bg-zinc-950">
+                {["REF", "NAME", "STAGE", "PRI", "CHANNEL", "DESCRIPTION", "ACTIONS"].map(h => (
                   <div key={h} className="font-mono text-[10px] tracking-[0.25em] text-zinc-500">{h}</div>
                 ))}
               </div>
@@ -943,7 +1130,7 @@ export default function Command() {
                 </div>
               ) : (
                 cases.map(c => (
-                  <div key={c.id} className="grid grid-cols-[70px_1fr_110px_70px_90px_1fr_60px] gap-3 px-5 py-3 border-b border-zinc-900/30 last:border-0 items-center hover:bg-zinc-950/20 transition-colors">
+                  <div key={c.id} className="grid grid-cols-[70px_1fr_110px_70px_90px_1fr_100px] gap-3 px-5 py-3 border-b border-zinc-900/30 last:border-0 items-center hover:bg-zinc-950/20 transition-colors">
                     <div className="font-mono text-[10px] tracking-widest text-zinc-500">{c.ref}</div>
                     <div className="font-mono text-[11px] tracking-[0.06em] text-zinc-300 truncate">{c.name}</div>
                     <div>
@@ -963,7 +1150,13 @@ export default function Command() {
                       {c.channel_id ? `#${channels.find(ch => ch.id === c.channel_id)?.name ?? c.channel_id}` : "—"}
                     </div>
                     <div className="font-mono text-[10px] text-zinc-700 truncate">{c.description ?? "—"}</div>
-                    <div>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => setCaseEditTarget(c)}
+                        className="font-mono text-[10px] text-zinc-600 hover:text-emerald-400 border border-zinc-800 hover:border-emerald-900/30 px-2 py-0.5 transition-colors"
+                      >
+                        EDIT
+                      </button>
                       <button onClick={() => deleteCase(c.id, c.ref)}
                         className="font-mono text-[10px] text-zinc-700 hover:text-red-400 border border-zinc-900 hover:border-red-900/30 px-2 py-0.5 transition-colors">
                         DEL

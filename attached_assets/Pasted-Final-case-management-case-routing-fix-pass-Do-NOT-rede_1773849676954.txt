@@ -1,0 +1,90 @@
+Final case-management + case-routing fix pass.
+
+Do NOT redesign the site.
+Do NOT change the visual identity.
+Do NOT weaken the homepage.
+Do NOT touch the working chat, auth, Signal Room, Sage deployment, or global layout.
+
+MAIN GOAL
+Fix the remaining case workflow bugs only:
+
+1. I still cannot create a case reliably from the Command Console
+2. I still cannot rename/edit a case reliably from the Command Console
+3. Clicking case refs in the Investigation Room still routes to the Dossiers page instead of the correct case/investigation behavior
+
+This is a targeted bug-fix pass only.
+
+==================================================
+1. COMMAND CONSOLE — CASE CREATE MUST WORK
+==================================================
+
+Fix case creation in Command Console end-to-end.
+
+Requirements:
+- creating a new case from Command Console must save to Supabase reliably
+- no silent failure
+- no fake success
+- new case must appear immediately in the case list after creation
+- if creation fails, show the exact reason clearly in UI and console
+
+Audit:
+- insert payload
+- required fields
+- table schema alignment
+- RLS/policies
+- refresh/realtime update after insert
+
+==================================================
+2. COMMAND CONSOLE — CASE EDIT / RENAME MUST WORK
+==================================================
+
+Fix editing/renaming a case in Command Console end-to-end.
+
+Requirements:
+- editing case name/ref/details must save correctly
+- updated case data must persist on refresh
+- changed case values must immediately appear in the Command Console list
+- no dead save button
+- no UI-only local edit state
+
+Audit:
+- update payload
+- correct case id targeting
+- schema alignment
+- policy permissions
+- refresh/realtime update after save
+
+==================================================
+3. INVESTIGATION ROOM — CASE REF ROUTING FIX
+==================================================
+
+Case refs in chat/investigation room are still routing incorrectly to Dossiers.
+
+Fix this.
+
+Requirements:
+- case refs must NOT route to `/dossiers/...` unless they are actual dossier refs
+- case refs should either:
+  - select/open the case inside Investigation Room
+  - OR route to the correct case/admin view
+- preserve the current UI look
+- do not create broken links
+
+Rule:
+- F-### refs → files only
+- D-### refs → dossiers only
+- case refs / investigation refs → correct case behavior, not dossiers
+
+==================================================
+4. FINAL VERIFICATION
+==================================================
+
+Before finishing, explicitly verify:
+- create case in Command Console works
+- edit/rename case in Command Console works
+- changes persist after refresh
+- case ref click in Investigation Room no longer routes to dossiers incorrectly
+- no raw errors shown to users
+- no dead save/create buttons remain
+
+Do NOT say “implemented” unless these are verified end-to-end against the live DB.

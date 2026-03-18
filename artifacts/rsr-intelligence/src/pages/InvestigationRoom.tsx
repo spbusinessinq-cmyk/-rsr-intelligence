@@ -1151,13 +1151,14 @@ export default function InvestigationRoom() {
                   const isLinked = c.channel_id === activeChannel;
                   return (
                     <div key={c.ref} className="flex items-center gap-2 py-1.5">
-                      {/^F-\d+/.test(c.ref) || /^D-\d+/.test(c.ref) ? (
-                        <Link
-                          href={/^F-\d+/.test(c.ref) ? `/files/${c.ref}` : `/dossiers/${c.ref}`}
+                      {c.channel_id ? (
+                        <button
+                          onClick={() => setActiveChannel(c.channel_id!)}
+                          title={`Switch to #${c.channel_id}`}
                           className="font-mono text-[10px] tracking-[0.1em] text-zinc-600 hover:text-emerald-500 transition-colors shrink-0"
                         >
                           {c.ref}
-                        </Link>
+                        </button>
                       ) : (
                         <span className="font-mono text-[10px] tracking-[0.1em] text-zinc-600 shrink-0">{c.ref}</span>
                       )}
