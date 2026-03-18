@@ -2,6 +2,24 @@ import { useState, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
 import { supabase } from "@/lib/supabase";
 
+/* ── Normalize a notification link to a safe internal wouter path ──── */
+function normalizeLink(raw: string): string | null {
+  if (!raw) return null;
+  try {
+    // If it looks like an absolute URL, extract just the path+search+hash
+    const url = new URL(raw, window.location.href);
+    if (url.hostname === window.location.hostname) {
+      return (url.pathname + url.search + url.hash) || "/";
+    }
+    // External URL — don't route internally
+    return null;
+  } catch {
+    // Not a valid URL — treat as a path fragment
+    const path = raw.startsWith("/") ? raw : "/" + raw;
+    return path;
+  }
+}
+
 /* ── Types ───────────────────────────────────────────────────────────── */
 
 export interface Notification {
@@ -105,8 +123,11 @@ export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps)
       onUnreadChange(notifications.filter(x => !x.is_read && x.id !== n.id).length);
     }
     if (n.link) {
-      onClose();
-      setLocation(n.link);
+      const path = normalizeLink(n.link);
+      if (path) {
+        onClose();
+        setLocation(path);
+      }
     }
   }
 

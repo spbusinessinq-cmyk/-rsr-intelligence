@@ -1,0 +1,83 @@
+Final inbox routing fix — notification links must open the correct chat location, not 404.
+
+Do NOT redesign the site.
+Do NOT change the visual identity.
+Do NOT weaken the homepage.
+Do NOT break working inbox, chat, auth, or command console.
+
+MAIN GOAL
+When a user clicks a notification in the Inbox, it must route them to the correct in-app destination.
+
+Current bug:
+A test notification clicked from the homepage inbox opens a 404.
+This is not acceptable for launch.
+
+Fix this specifically for chat/message notifications.
+
+==================================================
+1. NOTIFICATION LINK ROUTING — NO 404S
+==================================================
+
+Audit how notification links are currently being generated and routed.
+
+Requirements:
+- clicking a notification must never send the user to a non-existent route
+- if the notification points to a chat/message context, route it into the Investigation Room correctly
+- do NOT leave raw paths that the router cannot resolve
+
+==================================================
+2. CHAT / MESSAGE DESTINATION BEHAVIOR
+==================================================
+
+For notifications related to chat/messages:
+
+Preferred behavior:
+- open Investigation Room
+- switch to the correct channel
+- focus or scroll to the referenced message if possible
+
+Minimum acceptable behavior:
+- open Investigation Room
+- switch to the correct channel
+- do NOT 404
+
+If exact message scrolling is not ready, the user should still land in the right room/channel.
+
+==================================================
+3. LINK FORMAT
+==================================================
+
+Use a safe route format the current app/router actually supports.
+
+Examples:
+- `/investigation-room?channel=investigations`
+- `/investigation-room?channel=investigations&message=abc123`
+
+Do not generate links to routes that do not exist in production.
+
+==================================================
+4. INBOX PANEL
+==================================================
+
+When a user clicks a notification:
+- mark it read if that behavior already exists
+- navigate correctly
+- close the inbox panel cleanly
+
+==================================================
+5. FINAL VERIFICATION
+==================================================
+
+Before finishing, explicitly verify:
+- click a message notification from the homepage inbox
+- user lands in Investigation Room, not 404
+- correct channel opens
+- if implemented, correct message is focused
+- no broken routes remain in notification links
+
+SUCCESS CRITERIA
+
+This pass is complete only if:
+- inbox notifications no longer 404
+- chat/message notifications reliably open the proper in-app destination
+- existing working inbox/chat behavior remains intact

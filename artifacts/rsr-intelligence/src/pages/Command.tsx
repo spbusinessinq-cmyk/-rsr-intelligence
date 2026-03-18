@@ -1548,7 +1548,7 @@ export default function Command() {
                     type="text"
                     value={notifLink}
                     onChange={e => setNotifLink(e.target.value)}
-                    placeholder="/investigation-room"
+                    placeholder="/investigation-room?channel=investigations"
                     maxLength={200}
                     className="w-full bg-black border border-zinc-800 text-zinc-300 font-mono text-[10px] tracking-[0.06em] px-2 py-1.5 placeholder-zinc-800 focus:border-emerald-700 outline-none"
                   />

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Link } from "wouter";
+import { Link, useSearch } from "wouter";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/lib/auth";
 import { supabase, isConfigured } from "@/lib/supabase";
@@ -223,7 +223,7 @@ function MessageRow({
   const showControls = isAdmin && (onDelete || onSave || onPin) && !editing;
 
   return (
-    <div className={`group relative border-b border-zinc-900/60 transition-colors ${msg.pinned ? "bg-emerald-950/10 border-l-2 border-l-emerald-900/40" : "hover:bg-zinc-950/20"}`}>
+    <div id={`msg-${msg.id}`} className={`group relative border-b border-zinc-900/60 transition-colors ${msg.pinned ? "bg-emerald-950/10 border-l-2 border-l-emerald-900/40" : "hover:bg-zinc-950/20"}`}>
       {/* Admin hover controls */}
       {showControls && (
         <div className="absolute top-3 right-3 hidden group-hover:flex items-center gap-0.5 z-10">
@@ -687,9 +687,18 @@ export default function InvestigationRoom() {
   const { user: authUser, profile, configured } = useAuth();
   const user = profile;
   const isAdmin = profile?.role === "admin";
+  const searchStr = useSearch();
 
   /* ── Core state ── */
-  const [activeChannel, setActiveChannel] = useState("investigations");
+  const initChannel = () => {
+    const p = new URLSearchParams(searchStr);
+    return p.get("channel") ?? "investigations";
+  };
+  const [activeChannel, setActiveChannel] = useState(initChannel);
+  const [targetMsgId,  setTargetMsgId]  = useState<string | null>(() => {
+    const p = new URLSearchParams(searchStr);
+    return p.get("message") ?? null;
+  });
   const [channels, setChannels] = useState<Channel[]>(DEFAULT_CHANNELS);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
@@ -703,6 +712,27 @@ export default function InvestigationRoom() {
 
   /* ── Case state (read-only display) ── */
   const [cases, setCases] = useState<Case[]>([]);
+
+  /* ── When URL search changes (e.g. re-navigation from inbox) ── */
+  useEffect(() => {
+    const p = new URLSearchParams(searchStr);
+    const ch = p.get("channel");
+    const mid = p.get("message");
+    if (ch) setActiveChannel(ch);
+    if (mid) setTargetMsgId(mid);
+  }, [searchStr]);
+
+  /* ── Scroll to target message once messages have loaded ── */
+  useEffect(() => {
+    if (!targetMsgId || loading) return;
+    const el = document.getElementById(`msg-${targetMsgId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.style.transition = "background 0.4s";
+      el.style.background = "rgba(16,185,129,0.08)";
+      setTimeout(() => { el.style.background = ""; setTargetMsgId(null); }, 2000);
+    }
+  }, [targetMsgId, loading, messages]);
 
   const activeChannelData = channels.find(c => c.id === activeChannel);
 
