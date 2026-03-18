@@ -371,10 +371,11 @@ export default function Command() {
   const [editingOp, setEditingOp] = useState<Profile | null>(null);
 
   /* ── Channel admin state ── */
-  const [chCreateOpen, setChCreateOpen] = useState(false);
-  const [chNewName,    setChNewName]    = useState("");
-  const [chRenaming,   setChRenaming]   = useState<string | null>(null);
-  const [chRenameVal,  setChRenameVal]  = useState("");
+  const [chCreateOpen,  setChCreateOpen]  = useState(false);
+  const [chNewName,     setChNewName]     = useState("");
+  const [chRenaming,    setChRenaming]    = useState<string | null>(null);
+  const [chRenameVal,   setChRenameVal]   = useState("");
+  const [chArchivingId, setChArchivingId] = useState<string | null>(null);
 
   /* ── Case admin state ── */
   const [caseCreateOpen,  setCaseCreateOpen]  = useState(false);
@@ -453,15 +454,51 @@ export default function Command() {
   }
 
   async function archiveChannel(id: string) {
-    const { error } = await supabase.from("room_channels").update({ archived: true }).eq("id", id);
-    if (error) { showToast("FAILED: " + error.message, "err"); return; }
-    showToast("ARCHIVED: #" + id, "ok"); await fetchData();
+    const ch = channels.find(c => c.id === id);
+    const label = ch ? ch.name : id.slice(0, 8);
+    setChArchivingId(id);
+    const { data, error } = await supabase
+      .from("room_channels")
+      .update({ archived: true })
+      .eq("id", id)
+      .select("id");
+    setChArchivingId(null);
+    if (error) {
+      console.error("[CMD] archiveChannel error:", error);
+      showToast("ARCHIVE FAILED: " + error.message, "err");
+      return;
+    }
+    if (!data || data.length === 0) {
+      console.error("[CMD] archiveChannel: RLS blocked or row not found for id", id);
+      showToast("ARCHIVE BLOCKED — ensure admin role in profiles table", "err");
+      return;
+    }
+    showToast("ARCHIVED: #" + label, "ok");
+    await fetchData();
   }
 
   async function restoreChannel(id: string) {
-    const { error } = await supabase.from("room_channels").update({ archived: false }).eq("id", id);
-    if (error) { showToast("FAILED: " + error.message, "err"); return; }
-    showToast("RESTORED: #" + id, "ok"); await fetchData();
+    const ch = channels.find(c => c.id === id);
+    const label = ch ? ch.name : id.slice(0, 8);
+    setChArchivingId(id);
+    const { data, error } = await supabase
+      .from("room_channels")
+      .update({ archived: false })
+      .eq("id", id)
+      .select("id");
+    setChArchivingId(null);
+    if (error) {
+      console.error("[CMD] restoreChannel error:", error);
+      showToast("RESTORE FAILED: " + error.message, "err");
+      return;
+    }
+    if (!data || data.length === 0) {
+      console.error("[CMD] restoreChannel: RLS blocked or row not found for id", id);
+      showToast("RESTORE BLOCKED — ensure admin role in profiles table", "err");
+      return;
+    }
+    showToast("RESTORED: #" + label, "ok");
+    await fetchData();
   }
 
   async function renameChannel(id: string) {
@@ -658,8 +695,10 @@ export default function Command() {
       <div className="flex-1 overflow-auto">
         <div className="max-w-7xl mx-auto px-8 py-10 space-y-10">
 
-          <div className="font-mono text-[10px] tracking-[0.45em] text-zinc-700">
-            » RSR // COMMAND CONSOLE // SYSTEM ADMINISTRATION
+          <div className="flex items-center gap-4 font-mono text-[10px] tracking-[0.45em] text-zinc-700">
+            <Link href="/" className="text-zinc-700 hover:text-zinc-400 transition-colors">← HOME</Link>
+            <span className="text-zinc-800">·</span>
+            <span>» RSR // COMMAND CONSOLE // SYSTEM ADMINISTRATION</span>
           </div>
 
           {/* ── CLEARANCE STATS ── */}
@@ -1021,12 +1060,20 @@ export default function Command() {
                             </button>
                           )}
                           {ch.archived ? (
-                            <button onClick={() => restoreChannel(ch.id)} className="font-mono text-[10px] tracking-[0.15em] text-zinc-600 hover:text-emerald-500 border border-zinc-800 px-2 py-0.5 transition-colors">
-                              RESTORE
+                            <button
+                              onClick={() => restoreChannel(ch.id)}
+                              disabled={chArchivingId === ch.id}
+                              className="font-mono text-[10px] tracking-[0.15em] text-zinc-600 hover:text-emerald-500 border border-zinc-800 px-2 py-0.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                              {chArchivingId === ch.id ? "..." : "RESTORE"}
                             </button>
                           ) : (
-                            <button onClick={() => archiveChannel(ch.id)} className="font-mono text-[10px] tracking-[0.15em] text-zinc-600 hover:text-amber-400 border border-zinc-800 px-2 py-0.5 transition-colors">
-                              ARCHIVE
+                            <button
+                              onClick={() => archiveChannel(ch.id)}
+                              disabled={chArchivingId === ch.id}
+                              className="font-mono text-[10px] tracking-[0.15em] text-zinc-600 hover:text-amber-400 border border-zinc-800 px-2 py-0.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                              {chArchivingId === ch.id ? "..." : "ARCHIVE"}
                             </button>
                           )}
                         </div>

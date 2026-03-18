@@ -31,9 +31,11 @@ let fetching = false;
 const CACHE_TTL = 10 * 60 * 1000;
 
 const QUERIES: Array<{ q: string; category: NewsItem["category"]; priority: NewsItem["priority"] }> = [
-  { q: "war conflict military strike ukraine russia israel iran nato",   category: "GEOPOLITICAL", priority: "HIGH" },
-  { q: "intelligence defense nuclear weapons sanctions government coup", category: "INTELLIGENCE", priority: "HIGH" },
-  { q: "energy oil gas crisis pipeline geopolitics election power",     category: "ENERGY",       priority: "NORMAL" },
+  { q: "war conflict military strike ukraine russia israel iran nato",          category: "GEOPOLITICAL", priority: "HIGH" },
+  { q: "intelligence surveillance espionage nuclear weapons sanctions coup",    category: "INTELLIGENCE", priority: "HIGH" },
+  { q: "military defense weapons procurement army navy air force contractor",   category: "DEFENSE",      priority: "HIGH" },
+  { q: "energy oil gas crisis pipeline geopolitics electricity grid",           category: "ENERGY",       priority: "NORMAL" },
+  { q: "government policy legislation sanctions regulation congress parliament", category: "POLICY",       priority: "NORMAL" },
 ];
 
 function inferRegion(article: GdeltArticle): string {
@@ -65,50 +67,47 @@ function parseSeen(seendate: string): string {
 async function fetchGdelt(query: string): Promise<GdeltArticle[]> {
   const url =
     `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(query)}`
-    + `&mode=artlist&maxrecords=8&format=json&timespan=24H`;
-  const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
-  if (!res.ok) return [];
-  const text = await res.text();
-  if (!text.startsWith("{") && !text.startsWith("[")) {
-    throw new Error("GDELT rate limited or non-JSON response");
+    + `&mode=artlist&maxrecords=15&format=json&timespan=48H`;
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(12000) });
+    if (!res.ok) return [];
+    const text = await res.text();
+    if (!text.startsWith("{") && !text.startsWith("[")) return [];
+    const data = JSON.parse(text) as GdeltResponse;
+    return (data.articles ?? []).filter(a => {
+      const lang = (a.language ?? "").toLowerCase();
+      return lang === "" || lang === "english";
+    });
+  } catch {
+    return [];
   }
-  const data = JSON.parse(text) as GdeltResponse;
-  return (data.articles ?? []).filter(a => {
-    const lang = (a.language ?? "").toLowerCase();
-    return lang === "" || lang === "english";
-  });
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 async function fetchAllNews(): Promise<NewsItem[]> {
+  const results = await Promise.allSettled(
+    QUERIES.map(q => fetchGdelt(q.q).then(articles => ({ articles, meta: q })))
+  );
+
   const all: NewsItem[] = [];
   const seen = new Set<string>();
 
-  for (let i = 0; i < QUERIES.length; i++) {
-    if (i > 0) await sleep(5500);
-    const q = QUERIES[i];
-    try {
-      const articles = await fetchGdelt(q.q);
-      for (const [j, a] of articles.entries()) {
-        if (!seen.has(a.url)) {
-          seen.add(a.url);
-          all.push({
-            id: `gdelt-${q.category.toLowerCase()}-${j}-${Date.now()}`,
-            title: a.title,
-            domain: a.domain,
-            url: a.url,
-            seendate: parseSeen(a.seendate),
-            category: q.category,
-            priority: q.priority,
-            region: inferRegion(a),
-          });
-        }
+  for (const result of results) {
+    if (result.status !== "fulfilled") continue;
+    const { articles, meta } = result.value;
+    for (const [j, a] of articles.entries()) {
+      if (!seen.has(a.url)) {
+        seen.add(a.url);
+        all.push({
+          id: `gdelt-${meta.category.toLowerCase()}-${j}-${Date.now()}`,
+          title: a.title,
+          domain: a.domain,
+          url: a.url,
+          seendate: parseSeen(a.seendate),
+          category: meta.category,
+          priority: meta.priority,
+          region: inferRegion(a),
+        });
       }
-    } catch {
-      // continue to next query on error
     }
   }
 

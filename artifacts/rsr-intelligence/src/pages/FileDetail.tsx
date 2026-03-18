@@ -48,7 +48,7 @@ export default function FileDetail({ params }: Props) {
 
         {/* ── BREADCRUMB ────────────────────────────────────────────────── */}
         <div className="flex items-center gap-2 font-mono text-[11px] tracking-[0.3em] text-zinc-700">
-          <Link href="/files" className="hover:text-zinc-400 transition-colors">FILES</Link>
+          <Link href="/files" className="hover:text-zinc-400 transition-colors">← FILES</Link>
           <span>/</span>
           <span className="text-zinc-500">{file.id}</span>
         </div>

@@ -45,7 +45,7 @@ export default function SystemDetail({ params }: SystemDetailProps) {
 
         {/* ── BREADCRUMB ─────────────────────────────────────────────────── */}
         <div className="flex items-center gap-3 font-mono text-[10px] tracking-[0.35em] text-zinc-700">
-          <Link href="/systems" className="hover:text-zinc-400 transition-colors">SYSTEMS</Link>
+          <Link href="/systems" className="hover:text-zinc-400 transition-colors">← SYSTEMS</Link>
           <span>/</span>
           <span className="text-zinc-500">{system.name}</span>
         </div>

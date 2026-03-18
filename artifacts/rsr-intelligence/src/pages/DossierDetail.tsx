@@ -49,7 +49,7 @@ export default function DossierDetail({ params }: Props) {
 
         {/* ── BREADCRUMB ────────────────────────────────────────────────── */}
         <div className="flex items-center gap-2 font-mono text-[11px] tracking-[0.3em] text-zinc-700">
-          <Link href="/dossiers" className="hover:text-zinc-400 transition-colors">DOSSIERS</Link>
+          <Link href="/dossiers" className="hover:text-zinc-400 transition-colors">← DOSSIERS</Link>
           <span>/</span>
           <span className="text-zinc-500">{entity.id}</span>
         </div>

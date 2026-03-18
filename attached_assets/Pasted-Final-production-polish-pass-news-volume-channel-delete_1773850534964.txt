@@ -1,0 +1,135 @@
+Final production polish pass — news volume, channel delete/archive, and navigation cleanup.
+
+Do NOT redesign the site.
+Do NOT change the visual identity.
+Do NOT weaken the homepage.
+Do NOT break the live chat, auth, working Command Console flows, or the one-deploy EdgeOne setup.
+
+MAIN GOAL
+Fix the remaining production issues only:
+
+1. Signal Room is only showing a few headlines and not enough live categorized news
+2. Channel delete/archive still does not work reliably from Command Console
+3. Navigation is annoying — add a small universal back control / previous-page path on all major interior pages
+
+This is a focused stabilization + usability pass only.
+
+==================================================
+1. SIGNAL ROOM — RESTORE FULLER LIVE NEWS FLOW
+==================================================
+
+Current issue:
+Only a few headlines are coming through, and the monitored categories are not surfacing enough live updated stories.
+
+Fix this end-to-end.
+
+Requirements:
+- audit the `/api/news` backend logic and frontend consumption
+- inspect any filters, caps, dedupe logic, recency windows, category slicing, or hard limits that may be suppressing results
+- ensure the feed returns a fuller set of live articles across the chosen categories:
+  - geopolitical
+  - defense
+  - intelligence
+  - energy
+  - policy
+- do not spam duplicates
+- do not collapse the feed down to only 2–3 visible items if more valid items exist
+- preserve the current Signal Room layout and styling
+- preserve market watch and side panels
+- no raw JSON/backend errors shown to users
+
+Verification:
+- confirm more than a minimal handful of articles are loading when valid live items exist
+- confirm category coverage is actually represented in production
+- verify on the deployed site, not just local
+
+==================================================
+2. COMMAND CONSOLE — CHANNEL DELETE / ARCHIVE MUST WORK
+==================================================
+
+Current issue:
+Channel creation works now, but delete/archive from Command Console still does not work reliably.
+
+Fix this end-to-end.
+
+Requirements:
+- keep this workflow inside Command Console
+- do NOT move channel management elsewhere
+- inspect schema, payload, archive/delete logic, and policies
+- if “archive” is the intended destructive behavior, make sure it actually persists and updates the UI immediately
+- if hard delete is intended anywhere, make sure it is only used when safe and supported by schema/policies
+- no dead action buttons
+- no fake success
+- if an action fails, show the exact reason clearly in UI and console
+- refresh the channel list immediately after success
+- preserve existing channels and data integrity
+
+Verification:
+- archive/delete action must persist after refresh
+- updated channel state must be reflected in the Investigation Room and Command Console
+- verify against the live DB
+
+==================================================
+3. GLOBAL NAVIGATION — ADD SMALL BACK CONTROL
+==================================================
+
+Current issue:
+Once inside deeper pages (Command Console, Systems, Files, Dossiers, etc.), navigation back to the previous place is clumsy.
+
+Add a small, clean back control on major interior pages.
+
+Requirements:
+- add a subtle back button / breadcrumb-style “Back” control near the top on interior pages
+- do NOT redesign headers
+- do NOT make it bulky
+- keep it visually consistent with the current terminal/intelligence aesthetic
+- it should help users return to the previous logical page without having to go Home first
+- preserve the current top navigation
+
+Suggested behavior:
+- interior pages should have a small “← Back” or equivalent control
+- use browser/history-safe behavior where appropriate
+- if there is no previous history, route to the most logical parent section
+
+Target pages:
+- Command Console
+- Systems detail pages
+- Files detail pages
+- Dossiers detail pages
+- other major interior drill-down pages where navigation currently feels sticky
+
+==================================================
+4. DO NOT BREAK EXISTING GOOD STATE
+==================================================
+
+Do NOT break:
+- realtime chat
+- auth/session behavior
+- Sage terminal layout
+- one-deploy EdgeOne structure
+- working channel creation
+- working case create/edit fixes
+- working case sidebar behavior
+
+==================================================
+5. FINAL VERIFICATION
+==================================================
+
+Before finishing, explicitly verify all of the following:
+
+- Signal Room surfaces a fuller set of live categorized stories
+- feed is not artificially capped to only a few items when more valid items exist
+- channel archive/delete works from Command Console
+- channel state persists after refresh
+- back control exists on major interior pages
+- navigation feels smoother without changing the visual identity
+- no raw errors shown to users
+- deployed app remains visually unchanged except for the small back control
+
+SUCCESS CRITERIA
+
+This pass is complete only if:
+- live news volume/category coverage is materially improved
+- channel delete/archive actually works
+- interior navigation no longer feels trapped
+- no existing working systems are broken

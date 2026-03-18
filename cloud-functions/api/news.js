@@ -4,9 +4,11 @@
 // returns the same JSON contract as the Express api-server.
 
 const QUERIES = [
-  { q: "war conflict military strike ukraine russia israel iran nato",   category: "GEOPOLITICAL", priority: "HIGH" },
-  { q: "intelligence defense nuclear weapons sanctions government coup", category: "INTELLIGENCE", priority: "HIGH" },
-  { q: "energy oil gas crisis pipeline geopolitics election power",      category: "ENERGY",       priority: "NORMAL" },
+  { q: "war conflict military strike ukraine russia israel iran nato",          category: "GEOPOLITICAL", priority: "HIGH" },
+  { q: "intelligence surveillance espionage nuclear weapons sanctions coup",    category: "INTELLIGENCE", priority: "HIGH" },
+  { q: "military defense weapons procurement army navy air force contractor",   category: "DEFENSE",      priority: "HIGH" },
+  { q: "energy oil gas crisis pipeline geopolitics electricity grid",           category: "ENERGY",       priority: "NORMAL" },
+  { q: "government policy legislation sanctions regulation congress parliament", category: "POLICY",       priority: "NORMAL" },
 ];
 
 function inferRegion(article) {
@@ -38,7 +40,7 @@ function parseSeen(seendate) {
 async function fetchGdelt(query) {
   const url =
     `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(query)}` +
-    `&mode=artlist&maxrecords=8&format=json&timespan=24H`;
+    `&mode=artlist&maxrecords=15&format=json&timespan=48H`;
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(12000) });
     if (!res.ok) return [];
