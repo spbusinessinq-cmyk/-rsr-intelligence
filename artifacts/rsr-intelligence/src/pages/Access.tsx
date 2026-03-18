@@ -11,6 +11,7 @@ export default function Access() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [handle, setHandle] = useState("");
+  const [requestedRole, setRequestedRole] = useState("member");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -38,7 +39,7 @@ export default function Access() {
         setSubmitting(false);
         return;
       }
-      const { error } = await signUp(email, password, handle);
+      const { error } = await signUp(email, password, handle, requestedRole);
       if (error) {
         setError(error);
         setSubmitting(false);
@@ -143,19 +144,40 @@ export default function Access() {
               <form onSubmit={handleSubmit} className="space-y-4">
 
                 {mode === "register" && (
-                  <div>
-                    <label className="block font-mono text-[9px] tracking-[0.35em] text-zinc-600 mb-2">
-                      OPERATOR HANDLE
-                    </label>
-                    <input
-                      type="text"
-                      value={handle}
-                      onChange={e => setHandle(e.target.value)}
-                      placeholder="e.g. FIELD-ANALYST"
-                      disabled={!configured || submitting}
-                      className="w-full bg-black border border-zinc-800 px-4 py-3 font-mono text-xs text-zinc-300 tracking-widest placeholder:text-zinc-800 focus:outline-none focus:border-emerald-500/40 transition-colors disabled:opacity-40"
-                    />
-                  </div>
+                  <>
+                    <div>
+                      <label className="block font-mono text-[9px] tracking-[0.35em] text-zinc-600 mb-2">
+                        OPERATOR HANDLE
+                      </label>
+                      <input
+                        type="text"
+                        value={handle}
+                        onChange={e => setHandle(e.target.value)}
+                        placeholder="e.g. FIELD-ANALYST"
+                        disabled={!configured || submitting}
+                        className="w-full bg-black border border-zinc-800 px-4 py-3 font-mono text-xs text-zinc-300 tracking-widest placeholder:text-zinc-800 focus:outline-none focus:border-emerald-500/40 transition-colors disabled:opacity-40"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-mono text-[9px] tracking-[0.35em] text-zinc-600 mb-2">
+                        REQUESTED ROLE
+                      </label>
+                      <select
+                        value={requestedRole}
+                        onChange={e => setRequestedRole(e.target.value)}
+                        disabled={!configured || submitting}
+                        className="w-full bg-black border border-zinc-800 px-4 py-3 font-mono text-xs text-zinc-400 tracking-widest focus:outline-none focus:border-emerald-500/40 transition-colors disabled:opacity-40"
+                      >
+                        <option value="member">MEMBER — General access</option>
+                        <option value="analyst">ANALYST — Research and analysis</option>
+                        <option value="researcher">RESEARCHER — Source research and documentation</option>
+                        <option value="lead">LEAD REQUEST — Team lead (subject to approval)</option>
+                      </select>
+                      <div className="mt-1.5 font-mono text-[8px] tracking-[0.15em] text-zinc-800 leading-relaxed">
+                        Role requests do not override admin approval. Final access is determined by the RSR team.
+                      </div>
+                    </div>
+                  </>
                 )}
 
                 <div>

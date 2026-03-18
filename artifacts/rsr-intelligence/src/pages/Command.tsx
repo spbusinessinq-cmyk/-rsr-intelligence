@@ -120,7 +120,7 @@ function ActionBtn({
   }[color];
   return (
     <button disabled={disabled} onClick={onClick}
-      className={`font-mono text-[9px] tracking-[0.2em] border px-2 py-0.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${cls}`}>
+      className={`font-mono text-[10px] tracking-[0.2em] border px-3 py-1 transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${cls}`}>
       {loading ? "..." : label}
     </button>
   );
@@ -554,13 +554,37 @@ export default function Command() {
 
                       {/* Expanded controls */}
                       {isExpanded && (
-                        <div className="px-10 pb-5 pt-2 border-t border-zinc-900/40 bg-zinc-950/30 space-y-4">
+                        <div className="px-10 pb-5 pt-3 border-t border-zinc-900/40 bg-zinc-950/30 space-y-4">
+
+                          {/* Operator record */}
+                          <div className="border border-zinc-900 bg-black px-4 py-3">
+                            <div className="font-mono text-[8px] tracking-[0.35em] text-zinc-600 mb-3">OPERATOR RECORD</div>
+                            <div className="space-y-1.5">
+                              {([
+                                ["ID",           op.id],
+                                ["HANDLE",       displayHandle(op)],
+                                ...(op.title           ? [["TITLE",          op.title]]                                    : []),
+                                ["EMAIL",        op.email ?? "—"],
+                                ["ROLE",         op.role.toUpperCase()],
+                                ["CLEARANCE",    (op.approval_status ?? "pending").toUpperCase()],
+                                ["ACCOUNT",      (op.account_status ?? "active").toUpperCase()],
+                                ...(op.requested_role  ? [["REQUESTED ROLE", op.requested_role.toUpperCase()]]             : []),
+                                ["JOINED",       op.created_at ? formatDate(op.created_at) : "—"],
+                              ] as [string, string][]).map(([label, val]) => (
+                                <div key={label} className="flex items-start gap-4 font-mono">
+                                  <span className="text-[8px] tracking-[0.3em] text-zinc-700 w-32 shrink-0 pt-0.5">{label}</span>
+                                  <span className="text-[9px] text-zinc-400 break-all leading-relaxed">{val}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
                           {/* Identity edit */}
                           <div className="flex items-center gap-3">
                             <span className="font-mono text-[9px] tracking-[0.25em] text-zinc-600">IDENTITY:</span>
                             <button
                               onClick={() => setEditingOp(op)}
-                              className="font-mono text-[9px] tracking-[0.2em] text-zinc-400 hover:text-emerald-400 border border-zinc-700 hover:border-emerald-800/50 px-3 py-0.5 transition-colors"
+                              className="font-mono text-[10px] tracking-[0.2em] text-zinc-400 hover:text-emerald-400 border border-zinc-700 hover:border-emerald-800/50 px-4 py-1 transition-colors"
                             >
                               EDIT HANDLE / TITLE
                             </button>

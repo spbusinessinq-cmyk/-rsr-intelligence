@@ -264,6 +264,20 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Demo environment notice */}
+        <div className="border border-zinc-900/60 px-5 py-4 flex items-start gap-5">
+          <div className="w-1 h-1 bg-zinc-800 mt-1.5 shrink-0" />
+          <div>
+            <div className="font-mono text-[8px] tracking-[0.35em] text-zinc-700 mb-1.5">
+              SYSTEM NOTICE — DEMONSTRATION ENVIRONMENT
+            </div>
+            <p className="font-mono text-[8px] tracking-[0.06em] text-zinc-800 leading-relaxed max-w-2xl">
+              Select signals, cases, and system outputs displayed on this page are simulated or partially mocked
+              for demonstration purposes. Real-time intelligence integration is active in controlled modules only.
+            </p>
+          </div>
+        </div>
+
       </div>
     </Layout>
   );

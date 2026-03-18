@@ -289,7 +289,7 @@ function MessageRow({
                 onKeyDown={e => { if (e.key === "Escape") cancelEdit(); }}
                 rows={4}
                 autoFocus
-                className="w-full bg-black border border-zinc-700 focus:border-zinc-500 font-mono text-[13px] text-[#94a894] tracking-[0.02em] leading-relaxed px-3 py-2.5 resize-none outline-none transition-colors"
+                className="w-full bg-black border border-zinc-700 focus:border-zinc-500 font-mono text-[14px] text-[#94a894] tracking-[0.02em] leading-relaxed px-3 py-2.5 resize-none outline-none transition-colors"
               />
               <div className="flex items-center gap-3">
                 <button
@@ -306,7 +306,7 @@ function MessageRow({
             </div>
           ) : (
             <>
-              <p className="text-[13px] text-[#94a894] leading-relaxed font-mono tracking-[0.02em]">{cleanBody}</p>
+              <p className="text-[14px] text-[#94a894] leading-relaxed font-mono tracking-[0.02em]">{cleanBody}</p>
               {(files.length > 0 || dossiers.length > 0) && (
                 <div className="flex flex-wrap gap-2 mt-2.5">
                   {files.map(f => (
@@ -1064,6 +1064,38 @@ export default function InvestigationRoom() {
             </div>
           </div>
 
+          {/* Investigation context bar — linked cases */}
+          {(() => {
+            const linked = cases.filter(c => c.channel_id === activeChannel);
+            if (linked.length === 0) return null;
+            return (
+              <div className="border-b border-zinc-900/60 px-5 py-2 flex items-center gap-3 bg-zinc-950/20 flex-wrap shrink-0">
+                <span className="font-mono text-[8px] tracking-[0.3em] text-zinc-700 shrink-0">LINKED</span>
+                {linked.map(c => (
+                  <button
+                    key={c.ref}
+                    onClick={() => setSelectedCaseRef(selectedCaseRef === c.ref ? null : c.ref)}
+                    className={`font-mono text-[9px] tracking-[0.06em] border px-2 py-0.5 transition-colors ${
+                      selectedCaseRef === c.ref
+                        ? "border-emerald-900/40 text-emerald-600 bg-emerald-950/20"
+                        : "border-zinc-900 text-zinc-600 hover:border-emerald-900/30 hover:text-emerald-600"
+                    }`}
+                  >
+                    {c.ref} · {c.name}
+                  </button>
+                ))}
+                {isAdmin && configured && (
+                  <button
+                    onClick={() => setNewCaseOpen(true)}
+                    className="font-mono text-[8px] tracking-[0.2em] text-zinc-700 hover:text-emerald-500 transition-colors ml-auto"
+                  >
+                    + CASE
+                  </button>
+                )}
+              </div>
+            );
+          })()}
+
           {/* Messages */}
           <div className="flex-1 overflow-y-auto">
             {loading ? (
@@ -1139,7 +1171,7 @@ export default function InvestigationRoom() {
                     : `Transmit to #${activeChannel}... (Enter to send · Shift+Enter for newline)`
                   }
                   rows={2}
-                  className="w-full bg-black font-mono text-[13px] tracking-[0.02em] text-[#9ebf9e] px-4 py-3 resize-none outline-none placeholder-zinc-800 disabled:opacity-40"
+                  className="w-full bg-black font-mono text-[14px] tracking-[0.02em] text-[#9ebf9e] px-4 py-3 resize-none outline-none placeholder-zinc-800 disabled:opacity-40"
                 />
                 <div className="border-t border-zinc-900 px-4 py-2 flex items-center gap-4">
                   <span className="font-mono text-[8px] tracking-[0.2em] text-zinc-800"># {activeChannel}</span>

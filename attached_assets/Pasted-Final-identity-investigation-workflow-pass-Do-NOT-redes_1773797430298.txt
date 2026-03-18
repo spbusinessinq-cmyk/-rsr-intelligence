@@ -1,0 +1,160 @@
+Final identity + investigation workflow pass.
+
+Do NOT redesign the site.
+Do NOT change the established visual identity.
+Do NOT weaken the homepage.
+
+Refine and complete the current build only.
+
+MAIN GOAL
+Finish the remaining owner/admin workflow gaps:
+- handle/name editing
+- user IDs in Command Console
+- real investigation workflow inside investigation channels
+- role selection capture on registration
+- slightly larger admin controls and Investigation Room text
+- homepage demo/mock notice
+- local date/time in header
+
+PRESERVE
+- black base
+- restrained emerald accents
+- thin borders
+- premium command-interface feel
+- monospace micro-labels
+- serious intelligence-network tone
+
+CRITICAL RULES
+- No bloated UI
+- No generic admin styling
+- Keep everything controlled, minimal, and launch-ready
+
+==================================================
+1. HANDLE / NAME EDITING MUST WORK
+==================================================
+
+This is currently the main missing control.
+
+Implement real identity editing in Command Console:
+- admin can edit own handle
+- admin can edit other users’ handles
+- optional title field
+- save must update profiles table
+- change must reflect everywhere in UI:
+  - Investigation Room
+  - Command Console
+  - Analyst roster
+  - any user references
+
+Do not show raw email in core UI if handle exists.
+
+==================================================
+2. COMMAND CONSOLE — SHOW USER ID
+==================================================
+
+Add user/operator ID to Command Console for owner/admin visibility.
+
+Display:
+- user id
+- handle
+- title if present
+- email
+- role
+- approval status
+- account status
+- joined date
+- recent activity if available
+
+Keep it readable and structured.
+
+==================================================
+3. INVESTIGATION CHANNELS MUST SUPPORT INVESTIGATION WORK
+==================================================
+
+If a channel is marked or treated as an investigation channel, it needs real investigation-building capability inside that room.
+
+Implement a clean workflow so investigation channels can support:
+- linked cases
+- linked files
+- linked dossiers
+- create a case from that channel
+- attach an existing case to that channel
+- display investigation context in that channel
+
+Do NOT redesign the room.
+Keep the current layout, but make investigation channels actually function as investigation workspaces.
+
+==================================================
+4. ACTIVE CASES / CASE MANAGEMENT
+==================================================
+
+Ensure Active Cases are fully real and useful:
+- clickable
+- linked to channel/investigation context
+- admin can create/edit/delete/archive
+- statuses work reliably
+- cases shown in sidebar should reflect real cases, not static placeholders
+
+==================================================
+5. ROLE CHOICE DURING REGISTRATION
+==================================================
+
+Allow the registering user to choose or request an intended role during signup:
+- member
+- analyst
+- researcher
+- lead request
+
+This should be captured as metadata or profile field.
+It should NOT override approval/admin logic.
+
+==================================================
+6. BUTTON / TEXT SIZING
+==================================================
+
+Increase usability slightly:
+- admin action buttons a bit larger
+- Investigation Room text a bit larger
+- keep the same style, just make it more readable and easier to click
+
+==================================================
+7. LOCAL DATE / TIME IN HEADER
+==================================================
+
+Use the user’s browser/local time zone for the header date/time display.
+Keep it minimal and on-brand.
+
+==================================================
+8. HOMEPAGE DEMO / DATA NOTICE
+==================================================
+
+Add the subtle homepage data-status notice.
+
+Use clean system language, not a loud warning.
+
+Target idea:
+SYSTEM NOTICE — DEMONSTRATION ENVIRONMENT
+
+Select signals, cases, and system outputs displayed on this page are simulated or partially mocked for demonstration purposes. Real-time intelligence integration is active in controlled modules only.
+
+Keep it:
+- small
+- thin-bordered
+- muted
+- on-brand
+
+==================================================
+9. FINAL VERIFICATION
+==================================================
+
+Before finishing, verify all of these actually work:
+- edit own handle
+- edit other user handle
+- show user id
+- create case
+- attach case to investigation channel
+- rename/archive channel
+- role request on registration
+- local time in header
+- homepage data-status notice
+- no broken controls or loading loops

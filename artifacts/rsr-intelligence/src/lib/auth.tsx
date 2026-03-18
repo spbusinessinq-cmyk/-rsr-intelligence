@@ -7,6 +7,7 @@ export interface Profile {
   id: string;
   handle: string;
   title?: string;
+  requested_role?: string;
   role: string;
   approval_status: string;
   account_status?: string;
@@ -21,7 +22,7 @@ interface AuthContextType {
   loading: boolean;
   configured: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (email: string, password: string, handle: string) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string, handle: string, requestedRole?: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -100,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error?.message ?? null };
   }
 
-  async function signUp(email: string, password: string, handle: string) {
+  async function signUp(email: string, password: string, handle: string, requestedRole = "member") {
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) return { error: error.message };
     if (data.user) {
@@ -110,6 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         handle: handle.toUpperCase().replace(/[^A-Z0-9-]/g, "-"),
         role: "member",
         approval_status: "pending",
+        requested_role: requestedRole,
       });
     }
     return { error: null };

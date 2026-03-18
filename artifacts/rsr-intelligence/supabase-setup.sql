@@ -174,6 +174,12 @@ CREATE POLICY "Admins can update channels"
   USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'admin');
 
 -- ============================================================
+-- MIGRATION: Requested role on registration
+-- ============================================================
+
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS requested_role TEXT DEFAULT 'member';
+
+-- ============================================================
 -- MIGRATION: Message pinning + editing + operator title
 -- ============================================================
 
