@@ -1,0 +1,80 @@
+FINAL QA / GO-LIVE AUDIT PASS
+
+Do NOT redesign anything.
+Do NOT add features.
+Do NOT change visual identity.
+Do NOT weaken the homepage.
+
+MAIN GOAL
+Perform a strict final smoke-test audit of the current app and fix only true launch-blocking issues.
+
+This is not a build pass.
+This is a QA / verification / final stabilization pass.
+
+==================================================
+TEST EVERYTHING END-TO-END
+==================================================
+
+PUBLIC
+- homepage loads cleanly
+- live signal feed loads
+- Signal Room loads
+- systems / files / dossiers / world routes load
+- demo notice is visible
+- header clock/date is stable
+- no broken navigation links
+- no white scrollbars
+
+AUTH
+- sign in works
+- sign out works
+- session persists on refresh
+- Investigation Room redirects when logged out
+- Command Console is restricted to admin
+
+INVESTIGATION ROOM
+- channel switching works
+- message send works
+- refresh keeps messages
+- delete a message → it disappears
+- refresh again → deleted message stays gone
+- updated handle appears in feed
+- updated handle appears in analyst roster
+- Sage opens and works
+- no dead controls remain in the room
+- no broken hover icons remain
+
+COMMAND CONSOLE
+- page loads without red errors
+- edit identity works
+- saved identity persists after refresh
+- create channel works
+- rename channel works
+- archive channel works
+- create case works
+- update case works
+- remove/disable any control that is still not launch-ready
+
+FINAL UI AUDIT
+- no visible broken buttons
+- no misleading controls
+- no stale mock data where real data should appear
+- no raw DB errors exposed in launch UI
+- keep only controls that are actually working
+
+==================================================
+RULE
+==================================================
+
+If something is broken and non-essential, remove or disable it for launch instead of leaving it visible.
+
+==================================================
+FINAL REPORT REQUIRED
+==================================================
+
+At the end, report exactly:
+
+1. what passed
+2. what was fixed in this QA pass
+3. what was removed/disabled for launch
+4. whether the app is launch-ready

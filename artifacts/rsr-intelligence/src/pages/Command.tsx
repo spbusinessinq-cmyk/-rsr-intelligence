@@ -363,8 +363,15 @@ export default function Command() {
   }
 
   async function deleteCase(id: string, ref: string) {
-    const { error } = await supabase.from("investigation_cases").delete().eq("id", id);
+    const { data, error } = await supabase
+      .from("investigation_cases")
+      .delete()
+      .eq("id", id)
+      .select("id");
     if (error) { showToast("FAILED: " + error.message, "err"); return; }
+    if (!data || data.length === 0) {
+      showToast("DELETE BLOCKED — RLS policy or row already gone", "err"); return;
+    }
     showToast("CASE DELETED: " + ref, "ok"); await fetchData();
   }
 
