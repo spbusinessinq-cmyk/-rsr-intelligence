@@ -1,0 +1,291 @@
+FINAL FORCE PASS — READABILITY, IDENTITY SAVE, CHANNEL/CASE CONTROLS, SCROLLBAR FIX, AND LAUNCH LOCK
+
+Do NOT redesign the site.
+Do NOT change the layout architecture.
+Do NOT weaken the homepage.
+Do NOT change the established visual identity.
+
+This is the final force pass before launch.
+Focus on consistency, usability, and making every existing admin/control feature clearly work.
+
+MAIN GOAL
+Make the entire system consistent, readable, and fully operational by fixing:
+- inconsistent text sizing across pages
+- too-small admin/action buttons
+- handle/title editing save reliability
+- channel and case control usability/reliability
+- analyst roster reflecting updated names
+- custom scrollbar styling
+- active case creation/deletion issues
+- final homepage + signal consistency
+
+PRESERVE
+- black base
+- restrained emerald accents
+- thin borders
+- premium command-interface feel
+- monospace micro-labels
+- serious intelligence-network tone
+
+CRITICAL RULES
+- No hidden critical controls
+- No describing features that are not clearly visible and working
+- No more tiny action buttons
+- No more inconsistent text sizes across pages
+- Keep everything controlled, minimal, and launch-ready
+
+==================================================
+1. GLOBAL TEXT SCALE CONSISTENCY
+==================================================
+
+Right now text sizing is still inconsistent across pages.
+
+Fix this globally and intentionally.
+
+Set a consistent readable scale across:
+- Homepage
+- Signal Room
+- Investigation Room
+- Command Console
+- Sage Terminal
+- sidebars
+- operator tables
+- room status / case lists / analyst roster
+- signal cards
+- message composer
+
+Requirements:
+- body/system text should be slightly larger and remain that way consistently
+- command console text should match investigation/signal readability
+- sidebar text should not be tiny
+- buttons/labels should remain crisp and premium, not chunky
+
+Do not make random page-by-page size tweaks.
+Use a deliberate shared scale system.
+
+==================================================
+2. HANDLE / TITLE EDITING — MUST SAVE RELIABLY
+==================================================
+
+This still does not feel reliable enough.
+
+Fix identity editing so it is obvious and fully functional.
+
+Requirements:
+- EDIT IDENTITY button clearly visible in every operator row
+- clicking it opens a clear modal or inline form
+- fields:
+  - handle
+  - title
+- save must update profiles table reliably
+- save must persist on refresh
+- updated handle/title must reflect everywhere:
+  - Command Console
+  - Investigation Room messages
+  - analyst roster
+  - any user references
+
+Also:
+- if save fails, show a visible error state
+- if save succeeds, show a visible success state
+- do not silently fail
+
+Make sure my own handle and title can be edited the same way as everyone else.
+
+CRITICAL:
+When a handle is changed, the Analyst Roster must immediately reflect the new name too. It must not keep showing the old handle.
+
+==================================================
+3. OPERATOR RECORD PANEL — MAKE IT OBVIOUS
+==================================================
+
+The operator record panel must be clearly visible and obvious to open.
+
+Requirements:
+- each operator row needs a clear DETAILS / COLLAPSE button
+- expanded state should visibly reveal the operator record panel directly below the row
+- no ambiguity
+- no tiny affordance
+
+Expanded operator record must clearly show:
+- full operator/user id
+- handle
+- title
+- email
+- role
+- approval status
+- account status
+- requested role if present
+- joined date
+
+Keep it minimal and structured.
+
+==================================================
+4. COMMAND CONSOLE BUTTONS — BIGGER AND CLEARER
+==================================================
+
+Admin/action buttons are still too small.
+
+Increase usability for:
+- EDIT IDENTITY
+- APPROVE / DENY
+- role controls
+- account controls
+- DETAILS / COLLAPSE
+- channel management buttons
+- case management buttons
+
+Do not change the aesthetic.
+Just make them more clickable and readable.
+
+Also make sure all command console controls actually work and do not get stuck in loading or partial states.
+
+==================================================
+5. INVESTIGATION ROOM CHANNEL CONTROLS — BIGGER + WORKING
+==================================================
+
+The rename/archive controls in the Investigation Room channel list need to be bigger, clearer, and fully working.
+
+Requirements:
+- admin-only channel controls visible enough to use
+- rename works and saves to DB
+- archive/remove works and updates UI immediately
+- create channel works
+- channel list refreshes instantly after changes
+
+Do not leave channel controls as tiny hover-only mystery buttons.
+Keep them subtle, but actually usable.
+
+Also:
+- fix any channel control that appears in UI but does not save to DB
+- fix rename specifically if it is currently not persisting
+
+==================================================
+6. ACTIVE CASES / CASE ACTIONS — FIX THEM
+==================================================
+
+There are still too many static/mock-looking cases in Active Cases and the action flow is not fully working.
+
+Fix this.
+
+Requirements:
+- Active Cases should reflect real DB-backed cases only
+- remove/deprecate leftover static/mock placeholders
+- create case from the Active Cases area must work
+- delete case from the Investigation Room sidebar/context must work
+- case status changes must save reliably
+- cases must update immediately in the sidebar and room context
+
+Also:
+- if a case is created, it should appear right away
+- if a case is deleted, it should disappear right away
+- no dead action buttons
+
+==================================================
+7. CASE / INVESTIGATION WORKSPACE CONSISTENCY
+==================================================
+
+Keep the current linked-case workspace behavior, but make sure it is clearly usable.
+
+Requirements:
+- linked cases in the workspace bar are readable
+- + CASE action is obvious
+- ATTACH flow works cleanly
+- creating/attaching a case updates the room context immediately
+- active cases in the sidebar remain readable and useful
+
+If a room is an investigation room, it should feel like an actual investigation workspace, not just chat.
+
+==================================================
+8. INVESTIGATION ROOM READABILITY
+==================================================
+
+Increase Investigation Room readability one more notch.
+
+Improve:
+- message text
+- role labels
+- timestamps
+- channel labels
+- active cases
+- analyst roster
+- room status
+- composer text
+
+Do not overdo it.
+Just make it feel as readable as the improved Signal Room.
+
+==================================================
+9. SCROLLBAR FIX — ALL PAGES
+==================================================
+
+The white scrollbar on the right side breaks the visual identity.
+
+Fix custom scrollbar styling across the app:
+- use dark track
+- subtle emerald or muted accent thumb
+- consistent styling on all pages
+- browser scrollbars should match the system aesthetic
+
+This should apply to:
+- full-page scrollbars
+- internal scroll panels
+- sidebars where appropriate
+
+==================================================
+10. HOMEPAGE + SIGNAL CONSISTENCY
+==================================================
+
+Preserve the real/current signal pipeline.
+
+Make sure:
+- homepage Live Signal Feed still uses the same real/current source as Signal Room
+- homepage demo/system notice remains present and readable
+- homepage does not regress back to old mock signal text
+- Signal Room and homepage feel like part of the same system
+
+==================================================
+11. LOCAL TIME HEADER — KEEP IT CLEAN
+==================================================
+
+Keep local/browser date and time in the header.
+
+Ensure:
+- it remains stable across pages
+- formatting is consistent
+- timezone/date line remains readable and on-brand
+
+==================================================
+12. FINAL FUNCTIONAL VERIFICATION
+==================================================
+
+Before finishing, verify all of these actually work:
+- edit my own handle
+- edit another user handle
+- save handle/title and persist after refresh
+- analyst roster reflects updated names
+- expanded operator record visible and usable
+- rename channel
+- archive channel
+- create channel
+- create case
+- delete case from Investigation Room
+- attach case to room
+- message send
+- command console loads correctly
+- homepage live feed works
+- signal room live feed works
+- no stuck loading states
+- no tiny unusable control buttons remain
+- scrollbar styling is fixed across the app
+
+Do not just say it works — verify it.
+
+==================================================
+13. DO NOT INTRODUCE NEW CONCEPTS
+==================================================
+
+Do not add unrelated new features in this pass.
+This is a stability/usability/completion pass only.
+
+The goal is to make the current platform feel fully finished and launch-ready tonight.

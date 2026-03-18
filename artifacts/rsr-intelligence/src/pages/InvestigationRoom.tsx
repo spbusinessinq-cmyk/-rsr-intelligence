@@ -265,11 +265,11 @@ function MessageRow({
           <div className="flex items-center gap-3 flex-wrap mb-2">
             <span className="font-mono text-xs tracking-[0.1em] text-zinc-200 font-medium">{msg.handle}</span>
             {roleCls && msg.role && (
-              <span className={`font-mono text-[9px] tracking-[0.2em] border px-1.5 py-0.5 ${roleCls}`}>
+              <span className={`font-mono text-[10px] tracking-[0.15em] border px-1.5 py-0.5 ${roleCls}`}>
                 {msg.role.toUpperCase()}
               </span>
             )}
-            <span className="font-mono text-[10px] text-zinc-600">{fmtTime(msg.created_at)}</span>
+            <span className="font-mono text-[11px] text-zinc-600">{fmtTime(msg.created_at)}</span>
             {msg.pinned && (
               <span className="font-mono text-[8px] tracking-[0.25em] text-emerald-700 border border-emerald-900/30 px-1.5 py-0.5">
                 PINNED
@@ -683,7 +683,7 @@ export default function InvestigationRoom() {
   const [renameVal, setRenameVal] = useState("");
 
   /* ── Case state ── */
-  const [cases, setCases] = useState<Case[]>(STATIC_CASES);
+  const [cases, setCases] = useState<Case[]>([]);
   const [selectedCaseRef, setSelectedCaseRef] = useState<string | null>(null);
   const [newCaseOpen, setNewCaseOpen] = useState(false);
   const [newCaseForm, setNewCaseForm] = useState({ ref: "", name: "", stage: "NEW", priority: "NORMAL", channel_id: "" });
@@ -705,12 +705,12 @@ export default function InvestigationRoom() {
 
   /* ── Load cases from DB ── */
   const loadCases = useCallback(async () => {
-    if (!configured) return;
+    if (!configured) { setCases(STATIC_CASES); return; }
     const { data } = await supabase
       .from("investigation_cases")
       .select("*")
       .order("created_at", { ascending: true });
-    if (data && data.length > 0) setCases(data as Case[]);
+    if (data) setCases(data as Case[]);
   }, [configured]);
 
   useEffect(() => {
@@ -995,18 +995,18 @@ export default function InvestigationRoom() {
                           <span className="font-mono text-[7px] text-zinc-700 shrink-0">{linkedCases}</span>
                         )}
                         {isAdmin && configured && (
-                          <div className="hidden group-hover:flex items-center shrink-0">
+                          <div className="flex items-center gap-0.5 shrink-0 opacity-30 group-hover:opacity-100 transition-opacity">
                             <button
                               onClick={e => { e.stopPropagation(); setRenamingCh(ch.id); setRenameVal(ch.name); }}
-                              title="Rename"
-                              className="font-mono text-[9px] text-zinc-700 hover:text-zinc-400 px-0.5 transition-colors"
+                              title="Rename channel"
+                              className="font-mono text-[9px] text-zinc-500 hover:text-zinc-200 w-5 h-5 flex items-center justify-center hover:bg-zinc-800 transition-colors"
                             >
                               ✎
                             </button>
                             <button
                               onClick={e => { e.stopPropagation(); archiveChannel(ch.id); }}
-                              title="Archive"
-                              className="font-mono text-[9px] text-zinc-700 hover:text-red-400 px-0.5 transition-colors"
+                              title="Archive channel"
+                              className="font-mono text-[9px] text-zinc-500 hover:text-red-400 w-5 h-5 flex items-center justify-center hover:bg-zinc-800 transition-colors"
                             >
                               ×
                             </button>

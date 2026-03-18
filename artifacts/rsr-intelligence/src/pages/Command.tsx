@@ -134,12 +134,14 @@ function IdentityModal({
   onClose,
 }: {
   op: Profile;
-  onSave: (id: string, handle: string, title: string) => Promise<void>;
+  onSave: (id: string, handle: string, title: string) => Promise<{ error: string | null }>;
   onClose: () => void;
 }) {
-  const [handle, setHandle] = useState(displayHandle(op));
-  const [title,  setTitle]  = useState(op.title ?? "");
-  const [saving, setSaving] = useState(false);
+  const [handle,    setHandle]    = useState(displayHandle(op));
+  const [title,     setTitle]     = useState(op.title ?? "");
+  const [saving,    setSaving]    = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saved,     setSaved]     = useState(false);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) { if (e.key === "Escape") onClose(); }
@@ -150,8 +152,13 @@ function IdentityModal({
   async function submit() {
     if (!handle.trim()) return;
     setSaving(true);
-    await onSave(op.id, handle.trim().toUpperCase().replace(/[^A-Z0-9-]/g, "-").slice(0, 32), title.trim());
+    setSaveError(null);
+    setSaved(false);
+    const normalized = handle.trim().toUpperCase().replace(/[^A-Z0-9-]/g, "-").slice(0, 32);
+    const { error } = await onSave(op.id, normalized, title.trim());
     setSaving(false);
+    if (error) { setSaveError(error); }
+    else        { setSaved(true); setTimeout(onClose, 900); }
   }
 
   return (
@@ -194,15 +201,25 @@ function IdentityModal({
           />
         </div>
 
+        {saveError && (
+          <div className="border border-red-900/40 bg-red-950/10 px-3 py-2">
+            <div className="font-mono text-[9px] tracking-[0.2em] text-red-400">SAVE FAILED: {saveError}</div>
+          </div>
+        )}
+        {saved && (
+          <div className="border border-emerald-900/30 bg-emerald-950/10 px-3 py-2">
+            <div className="font-mono text-[9px] tracking-[0.2em] text-emerald-400">IDENTITY UPDATED ✓</div>
+          </div>
+        )}
         <div className="flex items-center gap-4 pt-2 border-t border-zinc-900">
           <button
             onClick={submit}
-            disabled={!handle.trim() || saving}
-            className="font-mono text-[9px] tracking-[0.25em] text-emerald-600 hover:text-emerald-400 border border-emerald-900/30 hover:border-emerald-800/40 px-5 py-2 transition-colors disabled:opacity-30"
+            disabled={!handle.trim() || saving || saved}
+            className="font-mono text-[10px] tracking-[0.25em] text-emerald-600 hover:text-emerald-400 border border-emerald-900/30 hover:border-emerald-800/40 px-5 py-2.5 transition-colors disabled:opacity-30"
           >
-            {saving ? "SAVING..." : "SAVE IDENTITY"}
+            {saving ? "SAVING..." : saved ? "SAVED ✓" : "SAVE IDENTITY"}
           </button>
-          <button onClick={onClose} className="font-mono text-[9px] text-zinc-600 hover:text-zinc-400 transition-colors">
+          <button onClick={onClose} className="font-mono text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors">
             CANCEL
           </button>
           <span className="ml-auto font-mono text-[8px] text-zinc-800">{op.id.slice(0, 8)}…</span>
@@ -276,13 +293,19 @@ export default function Command() {
   }
 
   /* ── Identity save ── */
-  async function saveIdentity(id: string, handle: string, title: string) {
+  async function saveIdentity(id: string, handle: string, title: string): Promise<{ error: string | null }> {
     const { error } = await supabase.from("profiles").update({
       handle,
       title: title || null,
     }).eq("id", id);
-    if (error) { showToast("FAILED: " + error.message, "err"); }
-    else        { showToast("IDENTITY UPDATED → " + handle, "ok"); setEditingOp(null); await fetchData(); }
+    if (error) {
+      showToast("FAILED: " + error.message, "err");
+      return { error: error.message };
+    }
+    showToast("IDENTITY UPDATED → " + handle, "ok");
+    setEditingOp(null);
+    await fetchData();
+    return { error: null };
   }
 
   /* ── Channel ops ── */
@@ -517,10 +540,10 @@ export default function Command() {
                               {isSelf && <span className="text-[8px] text-emerald-600 tracking-[0.2em] shrink-0">YOU</span>}
                             </div>
                             {op.title && (
-                              <div className="font-mono text-[8px] tracking-[0.08em] text-zinc-600 truncate">{op.title}</div>
+                              <div className="font-mono text-[9px] tracking-[0.06em] text-zinc-500 truncate">{op.title}</div>
                             )}
                             {op.email && (
-                              <div className="font-mono text-[8px] tracking-[0.04em] text-zinc-700 truncate">{op.email}</div>
+                              <div className="font-mono text-[9px] tracking-[0.04em] text-zinc-600 truncate">{op.email}</div>
                             )}
                           </div>
                         </div>
