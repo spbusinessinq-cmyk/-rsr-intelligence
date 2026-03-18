@@ -4,6 +4,7 @@ import UTCClock from "./UTCClock";
 import { useAuth } from "@/lib/auth";
 import { InboxPanel } from "@/components/InboxPanel";
 import { useInboxCount } from "@/components/useInboxCount";
+import { useInboxNav } from "@/lib/inboxNav";
 
 interface LayoutProps {
   children: ReactNode;
@@ -14,6 +15,7 @@ export default function Layout({ children }: LayoutProps) {
   const { user: authUser } = useAuth();
   const inboxUnread = useInboxCount(authUser?.id ?? null);
   const [inboxOpen, setInboxOpen] = useState(false);
+  const { clearInboxNav } = useInboxNav();
 
   const navLinks = [
     { name: "HOME",     path: "/" },
@@ -71,6 +73,7 @@ export default function Layout({ children }: LayoutProps) {
                   <Link
                     key={link.name}
                     href={link.path}
+                    onClick={clearInboxNav}
                     className={`px-3 py-2 border transition-all duration-150 whitespace-nowrap ${
                       isActive
                         ? "border-emerald-500/40 text-emerald-300 bg-emerald-500/5"

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "wouter";
 import { useHashSearch } from "@/lib/hashLocation";
+import { useInboxNav } from "@/lib/inboxNav";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/lib/auth";
 import { supabase, isConfigured } from "@/lib/supabase";
@@ -689,6 +690,7 @@ export default function InvestigationRoom() {
   const user = profile;
   const isAdmin = profile?.role === "admin";
   const searchStr = useHashSearch();
+  const { navTarget, clearInboxNav } = useInboxNav();
 
   /* ── Core state ── */
   const initChannel = () => {
@@ -722,6 +724,14 @@ export default function InvestigationRoom() {
     if (ch) setActiveChannel(ch);
     if (mid) setTargetMsgId(mid);
   }, [searchStr]);
+
+  /* ── Inbox state-navigation: consume navTarget, update channel/message ── */
+  useEffect(() => {
+    if (!navTarget || navTarget.page !== "investigation-room") return;
+    if (navTarget.channel) setActiveChannel(navTarget.channel);
+    if (navTarget.message) setTargetMsgId(navTarget.message);
+    clearInboxNav(); // consume + clear so App.tsx falls back to normal routing
+  }, [navTarget, clearInboxNav]);
 
   /* ── Scroll to target message once messages have loaded ── */
   useEffect(() => {

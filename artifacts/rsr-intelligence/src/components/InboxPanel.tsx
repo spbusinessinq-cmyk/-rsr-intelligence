@@ -1,37 +1,29 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
+import { useInboxNav } from "@/lib/inboxNav";
 
 /**
- * Convert any notification link to a clean hash-path string.
- * Output: "/investigation-room?channel=investigations"  (no leading '#')
- * This is assigned directly to window.location.hash — zero server round-trips.
- * Returns null for external URLs or empty/invalid input.
+ * Extract { channel, message } from a notification link.
+ * Handles all formats: "/investigation-room?channel=foo", "#/...", full URL.
+ * Returns null if the link targets a page other than investigation-room.
  */
-function normalizeHashPath(raw: string): string | null {
+function parseInvestigationLink(raw: string | null): { channel?: string; message?: string } | null {
   if (!raw) return null;
 
-  // Strip any leading '#' characters (avoids double-hash)
-  let stripped = raw.replace(/^#+/, "");
+  // Strip leading hashes and get the search-param portion
+  const stripped = raw.replace(/^#+/, "");
+  const qIdx = stripped.indexOf("?");
+  const search = qIdx >= 0 ? stripped.slice(qIdx + 1) : "";
 
-  // If it's an absolute URL, extract the internal path+search
-  if (stripped.startsWith("http://") || stripped.startsWith("https://")) {
-    try {
-      const url = new URL(stripped);
-      if (url.hostname !== window.location.hostname) return null; // external
-      stripped = url.pathname + url.search;
-    } catch {
-      return null;
-    }
-  }
+  // Only parse links that target investigation-room
+  const pathPart = qIdx >= 0 ? stripped.slice(0, qIdx) : stripped;
+  if (!pathPart.includes("investigation-room")) return null;
 
-  // Ensure exactly one leading slash, collapse multiples
-  stripped = stripped.replace(/^\/+/, "");
-  const path = "/" + stripped;
-
-  // Reject suspiciously empty results
-  if (path === "/") return null;
-
-  return path;
+  const p = new URLSearchParams(search);
+  return {
+    channel: p.get("channel") ?? undefined,
+    message: p.get("message") ?? undefined,
+  };
 }
 
 /* ── Types ───────────────────────────────────────────────────────────── */
@@ -76,6 +68,8 @@ interface InboxPanelProps {
 }
 
 export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps) {
+  const { navigateViaInbox } = useInboxNav();
+
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading,       setLoading]       = useState(true);
   const [markingAll,    setMarkingAll]    = useState(false);
@@ -134,21 +128,22 @@ export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps)
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose, confirmDelete]);
 
-  /* ── Mark read + navigate via direct hash assignment (NEVER 404s) ── */
+  /* ── Mark read + state-navigate (NO URL, NO router, ZERO 404 risk) ── */
   async function markRead(n: Notification) {
     if (!n.is_read) {
       await supabase.from("notifications").update({ is_read: true }).eq("id", n.id);
       setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, is_read: true } : x));
       onUnreadChange(notifications.filter(x => !x.is_read && x.id !== n.id).length);
     }
-    if (n.link) {
-      const path = normalizeHashPath(n.link);
-      if (path) {
-        onClose();
-        // Direct hash assignment — bypasses router entirely, zero server request
-        window.location.hash = path;
-      }
+
+    onClose();
+
+    // Navigate purely through React state — no window.location, no setLocation
+    const inv = parseInvestigationLink(n.link);
+    if (inv !== null) {
+      navigateViaInbox({ page: "investigation-room", ...inv });
     }
+    // Non-investigation links: just close the panel (no navigation attempted)
   }
 
   /* ── Mark all read ── */
@@ -173,7 +168,6 @@ export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps)
       setConfirmDelete(id);
       return;
     }
-    // Confirmed — optimistic remove
     setConfirmDelete(null);
     setDeletingId(id);
     const removed = notifications.find(n => n.id === id);
@@ -182,7 +176,6 @@ export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps)
 
     const { error } = await supabase.from("notifications").delete().eq("id", id);
     if (error && removed) {
-      // Restore on failure
       setNotifications(prev =>
         [removed, ...prev].sort(
           (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
@@ -273,7 +266,7 @@ export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps)
                         : "bg-zinc-950/40 hover:bg-zinc-950/60"
                   } ${isDeleting ? "opacity-40 pointer-events-none" : ""}`}
                 >
-                  {/* Top row: type + age + delete */}
+                  {/* Top row: type badge + age + delete control */}
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="flex items-center gap-2 min-w-0">
                       {!n.is_read && (

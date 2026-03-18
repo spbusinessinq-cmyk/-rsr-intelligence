@@ -1,5 +1,6 @@
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { useHashLocation } from "@/lib/hashLocation";
+import { InboxNavProvider, useInboxNav } from "@/lib/inboxNav";
 import { AuthProvider, ProtectedRoute } from "@/lib/auth";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
@@ -17,6 +18,18 @@ import Briefing from "@/pages/Briefing";
 import Command from "@/pages/Command";
 
 function Router() {
+  const { navTarget } = useInboxNav();
+
+  /*
+   * Inbox state-navigation override.
+   * When a notification sets navTarget, render the target page directly —
+   * zero URL change, zero router involvement, zero possibility of 404.
+   * clearInboxNav() is called inside InvestigationRoom once it consumes the target.
+   */
+  if (navTarget?.page === "investigation-room") {
+    return <ProtectedRoute component={InvestigationRoom} />;
+  }
+
   return (
     <Switch>
       <Route path="/"                        component={Home} />
@@ -43,11 +56,13 @@ function Router() {
 
 function App() {
   return (
-    <WouterRouter hook={useHashLocation}>
-      <AuthProvider>
-        <Router />
-      </AuthProvider>
-    </WouterRouter>
+    <InboxNavProvider>
+      <WouterRouter hook={useHashLocation}>
+        <AuthProvider>
+          <Router />
+        </AuthProvider>
+      </WouterRouter>
+    </InboxNavProvider>
   );
 }
 
