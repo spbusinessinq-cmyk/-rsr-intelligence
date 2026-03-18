@@ -11,6 +11,7 @@ interface Channel {
   slug: string;
   name: string;
   description: string | null;
+  archived?: boolean;
 }
 
 interface Message {
@@ -21,6 +22,16 @@ interface Message {
   role: string | null;
   body: string;
   created_at: string;
+}
+
+interface Case {
+  id: string;
+  ref: string;
+  name: string;
+  stage: string;
+  priority: string;
+  channel_id: string | null;
+  description: string | null;
 }
 
 type SageAction = "brief" | "summarize" | "factcheck" | "trace" | "query";
@@ -34,7 +45,7 @@ interface SageEntry {
   error?: string;
 }
 
-/* ── Static data ────────────────────────────────────────────────────── */
+/* ── Static fallback data ───────────────────────────────────────────── */
 
 const DEFAULT_CHANNELS: Channel[] = [
   { id: "general",         slug: "general",         name: "general",         description: "General coordination" },
@@ -42,6 +53,17 @@ const DEFAULT_CHANNELS: Channel[] = [
   { id: "west-coast-case", slug: "west-coast-case", name: "west-coast-case", description: "West Coast operation" },
   { id: "signals",         slug: "signals",         name: "signals",         description: "Signal monitoring and alerts" },
   { id: "off-grid",        slug: "off-grid",        name: "off-grid",        description: "Off-network discussions" },
+];
+
+const STATIC_CASES: Case[] = [
+  { id: "F-001", ref: "F-001", name: "CLEARWATER",       stage: "BUILDING",   priority: "HIGH",   channel_id: "investigations",  description: null },
+  { id: "F-003", ref: "F-003", name: "INFLUENCE ARCH",   stage: "REVIEW",     priority: "HIGH",   channel_id: "investigations",  description: null },
+  { id: "F-009", ref: "F-009", name: "NORTHERN GATEWAY", stage: "READY",      priority: "NORMAL", channel_id: "west-coast-case", description: null },
+  { id: "F-017", ref: "F-017", name: "ALLIED MEDIA",     stage: "MONITORING", priority: "HIGH",   channel_id: "signals",         description: null },
+  { id: "F-019", ref: "F-019", name: "LOBBYING MAP",     stage: "BUILDING",   priority: "NORMAL", channel_id: "investigations",  description: null },
+  { id: "D-004", ref: "D-004", name: "MERIDIAN",         stage: "REVIEW",     priority: "HIGH",   channel_id: "investigations",  description: null },
+  { id: "D-013", ref: "D-013", name: "REGIONAL FUTURES", stage: "REVIEW",     priority: "NORMAL", channel_id: "off-grid",        description: null },
+  { id: "F-018", ref: "F-018", name: "BOND STRUCTURE",   stage: "NEW",        priority: "NORMAL", channel_id: "signals",         description: null },
 ];
 
 const MOCK_THREADS: Message[] = [
@@ -75,27 +97,6 @@ const MOCK_THREADS: Message[] = [
     handle: "RESEARCH-02", role: "analyst", created_at: "2026-03-17T12:30:00Z",
     body: "Regional Futures Fund (D-013) and F-010 Eastern Europe influence mapping now confirmed connected. Fund holds equity in three media entities in F-010. Correlated timing between D-013 equity commitments and editorial output shifts is a strong indicator. Capital and editorial direction share common ownership or direction. Priority finding for Eastern Europe posture assessment. [D-013]",
   },
-  {
-    id: "ct-007", channel_id: "investigations", user_id: "CASE-BUILD-01",
-    handle: "CASE-BUILD-01", role: "analyst", created_at: "2026-03-17T11:00:00Z",
-    body: "Two new channels identified in F-014 cycle both use infrastructure attributable to Signal Bridge Network (D-014). Now four of eleven documented channels with D-014 infrastructure linkage. D-014 functioning as operational backbone, not incidental host. D-014 classification upgrade recommended. LANTERN PROTOCOL (D-003) former personnel cross-check: two D-014 operators match. [D-014]",
-  },
-  {
-    id: "ct-008", channel_id: "investigations", user_id: "RESEARCH-01",
-    handle: "RESEARCH-01", role: "analyst", created_at: "2026-03-17T09:30:00Z",
-    body: "F-018 infrastructure bond analysis complete. Capital flows connect to entities in both F-016 and F-006. Bond functioning as a capital routing mechanism between the two networks. Elevates the F-016/F-018/F-006 cluster to priority analytic review. Beneficial owner of bond's lead arranger remains unresolved. [F-018]",
-  },
-];
-
-const activeCases = [
-  { ref: "F-001", name: "CLEARWATER",       stage: "BUILDING",   priority: "HIGH" },
-  { ref: "F-003", name: "INFLUENCE ARCH",   stage: "REVIEW",     priority: "HIGH" },
-  { ref: "F-009", name: "NORTHERN GATEWAY", stage: "READY",      priority: "NORMAL" },
-  { ref: "F-017", name: "ALLIED MEDIA",     stage: "MONITORING", priority: "HIGH" },
-  { ref: "F-019", name: "LOBBYING MAP",     stage: "BUILDING",   priority: "NORMAL" },
-  { ref: "D-004", name: "MERIDIAN",         stage: "REVIEW",     priority: "HIGH" },
-  { ref: "D-013", name: "REGIONAL FUTURES", stage: "REVIEW",     priority: "NORMAL" },
-  { ref: "F-018", name: "BOND STRUCTURE",   stage: "NEW",        priority: "NORMAL" },
 ];
 
 const stageStyle: Record<string, string> = {
@@ -113,6 +114,8 @@ const STATIC_ANALYSTS = [
   { handle: "RESEARCH-01",   role: "analyst", status: "ACTIVE" },
   { handle: "RESEARCH-02",   role: "analyst", status: "IDLE" },
 ];
+
+const STAGES = ["NEW", "BUILDING", "REVIEW", "MONITORING", "READY"];
 
 /* ── Helpers ────────────────────────────────────────────────────────── */
 
@@ -186,17 +189,32 @@ async function runSageQuery(
 
 /* ── Message Row ────────────────────────────────────────────────────── */
 
-function MessageRow({ msg }: { msg: Message }) {
+function MessageRow({
+  msg, isAdmin, onDelete,
+}: {
+  msg: Message;
+  isAdmin: boolean;
+  onDelete?: (id: string) => void;
+}) {
   const { files, dossiers, cleanBody } = extractRefs(msg.body);
   const roleCls = roleBadge(msg.role);
 
   return (
-    <div className="px-5 py-5 border-b border-zinc-900/60 hover:bg-zinc-950/20 transition-colors">
+    <div className="group relative px-5 py-5 border-b border-zinc-900/60 hover:bg-zinc-950/20 transition-colors">
+      {isAdmin && onDelete && (
+        <button
+          onClick={() => onDelete(msg.id)}
+          title="Delete message"
+          className="absolute top-3 right-3 font-mono text-[8px] text-zinc-800 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+        >
+          ✕
+        </button>
+      )}
       <div className="flex items-start gap-3">
         <div className="w-5 h-5 rounded-full border border-zinc-800 flex items-center justify-center shrink-0 mt-0.5">
           <div className="w-1.5 h-1.5 rounded-full bg-zinc-600" />
         </div>
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 pr-4">
           <div className="flex items-center gap-3 flex-wrap mb-2">
             <span className="font-mono text-xs tracking-[0.1em] text-zinc-200 font-medium">{msg.handle}</span>
             {roleCls && msg.role && (
@@ -277,14 +295,10 @@ function SageModal({ onClose }: { onClose: () => void }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  function addEntry(entry: SageEntry) {
-    setEntries(prev => [...prev, entry]);
-    setInputVal("");
-  }
+  function addEntry(entry: SageEntry) { setEntries(prev => [...prev, entry]); setInputVal(""); }
   function updateEntry(id: string, response: string | null, error?: string) {
     setEntries(prev => prev.map(e => e.id === id ? { ...e, loading: false, response, error } : e));
   }
-
   function handleQuery(query: string, action: SageAction) {
     if (!query.trim() || !online) return;
     runSageQuery(query, action, addEntry, updateEntry);
@@ -294,8 +308,6 @@ function SageModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.85)" }}>
       <div className="bg-black border border-zinc-800 w-full max-w-4xl mx-6 flex flex-col" style={{ height: "85vh" }}>
-
-        {/* Header */}
         <div className="border-b border-zinc-800 px-6 py-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-4">
             <div className="font-mono text-xs tracking-[0.4em] text-zinc-400">SAGE TERMINAL</div>
@@ -306,38 +318,20 @@ function SageModal({ onClose }: { onClose: () => void }) {
           </div>
           <div className="flex items-center gap-4">
             {entries.length > 0 && (
-              <button
-                onClick={() => setEntries([])}
-                className="font-mono text-[9px] tracking-[0.25em] text-zinc-700 hover:text-zinc-400 transition-colors"
-              >
-                CLR
-              </button>
+              <button onClick={() => setEntries([])} className="font-mono text-[9px] tracking-[0.25em] text-zinc-700 hover:text-zinc-400 transition-colors">CLR</button>
             )}
-            <button
-              onClick={onClose}
-              className="font-mono text-[9px] tracking-[0.3em] text-zinc-600 hover:text-zinc-300 border border-zinc-800 hover:border-zinc-600 px-3 py-1.5 transition-colors"
-            >
-              CLOSE ✕
-            </button>
+            <button onClick={onClose} className="font-mono text-[9px] tracking-[0.3em] text-zinc-600 hover:text-zinc-300 border border-zinc-800 hover:border-zinc-600 px-3 py-1.5 transition-colors">CLOSE ✕</button>
           </div>
         </div>
-
-        {/* Quick briefs */}
         <div className="border-b border-zinc-900 px-6 py-3 flex gap-2 shrink-0 flex-wrap">
           <span className="font-mono text-[9px] tracking-[0.3em] text-zinc-700 mr-2 flex items-center">QUICK:</span>
           {QUICK_BRIEFS.map(b => (
-            <button
-              key={b.label}
-              disabled={!online}
-              onClick={() => handleQuery(b.query, b.action)}
-              className="font-mono text-[9px] tracking-[0.2em] border border-zinc-800 text-zinc-500 hover:text-emerald-400 hover:border-emerald-900/40 px-3 py-1.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-            >
+            <button key={b.label} disabled={!online} onClick={() => handleQuery(b.query, b.action)}
+              className="font-mono text-[9px] tracking-[0.2em] border border-zinc-800 text-zinc-500 hover:text-emerald-400 hover:border-emerald-900/40 px-3 py-1.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
               {b.label}
             </button>
           ))}
         </div>
-
-        {/* Response area */}
         <div className="flex-1 overflow-y-auto">
           {entries.length === 0 ? (
             <div className="p-6 space-y-2 font-mono">
@@ -357,12 +351,8 @@ function SageModal({ onClose }: { onClose: () => void }) {
                   "Fact check: is D-010 linked to foreign-interest lobbying?",
                   "What is the current posture for Eastern Europe?",
                 ].map(q => (
-                  <button
-                    key={q}
-                    disabled={!online}
-                    onClick={() => handleQuery(q, "query")}
-                    className="block text-left font-mono text-[10px] text-zinc-700 hover:text-zinc-400 transition-colors disabled:opacity-30 py-0.5"
-                  >
+                  <button key={q} disabled={!online} onClick={() => handleQuery(q, "query")}
+                    className="block text-left font-mono text-[10px] text-zinc-700 hover:text-zinc-400 transition-colors disabled:opacity-30 py-0.5">
                     &gt; {q}
                   </button>
                 ))}
@@ -375,50 +365,32 @@ function SageModal({ onClose }: { onClose: () => void }) {
             </div>
           )}
         </div>
-
-        {/* Action selector + input */}
         <div className="border-t border-zinc-800 shrink-0">
           <div className="border-b border-zinc-900 px-6 py-2 flex gap-2 flex-wrap">
             {ACTION_OPTS.map(a => (
-              <button
-                key={a.value}
-                onClick={() => setSelectedAction(a.value)}
+              <button key={a.value} onClick={() => setSelectedAction(a.value)}
                 className={`font-mono text-[9px] tracking-[0.2em] border px-2.5 py-1 transition-colors ${
-                  selectedAction === a.value
-                    ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/5"
-                    : "text-zinc-600 border-zinc-800 hover:text-zinc-400 hover:border-zinc-700"
-                }`}
-              >
+                  selectedAction === a.value ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/5" : "text-zinc-600 border-zinc-800 hover:text-zinc-400 hover:border-zinc-700"
+                }`}>
                 {a.label}
               </button>
             ))}
           </div>
           <div className="px-6 py-4 flex items-end gap-4">
             <div className="flex-1 border border-zinc-700 focus-within:border-zinc-500 transition-colors">
-              <textarea
-                value={inputVal}
-                onChange={e => setInputVal(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    submit();
-                  }
-                }}
+              <textarea value={inputVal} onChange={e => setInputVal(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } }}
                 disabled={!online}
                 placeholder={online ? `[${selectedAction.toUpperCase()}] Query SAGE... (Enter to send, Shift+Enter for newline)` : "Initializing..."}
                 rows={3}
-                className="w-full bg-black text-zinc-300 font-mono text-[13px] tracking-[0.02em] px-4 py-3 resize-none outline-none placeholder-zinc-800 disabled:opacity-50"
-              />
+                className="w-full bg-black text-zinc-300 font-mono text-[13px] tracking-[0.02em] px-4 py-3 resize-none outline-none placeholder-zinc-800 disabled:opacity-50" />
               <div className="border-t border-zinc-900 px-4 py-2 flex items-center justify-between">
                 <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-700">{inputVal.length} chars</span>
                 <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-800">Shift+Enter for newline · Esc to close</span>
               </div>
             </div>
-            <button
-              disabled={!online || !inputVal.trim()}
-              onClick={submit}
-              className="shrink-0 font-mono text-[10px] tracking-[0.3em] border border-zinc-700 text-zinc-400 hover:text-emerald-400 hover:border-emerald-700/40 px-5 py-4 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-            >
+            <button disabled={!online || !inputVal.trim()} onClick={submit}
+              className="shrink-0 font-mono text-[10px] tracking-[0.3em] border border-zinc-700 text-zinc-400 hover:text-emerald-400 hover:border-emerald-700/40 px-5 py-4 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
               SEND →
             </button>
           </div>
@@ -446,25 +418,19 @@ function SageTerminal({ onExpand }: { onExpand: () => void }) {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [entries]);
 
-  function addEntry(entry: SageEntry) {
-    setEntries(prev => [...prev, entry]);
-    setInputVal("");
-  }
+  function addEntry(entry: SageEntry) { setEntries(prev => [...prev, entry]); setInputVal(""); }
   function updateEntry(id: string, response: string | null, error?: string) {
     setEntries(prev => prev.map(e => e.id === id ? { ...e, loading: false, response, error } : e));
   }
-
   function handleQuery(query: string, action: SageAction) {
     if (!query.trim() || !online) return;
     runSageQuery(query, action, addEntry, updateEntry);
   }
   function submit() { handleQuery(inputVal.trim(), selectedAction); }
-
   const hasEntries = entries.length > 0;
 
   return (
     <div className="p-4 flex flex-col gap-3">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-500">SAGE</div>
@@ -473,29 +439,18 @@ function SageTerminal({ onExpand }: { onExpand: () => void }) {
             {online ? "ONLINE" : "INIT"}
           </span>
         </div>
-        <button
-          onClick={onExpand}
-          className="font-mono text-[8px] tracking-[0.2em] text-zinc-600 hover:text-emerald-400 border border-zinc-800 hover:border-emerald-900/40 px-2 py-1 transition-colors"
-        >
+        <button onClick={onExpand} className="font-mono text-[8px] tracking-[0.2em] text-zinc-600 hover:text-emerald-400 border border-zinc-800 hover:border-emerald-900/40 px-2 py-1 transition-colors">
           EXPAND ↗
         </button>
       </div>
-
-      {/* Quick brief buttons */}
       <div className="grid grid-cols-2 gap-1">
         {QUICK_BRIEFS.map(b => (
-          <button
-            key={b.label}
-            disabled={!online}
-            onClick={() => handleQuery(b.query, b.action)}
-            className="font-mono text-[8px] tracking-[0.15em] border border-zinc-800 text-zinc-600 hover:text-emerald-400 hover:border-emerald-900/40 px-2 py-1.5 transition-colors text-left disabled:opacity-30 disabled:cursor-not-allowed"
-          >
+          <button key={b.label} disabled={!online} onClick={() => handleQuery(b.query, b.action)}
+            className="font-mono text-[8px] tracking-[0.15em] border border-zinc-800 text-zinc-600 hover:text-emerald-400 hover:border-emerald-900/40 px-2 py-1.5 transition-colors text-left disabled:opacity-30 disabled:cursor-not-allowed">
             {b.label}
           </button>
         ))}
       </div>
-
-      {/* Response area */}
       <div className="border border-zinc-900 bg-zinc-950/50 min-h-[160px] max-h-[260px] overflow-y-auto">
         {!hasEntries ? (
           <div className="p-3 space-y-1 font-mono">
@@ -528,57 +483,33 @@ function SageTerminal({ onExpand }: { onExpand: () => void }) {
           </div>
         )}
       </div>
-
-      {/* Action selector */}
       <div className="flex gap-1 flex-wrap">
         {ACTION_OPTS.map(a => (
-          <button
-            key={a.value}
-            onClick={() => setSelectedAction(a.value)}
+          <button key={a.value} onClick={() => setSelectedAction(a.value)}
             className={`font-mono text-[8px] tracking-[0.15em] border px-1.5 py-0.5 transition-colors ${
-              selectedAction === a.value
-                ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/5"
-                : "text-zinc-700 border-zinc-800 hover:text-zinc-400 hover:border-zinc-700"
-            }`}
-          >
+              selectedAction === a.value ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/5" : "text-zinc-700 border-zinc-800 hover:text-zinc-400 hover:border-zinc-700"
+            }`}>
             {a.label}
           </button>
         ))}
       </div>
-
-      {/* Input */}
       <div className="border border-zinc-800 focus-within:border-zinc-600 transition-colors">
-        <textarea
-          value={inputVal}
-          onChange={e => setInputVal(e.target.value)}
-          onKeyDown={e => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              submit();
-            }
-          }}
+        <textarea value={inputVal} onChange={e => setInputVal(e.target.value)}
+          onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } }}
           disabled={!online}
           placeholder={online ? "Query... (Enter to send)" : "Initializing..."}
           rows={2}
-          className="w-full bg-black text-zinc-300 font-mono text-[11px] tracking-[0.03em] px-3 py-2.5 resize-none outline-none placeholder-zinc-800 disabled:opacity-50"
-        />
+          className="w-full bg-black text-zinc-300 font-mono text-[11px] tracking-[0.03em] px-3 py-2.5 resize-none outline-none placeholder-zinc-800 disabled:opacity-50" />
         <div className="border-t border-zinc-900 px-3 py-1.5 flex items-center justify-between">
           <span className="font-mono text-[8px] tracking-[0.15em] text-zinc-800">{inputVal.length}/500</span>
-          <button
-            disabled={!online || !inputVal.trim()}
-            onClick={submit}
-            className="font-mono text-[9px] tracking-[0.2em] text-zinc-600 hover:text-emerald-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-          >
+          <button disabled={!online || !inputVal.trim()} onClick={submit}
+            className="font-mono text-[9px] tracking-[0.2em] text-zinc-600 hover:text-emerald-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
             SEND →
           </button>
         </div>
       </div>
-
       {hasEntries && (
-        <button
-          onClick={() => setEntries([])}
-          className="font-mono text-[8px] tracking-[0.15em] text-zinc-800 hover:text-zinc-600 text-left transition-colors"
-        >
+        <button onClick={() => setEntries([])} className="font-mono text-[8px] tracking-[0.15em] text-zinc-800 hover:text-zinc-600 text-left transition-colors">
           CLR TERMINAL
         </button>
       )}
@@ -599,19 +530,17 @@ function AnalystRoster({ configured, user }: { configured: boolean; user: unknow
       .then(({ data }) => {
         if (data && data.length > 0) {
           setAnalysts(data.map((p: { handle: string; role: string }) => ({
-            handle: p.handle,
-            role: p.role ?? "member",
-            status: "ACTIVE",
+            handle: p.handle, role: p.role ?? "member", status: "ACTIVE",
           })));
         }
       });
   }, [configured, user]);
 
   const roleCls: Record<string, string> = {
-    admin:    "text-emerald-500",
-    lead:     "text-blue-400",
-    analyst:  "text-zinc-500",
-    member:   "text-zinc-700",
+    admin:   "text-emerald-500",
+    lead:    "text-blue-400",
+    analyst: "text-zinc-500",
+    member:  "text-zinc-700",
   };
 
   return (
@@ -643,7 +572,9 @@ export default function InvestigationRoom() {
   const user = profile;
   const isAdmin = profile?.role === "admin";
 
+  /* ── State ── */
   const [activeChannel, setActiveChannel] = useState("investigations");
+  const [channels, setChannels] = useState<Channel[]>(DEFAULT_CHANNELS);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [composerVal, setComposerVal] = useState("");
@@ -653,8 +584,115 @@ export default function InvestigationRoom() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
 
-  const activeChannelData = DEFAULT_CHANNELS.find(c => c.id === activeChannel);
+  /* ── Admin channel state ── */
+  const [channelCreateOpen, setChannelCreateOpen] = useState(false);
+  const [channelNewName, setChannelNewName] = useState("");
+  const [renamingCh, setRenamingCh] = useState<string | null>(null);
+  const [renameVal, setRenameVal] = useState("");
 
+  /* ── Case state ── */
+  const [cases, setCases] = useState<Case[]>(STATIC_CASES);
+  const [selectedCaseRef, setSelectedCaseRef] = useState<string | null>(null);
+  const [newCaseOpen, setNewCaseOpen] = useState(false);
+  const [newCaseForm, setNewCaseForm] = useState({ ref: "", name: "", stage: "NEW", priority: "NORMAL", channel_id: "" });
+
+  const activeChannelData = channels.find(c => c.id === activeChannel);
+
+  /* ── Load channels from DB ── */
+  const loadChannels = useCallback(async () => {
+    if (!configured) return;
+    const { data } = await supabase
+      .from("room_channels")
+      .select("*")
+      .eq("archived", false)
+      .order("created_at", { ascending: true });
+    if (data && data.length > 0) setChannels(data as Channel[]);
+  }, [configured]);
+
+  /* ── Load cases from DB ── */
+  const loadCases = useCallback(async () => {
+    if (!configured) return;
+    const { data } = await supabase
+      .from("investigation_cases")
+      .select("*")
+      .order("created_at", { ascending: true });
+    if (data && data.length > 0) setCases(data as Case[]);
+  }, [configured]);
+
+  useEffect(() => {
+    loadChannels();
+    loadCases();
+  }, [loadChannels, loadCases]);
+
+  /* ── Admin: create channel ── */
+  async function createChannel() {
+    const slug = channelNewName.trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+    if (!slug) return;
+    await supabase.from("room_channels").insert({ id: slug, slug, name: slug, description: null });
+    setChannelCreateOpen(false);
+    setChannelNewName("");
+    await loadChannels();
+  }
+
+  /* ── Admin: archive channel ── */
+  async function archiveChannel(id: string) {
+    await supabase.from("room_channels").update({ archived: true }).eq("id", id);
+    if (activeChannel === id) setActiveChannel("general");
+    await loadChannels();
+  }
+
+  /* ── Admin: rename channel ── */
+  async function renameChannel(id: string) {
+    if (!renameVal.trim()) return;
+    await supabase.from("room_channels").update({ name: renameVal.trim() }).eq("id", id);
+    setRenamingCh(null);
+    await loadChannels();
+  }
+
+  /* ── Admin: create case ── */
+  async function createCase() {
+    const ref = newCaseForm.ref.trim().toUpperCase();
+    const name = newCaseForm.name.trim().toUpperCase();
+    if (!ref || !name) return;
+    await supabase.from("investigation_cases").insert({
+      ref, name,
+      stage: newCaseForm.stage,
+      priority: newCaseForm.priority,
+      channel_id: newCaseForm.channel_id || null,
+      created_by: authUser?.id ?? null,
+    });
+    setNewCaseOpen(false);
+    setNewCaseForm({ ref: "", name: "", stage: "NEW", priority: "NORMAL", channel_id: "" });
+    await loadCases();
+  }
+
+  /* ── Admin: update case stage ── */
+  async function updateCaseStage(id: string, stage: string) {
+    await supabase.from("investigation_cases").update({ stage, updated_at: new Date().toISOString() }).eq("id", id);
+    await loadCases();
+  }
+
+  /* ── Admin: update case priority ── */
+  async function updateCasePriority(id: string, priority: string) {
+    await supabase.from("investigation_cases").update({ priority, updated_at: new Date().toISOString() }).eq("id", id);
+    await loadCases();
+  }
+
+  /* ── Admin: delete case ── */
+  async function deleteCase(id: string) {
+    await supabase.from("investigation_cases").delete().eq("id", id);
+    setSelectedCaseRef(null);
+    await loadCases();
+  }
+
+  /* ── Admin: delete message ── */
+  async function deleteMessage(id: string) {
+    if (!isAdmin || !configured) return;
+    const { error } = await supabase.from("room_messages").delete().eq("id", id);
+    if (!error) setMessages(prev => prev.filter(m => m.id !== id));
+  }
+
+  /* ── Messages ── */
   const loadMessages = useCallback(async () => {
     if (!configured) {
       const mock = MOCK_THREADS.filter(m => m.channel_id === activeChannel);
@@ -682,14 +720,10 @@ export default function InvestigationRoom() {
     if (!configured) return;
     const sub = supabase
       .channel("room:" + activeChannel)
-      .on("postgres_changes", {
-        event: "INSERT",
-        schema: "public",
-        table: "room_messages",
-        filter: `channel_id=eq.${activeChannel}`,
-      }, payload => {
-        setMessages(prev => [...prev, payload.new as Message]);
-      })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "room_messages", filter: `channel_id=eq.${activeChannel}` },
+        payload => { setMessages(prev => [...prev, payload.new as Message]); })
+      .on("postgres_changes", { event: "DELETE", schema: "public", table: "room_messages", filter: `channel_id=eq.${activeChannel}` },
+        payload => { setMessages(prev => prev.filter(m => m.id !== (payload.old as Message).id)); })
       .subscribe();
     return () => { supabase.removeChannel(sub); };
   }, [activeChannel, configured]);
@@ -698,6 +732,7 @@ export default function InvestigationRoom() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  /* ── Send message ── */
   async function handleSend() {
     if (!composerVal.trim() || !authUser || !configured) return;
     setSending(true);
@@ -707,7 +742,7 @@ export default function InvestigationRoom() {
       ?? (authUser.email ?? "operator").split("@")[0].toUpperCase().replace(/[^A-Z0-9-]/g, "-").slice(0, 24);
     const role = profile?.role ?? "member";
 
-    const chData = DEFAULT_CHANNELS.find(c => c.id === activeChannel);
+    const chData = channels.find(c => c.id === activeChannel);
     if (chData) {
       await supabase.from("room_channels").upsert(
         { id: chData.id, slug: chData.slug, name: chData.name, description: chData.description ?? null },
@@ -716,26 +751,27 @@ export default function InvestigationRoom() {
     }
 
     const { error } = await supabase.from("room_messages").insert({
-      channel_id: activeChannel,
-      user_id: authUser.id,
-      handle,
-      role,
-      body: composerVal.trim(),
+      channel_id: activeChannel, user_id: authUser.id, handle, role, body: composerVal.trim(),
     });
-    if (error) {
-      setSendError(error.message);
-    } else {
-      setComposerVal("");
-    }
+    if (error) { setSendError(error.message); } else { setComposerVal(""); }
     setSending(false);
     composerRef.current?.focus();
+  }
+
+  /* ── Case click: switch to linked channel ── */
+  function handleCaseClick(c: Case) {
+    if (selectedCaseRef === c.ref) {
+      setSelectedCaseRef(null);
+    } else {
+      setSelectedCaseRef(c.ref);
+      if (c.channel_id) setActiveChannel(c.channel_id);
+    }
   }
 
   return (
     <Layout>
       {sageOpen && <SageModal onClose={() => setSageOpen(false)} />}
 
-      {/* Full-height 3-panel layout */}
       <div className="-my-10 -mx-6 flex" style={{ height: "calc(100vh - 3.25rem)" }}>
 
         {/* ── LEFT — Channel selector ─────────────────────────────── */}
@@ -754,7 +790,6 @@ export default function InvestigationRoom() {
             </div>
           )}
 
-          {/* Admin COMMAND link */}
           {isAdmin && (
             <div className="border-b border-emerald-900/30 px-4 py-3 bg-emerald-500/5">
               <Link href="/command">
@@ -769,24 +804,96 @@ export default function InvestigationRoom() {
             </div>
           )}
 
-          {/* Channels */}
-          <div className="flex-1 py-2">
-            <div className="font-mono text-[8px] tracking-[0.35em] text-zinc-700 px-4 py-2">CHANNELS</div>
-            {DEFAULT_CHANNELS.map(ch => {
+          {/* Channels header + admin create */}
+          <div className="flex items-center justify-between px-4 py-2 border-b border-zinc-900/40">
+            <div className="font-mono text-[8px] tracking-[0.35em] text-zinc-700">CHANNELS</div>
+            {isAdmin && configured && (
+              <button
+                onClick={() => { setChannelCreateOpen(v => !v); setChannelNewName(""); }}
+                title="New channel"
+                className="font-mono text-[11px] leading-none text-zinc-600 hover:text-emerald-500 transition-colors w-4 h-4 flex items-center justify-center"
+              >
+                +
+              </button>
+            )}
+          </div>
+
+          {/* Channel create form */}
+          {channelCreateOpen && isAdmin && (
+            <div className="px-4 py-3 border-b border-zinc-900/40 bg-zinc-950/40">
+              <input
+                value={channelNewName}
+                onChange={e => setChannelNewName(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter") createChannel(); if (e.key === "Escape") setChannelCreateOpen(false); }}
+                placeholder="channel-name"
+                autoFocus
+                className="w-full bg-black border border-zinc-700 focus:border-zinc-500 font-mono text-[10px] text-zinc-300 px-2 py-1.5 outline-none placeholder-zinc-800 transition-colors"
+              />
+              <div className="flex gap-3 mt-2">
+                <button onClick={createChannel} className="font-mono text-[9px] tracking-[0.2em] text-emerald-600 hover:text-emerald-400 transition-colors">CREATE</button>
+                <button onClick={() => setChannelCreateOpen(false)} className="font-mono text-[9px] text-zinc-600 hover:text-zinc-400 transition-colors">CANCEL</button>
+              </div>
+            </div>
+          )}
+
+          {/* Channel list */}
+          <div className="flex-1 py-1">
+            {channels.map(ch => {
               const isActive = ch.id === activeChannel;
+              const isRenaming = renamingCh === ch.id;
+              const linkedCases = cases.filter(c => c.channel_id === ch.id).length;
               return (
-                <button
-                  key={ch.id}
-                  onClick={() => setActiveChannel(ch.id)}
-                  className={`w-full text-left px-4 py-2.5 transition-colors ${
-                    isActive ? "bg-zinc-900/60 text-zinc-200" : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-950"
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-[9px] tracking-[0.1em] text-zinc-700">#</span>
-                    <span className="font-mono text-[10px] tracking-[0.05em]">{ch.name}</span>
-                  </div>
-                </button>
+                <div key={ch.id} className={`group relative ${isActive ? "bg-zinc-900/60" : ""}`}>
+                  {isRenaming ? (
+                    <div className="px-4 py-2">
+                      <input
+                        value={renameVal}
+                        onChange={e => setRenameVal(e.target.value)}
+                        onKeyDown={e => { if (e.key === "Enter") renameChannel(ch.id); if (e.key === "Escape") setRenamingCh(null); }}
+                        autoFocus
+                        className="w-full bg-black border border-zinc-700 font-mono text-[10px] text-zinc-300 px-2 py-1 outline-none"
+                      />
+                      <div className="flex gap-3 mt-1.5">
+                        <button onClick={() => renameChannel(ch.id)} className="font-mono text-[9px] tracking-[0.15em] text-emerald-600 hover:text-emerald-400 transition-colors">SAVE</button>
+                        <button onClick={() => setRenamingCh(null)} className="font-mono text-[9px] text-zinc-600">CANCEL</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => setActiveChannel(ch.id)}
+                      onKeyDown={e => e.key === "Enter" && setActiveChannel(ch.id)}
+                      className={`w-full text-left px-4 py-2.5 transition-colors cursor-pointer ${isActive ? "text-zinc-200" : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-950"}`}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-mono text-[9px] tracking-[0.1em] text-zinc-700">#</span>
+                        <span className="font-mono text-[10px] tracking-[0.05em] flex-1 truncate">{ch.name}</span>
+                        {linkedCases > 0 && (
+                          <span className="font-mono text-[7px] text-zinc-700 shrink-0">{linkedCases}</span>
+                        )}
+                        {isAdmin && configured && (
+                          <div className="hidden group-hover:flex items-center shrink-0">
+                            <button
+                              onClick={e => { e.stopPropagation(); setRenamingCh(ch.id); setRenameVal(ch.name); }}
+                              title="Rename"
+                              className="font-mono text-[9px] text-zinc-700 hover:text-zinc-400 px-0.5 transition-colors"
+                            >
+                              ✎
+                            </button>
+                            <button
+                              onClick={e => { e.stopPropagation(); archiveChannel(ch.id); }}
+                              title="Archive"
+                              className="font-mono text-[9px] text-zinc-700 hover:text-red-400 px-0.5 transition-colors"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
@@ -856,16 +963,16 @@ export default function InvestigationRoom() {
                 <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-800">
                   {configured ? "Begin a thread below. Use [F-001] or [D-001] to reference records." : "Activate Supabase credentials to enable live messaging."}
                 </div>
-                {!configured && (
-                  <div className="mt-2 font-mono text-[9px] tracking-[0.15em] text-zinc-800 border border-zinc-900 px-4 py-3 text-left max-w-sm leading-relaxed">
-                    Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in environment variables to connect the live database.
-                  </div>
-                )}
               </div>
             ) : (
               <div>
                 {messages.map(msg => (
-                  <MessageRow key={msg.id} msg={msg} />
+                  <MessageRow
+                    key={msg.id}
+                    msg={msg}
+                    isAdmin={isAdmin}
+                    onDelete={configured ? deleteMessage : undefined}
+                  />
                 ))}
                 <div ref={messagesEndRef} className="py-3" />
               </div>
@@ -940,22 +1047,137 @@ export default function InvestigationRoom() {
 
           {/* Active cases */}
           <div className="border-b border-zinc-900 p-4">
-            <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-600 mb-3">ACTIVE CASES</div>
-            <div className="space-y-2">
-              {activeCases.map(c => (
-                <div key={c.ref} className="flex items-center gap-2">
-                  <Link
-                    href={c.ref.startsWith("F") ? `/files/${c.ref}` : `/dossiers/${c.ref}`}
-                    className="font-mono text-[9px] tracking-[0.1em] text-zinc-600 hover:text-emerald-500 transition-colors shrink-0"
+            <div className="flex items-center justify-between mb-3">
+              <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-600">ACTIVE CASES</div>
+              {isAdmin && configured && (
+                <button
+                  onClick={() => setNewCaseOpen(v => !v)}
+                  title="New case"
+                  className="font-mono text-[11px] leading-none text-zinc-600 hover:text-emerald-500 transition-colors"
+                >
+                  +
+                </button>
+              )}
+            </div>
+
+            {/* New case form */}
+            {newCaseOpen && isAdmin && (
+              <div className="mb-3 border border-zinc-800 bg-zinc-950 p-3 space-y-2">
+                <div className="font-mono text-[8px] tracking-[0.3em] text-zinc-600 mb-2">NEW CASE</div>
+                <input
+                  placeholder="REF — e.g. F-021"
+                  value={newCaseForm.ref}
+                  onChange={e => setNewCaseForm(f => ({ ...f, ref: e.target.value }))}
+                  className="w-full bg-black border border-zinc-800 focus:border-zinc-600 font-mono text-[10px] text-zinc-300 px-2 py-1.5 outline-none placeholder-zinc-800 transition-colors"
+                />
+                <input
+                  placeholder="CASE NAME"
+                  value={newCaseForm.name}
+                  onChange={e => setNewCaseForm(f => ({ ...f, name: e.target.value }))}
+                  className="w-full bg-black border border-zinc-800 focus:border-zinc-600 font-mono text-[10px] text-zinc-300 px-2 py-1.5 outline-none placeholder-zinc-800 transition-colors"
+                />
+                <div className="flex gap-2">
+                  <select
+                    value={newCaseForm.stage}
+                    onChange={e => setNewCaseForm(f => ({ ...f, stage: e.target.value }))}
+                    className="flex-1 bg-black border border-zinc-800 font-mono text-[10px] text-zinc-400 px-2 py-1.5 outline-none"
                   >
-                    {c.ref}
-                  </Link>
-                  <span className="font-mono text-[8px] tracking-widest text-zinc-700 truncate flex-1">{c.name}</span>
-                  <span className={`font-mono text-[8px] tracking-widest shrink-0 ${stageStyle[c.stage] ?? "text-zinc-600"}`}>
-                    {c.stage}
-                  </span>
+                    {STAGES.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                  <select
+                    value={newCaseForm.priority}
+                    onChange={e => setNewCaseForm(f => ({ ...f, priority: e.target.value }))}
+                    className="flex-1 bg-black border border-zinc-800 font-mono text-[10px] text-zinc-400 px-2 py-1.5 outline-none"
+                  >
+                    <option value="HIGH">HIGH</option>
+                    <option value="NORMAL">NORMAL</option>
+                  </select>
                 </div>
-              ))}
+                <select
+                  value={newCaseForm.channel_id}
+                  onChange={e => setNewCaseForm(f => ({ ...f, channel_id: e.target.value }))}
+                  className="w-full bg-black border border-zinc-800 font-mono text-[10px] text-zinc-400 px-2 py-1.5 outline-none"
+                >
+                  <option value="">— NO CHANNEL —</option>
+                  {channels.map(ch => <option key={ch.id} value={ch.id}>{ch.name}</option>)}
+                </select>
+                <div className="flex gap-2 pt-1">
+                  <button onClick={createCase} className="font-mono text-[9px] tracking-[0.2em] text-emerald-600 hover:text-emerald-400 transition-colors">CREATE</button>
+                  <button onClick={() => setNewCaseOpen(false)} className="font-mono text-[9px] text-zinc-600 hover:text-zinc-400 transition-colors">CANCEL</button>
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-1">
+              {cases.length === 0 ? (
+                <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-800">NO CASES</div>
+              ) : (
+                cases.map(c => {
+                  const isSelected = selectedCaseRef === c.ref;
+                  const isLinked = c.channel_id === activeChannel;
+                  return (
+                    <div key={c.ref}>
+                      <div
+                        onClick={() => handleCaseClick(c)}
+                        className={`flex items-center gap-2 cursor-pointer py-1.5 px-1 -mx-1 rounded-sm transition-colors ${
+                          isSelected ? "bg-zinc-900/40" : "hover:bg-zinc-900/20"
+                        }`}
+                      >
+                        <Link
+                          href={c.ref.startsWith("F") ? `/files/${c.ref}` : `/dossiers/${c.ref}`}
+                          onClick={e => e.stopPropagation()}
+                          className="font-mono text-[9px] tracking-[0.1em] text-zinc-600 hover:text-emerald-500 transition-colors shrink-0"
+                        >
+                          {c.ref}
+                        </Link>
+                        <span className={`font-mono text-[8px] tracking-widest truncate flex-1 ${isLinked ? "text-emerald-700/80" : "text-zinc-700"}`}>
+                          {c.name}
+                        </span>
+                        <span className={`font-mono text-[8px] tracking-widest shrink-0 ${stageStyle[c.stage] ?? "text-zinc-600"}`}>
+                          {c.stage}
+                        </span>
+                      </div>
+
+                      {/* Admin inline controls for selected case */}
+                      {isSelected && isAdmin && (
+                        <div className="mt-1 mb-2 pl-1">
+                          <div className="flex flex-wrap gap-1 mb-1.5">
+                            {STAGES.map(s => (
+                              <button
+                                key={s}
+                                onClick={() => updateCaseStage(c.id, s)}
+                                className={`font-mono text-[7px] tracking-[0.1em] border px-1.5 py-0.5 transition-colors ${
+                                  c.stage === s
+                                    ? `${stageStyle[s]} border-current/20 opacity-100`
+                                    : "text-zinc-700 border-zinc-800 hover:text-zinc-400"
+                                }`}
+                              >
+                                {s}
+                              </button>
+                            ))}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => updateCasePriority(c.id, c.priority === "HIGH" ? "NORMAL" : "HIGH")}
+                              className={`font-mono text-[7px] tracking-[0.1em] border px-1.5 py-0.5 transition-colors ${
+                                c.priority === "HIGH" ? "text-red-400 border-red-500/20" : "text-zinc-600 border-zinc-800 hover:text-zinc-400"
+                              }`}
+                            >
+                              {c.priority}
+                            </button>
+                            <button
+                              onClick={() => deleteCase(c.id)}
+                              className="font-mono text-[7px] tracking-[0.1em] text-zinc-700 hover:text-red-400 transition-colors ml-auto"
+                            >
+                              DEL CASE
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
 

@@ -1,8 +1,115 @@
+import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import SystemCard from "@/components/SystemCard";
-import SignalFeed from "@/components/SignalFeed";
-import { systems, feedItems } from "@/data/mockData";
+import { systems } from "@/data/mockData";
 import { Link } from "wouter";
+
+/* ── Live Signal Feed ─────────────────────────────────────────────── */
+
+interface NewsItem {
+  id: string;
+  title: string;
+  domain: string;
+  url: string;
+  seendate: string;
+  category: string;
+  priority: "HIGH" | "NORMAL";
+  region: string;
+}
+
+function LiveSignalFeed() {
+  const [items, setItems] = useState<NewsItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load(retry = true) {
+      try {
+        const res = await fetch("/api/news");
+        if (!res.ok) throw new Error("http " + res.status);
+        const data = await res.json();
+        if (cancelled) return;
+        if (data.fetching && retry) {
+          setTimeout(() => load(false), 20000);
+          return;
+        }
+        if (data.articles?.length > 0) {
+          setItems(data.articles.slice(0, 7));
+        }
+      } catch {
+        // silent — keep empty state
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    load();
+    return () => { cancelled = true; };
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="space-y-2">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="border border-zinc-900 bg-black/60 px-4 py-3 animate-pulse">
+            <div className="h-3 bg-zinc-900 rounded w-4/5 mb-2" />
+            <div className="h-2 bg-zinc-900/60 rounded w-1/3" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="space-y-2">
+        <div className="border border-zinc-900 bg-black/60 px-4 py-4 text-center">
+          <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-700">FEED LOADING — CHECK SIGNAL ROOM</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      {items.map(item => (
+        <div
+          key={item.id}
+          className="group border border-zinc-900 bg-black/60 px-4 py-3 hover:border-emerald-500/25 transition-colors duration-200 relative overflow-hidden"
+        >
+          <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-zinc-900 group-hover:bg-emerald-500/40 transition-colors" />
+          <div className="flex items-start gap-3 pl-1">
+            {item.priority === "HIGH" ? (
+              <span className="mt-[4px] w-1.5 h-1.5 rounded-full bg-red-400/80 shrink-0 animate-pulse" />
+            ) : (
+              <span className="mt-[4px] w-1.5 h-1.5 rounded-full bg-zinc-700 shrink-0" />
+            )}
+            <div className="flex-1 min-w-0">
+              <a
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-[11px] text-zinc-300 font-mono tracking-[0.04em] uppercase leading-relaxed group-hover:text-zinc-100 transition-colors line-clamp-2"
+              >
+                {item.title}
+              </a>
+              <div className="mt-1.5 flex items-center gap-2 font-mono text-[9px] tracking-widest text-zinc-700">
+                <span className="text-zinc-800">{item.category}</span>
+                <span>·</span>
+                <span>{item.domain}</span>
+                <span>·</span>
+                <span>{item.region}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ── Home ─────────────────────────────────────────────────────────── */
 
 export default function Home() {
   return (
@@ -99,11 +206,11 @@ export default function Home() {
                 <span className="w-1.5 h-1.5 bg-emerald-500/60 rounded-full animate-pulse" />
                 LIVE SIGNAL FEED
               </div>
-              <Link href="/world" className="font-mono text-[9px] tracking-[0.2em] text-zinc-700 hover:text-zinc-400 transition-colors">
-                WORLD MONITOR →
+              <Link href="/signal-room" className="font-mono text-[9px] tracking-[0.2em] text-zinc-700 hover:text-zinc-400 transition-colors">
+                SIGNAL ROOM →
               </Link>
             </div>
-            <SignalFeed items={feedItems.slice(0, 7)} />
+            <LiveSignalFeed />
           </div>
 
           <div>
@@ -127,7 +234,7 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Access node — evolved */}
+            {/* Access node */}
             <div className="mt-5 border border-zinc-900 bg-zinc-950/50 p-5">
               <div className="font-mono text-[9px] tracking-[0.35em] text-zinc-700 mb-1">ACCESS NODE</div>
               <p className="text-xs text-zinc-700 leading-relaxed mb-4 mt-2">

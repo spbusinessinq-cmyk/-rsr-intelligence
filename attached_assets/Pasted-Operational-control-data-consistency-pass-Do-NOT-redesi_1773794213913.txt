@@ -1,0 +1,183 @@
+Operational control + data consistency pass.
+
+Do NOT redesign the site.
+Do NOT weaken the homepage.
+Do NOT change the established visual identity.
+
+Refine and expand the current build only.
+
+MAIN GOAL
+Move the platform from a working prototype into a real admin-controlled operational system by adding:
+- Investigation Room room controls
+- real case management in the Investigation Room
+- consistent real signal/news data across pages
+- cleaner Signal Room sidebar logic
+- better admin workflow routing
+
+PRESERVE
+- black base
+- restrained emerald accents
+- thin borders
+- premium command-interface feel
+- monospace micro-labels
+- serious intelligence-network tone
+
+CRITICAL RULES
+- No generic chat app styling
+- No generic SaaS admin styling
+- Keep everything controlled, minimal, and intelligence-grade
+- Do not leave decorative/static panels where operational functionality is needed
+
+==================================================
+1. INVESTIGATION ROOM — ADMIN ROOM CONTROLS
+==================================================
+
+I need real admin-only room controls.
+
+Implement admin-only controls for channels/rooms:
+- create room
+- rename room
+- archive/remove room
+- optionally reorder rooms if easy
+
+These controls should be clean and minimal.
+Do not clutter the room UI for normal users.
+
+Best implementation:
+- lightweight controls visible in Investigation Room for admin
+- stronger management controls also available in Command Console if helpful
+
+Also add admin-only chat controls:
+- delete message
+- optionally edit message
+- optionally clear channel if safe to implement
+
+==================================================
+2. ACTIVE CASES — MAKE THEM REAL
+==================================================
+
+The Active Cases panel in Investigation Room must stop being decorative.
+
+Make Active Cases represent real investigation objects.
+
+Requirements:
+- cases should be clickable
+- each case should link to a related room/thread/file/dossier context
+- selected case should affect the Investigation Room context if possible
+- admin should be able to:
+  - create case
+  - edit case
+  - change case status
+  - delete/archive case
+
+Statuses should remain things like:
+- NEW
+- BUILDING
+- REVIEW
+- MONITORING
+- READY
+
+Keep the current aesthetic, but make the case layer truly functional.
+
+==================================================
+3. INVESTIGATION ROOM LAYOUT LOGIC
+==================================================
+
+Refine the room layout so it feels more operational.
+
+Keep the overall structure, but improve logic:
+- left = rooms/channels
+- center = live discussion
+- right = room status + active cases + Sage
+- active cases should reflect the selected room or selected investigation context where possible
+
+Do not redesign visually.
+Just make the current structure more useful and coherent.
+
+==================================================
+4. SIGNAL DATA CONSISTENCY ACROSS THE SITE
+==================================================
+
+The Signal Room is moving toward real news/current feed, but the homepage Live Signal Feed is still using mock items.
+
+Fix this.
+
+Use the same real/cached signal source for:
+- Signal Room main feed
+- homepage Live Signal Feed
+
+Homepage feed can be a smaller preview set, but it must be sourced from the same real/current signal pipeline.
+
+Do not keep mock signal text on the homepage if Signal Room is now real/current.
+
+==================================================
+5. SIGNAL ROOM SIDEBAR CLEANUP
+==================================================
+
+The “Referenced this cycle” block should be removed or replaced.
+
+It is not the best use of space.
+
+Replace it with something more operationally useful, such as:
+- newest headlines
+- monitored source list
+- topic watch buckets
+- key source regions
+Choose the cleanest option.
+
+Also improve:
+- Current Watch
+- Top Developments by Region
+
+They should feel like real current intelligence/news watch panels, not placeholders.
+
+==================================================
+6. REQUEST BRIEFING ROUTING
+==================================================
+
+Refine the Request Briefing behavior.
+
+I want this to align with the new admin/operator workflow.
+
+Implement the cleanest routing behavior:
+- if admin user is authenticated, Request Briefing can route to Command Console or another useful admin surface
+- if public user is unauthenticated, keep a meaningful inquiry flow if needed
+
+Do not leave this disconnected from the actual platform logic.
+
+==================================================
+7. COMMAND CONSOLE EXPANSION
+==================================================
+
+Expand Command Console to support the new room/case controls where appropriate.
+
+Add/admin support for:
+- room management
+- case management
+- existing operator controls
+
+Keep the page feeling like command authority, not a generic admin table.
+
+==================================================
+8. PRESERVE SAGE
+==================================================
+
+Keep the current Sage improvements.
+Do not remove the compact or expanded Sage views.
+
+But make sure the rest of the platform catches up to Sage’s usability and usefulness.
+
+==================================================
+9. IMPLEMENTATION DELIVERABLES
+==================================================
+
+Please do all of the following:
+1. add admin-only room/channel controls
+2. add admin message controls
+3. make Active Cases real and interactive
+4. improve Investigation Room layout logic without redesigning it
+5. replace homepage mock signal feed with the real/current signal source
+6. remove/replace “Referenced this cycle” in Signal Room
+7. refine Request Briefing routing
+8. expand Command Console to support room/case control
+9. preserve the current visual identity and page architecture

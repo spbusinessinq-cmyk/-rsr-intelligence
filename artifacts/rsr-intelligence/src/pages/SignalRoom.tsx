@@ -425,23 +425,41 @@ export default function SignalRoom() {
               </div>
             </div>
 
-            {/* Referenced records */}
+            {/* Topic watch — live category counts */}
             <div className="border border-zinc-900 p-4">
-              <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-500 mb-3">REFERENCED THIS CYCLE</div>
-              <div className="space-y-1.5">
-                {["F-001", "F-003", "F-006", "F-009", "F-010", "F-016", "F-017", "F-019"].map(ref => (
-                  <Link key={ref} href={`/files/${ref}`} className="flex items-center gap-2 group">
-                    <span className="font-mono text-[10px] tracking-widest text-zinc-600 group-hover:text-emerald-500 transition-colors">{ref}</span>
-                    <span className="font-mono text-[9px] text-zinc-800 group-hover:text-zinc-600">→ FILE</span>
-                  </Link>
-                ))}
-                {["D-001", "D-004", "D-007", "D-010", "D-013"].map(ref => (
-                  <Link key={ref} href={`/dossiers/${ref}`} className="flex items-center gap-2 group">
-                    <span className="font-mono text-[10px] tracking-widest text-zinc-600 group-hover:text-emerald-500 transition-colors">{ref}</span>
-                    <span className="font-mono text-[9px] text-zinc-800 group-hover:text-zinc-600">→ DOSSIER</span>
-                  </Link>
-                ))}
-              </div>
+              <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-500 mb-3">TOPIC WATCH</div>
+              {loading ? (
+                <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-800 animate-pulse">LOADING...</div>
+              ) : (
+                <div className="space-y-2">
+                  {(["GEOPOLITICAL", "DEFENSE", "INTELLIGENCE", "ENERGY", "POLICY"] as const).map(cat => {
+                    const count = articles.filter(a => a.category === cat).length;
+                    const active = count > 0;
+                    const labelCls = active ? catColor[cat].split(" ")[0] : "text-zinc-800";
+                    return (
+                      <div key={cat} className="flex items-center justify-between">
+                        <span className={`font-mono text-[9px] tracking-[0.12em] ${labelCls}`}>{cat}</span>
+                        <div className="flex items-center gap-2">
+                          {active && <span className="w-1 h-1 rounded-full bg-current opacity-50 inline-block" style={{ color: "inherit" }} />}
+                          <span className={`font-mono text-[9px] ${active ? "text-zinc-500" : "text-zinc-800"}`}>
+                            {active ? `${count} signal${count > 1 ? "s" : ""}` : "—"}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              {articles.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-zinc-900 space-y-1">
+                  <div className="font-mono text-[8px] tracking-[0.2em] text-zinc-700 mb-1.5">MONITORED SOURCES</div>
+                  {[...new Set(articles.map(a => a.domain))].slice(0, 5).map(domain => (
+                    <div key={domain} className="font-mono text-[8px] tracking-[0.06em] text-zinc-700">
+                      {domain}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Inner layer navigation */}

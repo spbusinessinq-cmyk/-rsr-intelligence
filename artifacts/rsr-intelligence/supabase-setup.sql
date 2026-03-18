@@ -114,3 +114,73 @@ UPDATE profiles SET approval_status = 'approved' WHERE handle = 'TEST-ANALYST';
 
 -- To grant yourself admin access after registering, run:
 -- UPDATE profiles SET role = 'admin', approval_status = 'approved' WHERE email = 'your@email.com';
+
+-- ============================================================
+-- MIGRATION: Investigation Cases
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS investigation_cases (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  ref TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL,
+  stage TEXT NOT NULL DEFAULT 'NEW',
+  priority TEXT NOT NULL DEFAULT 'NORMAL',
+  channel_id TEXT,
+  description TEXT,
+  created_by UUID,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE investigation_cases ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Authenticated can read cases" ON investigation_cases;
+CREATE POLICY "Authenticated can read cases"
+  ON investigation_cases FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "Admins can manage cases" ON investigation_cases;
+CREATE POLICY "Admins can manage cases"
+  ON investigation_cases FOR ALL TO authenticated
+  USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'admin')
+  WITH CHECK ((SELECT role FROM profiles WHERE id = auth.uid()) = 'admin');
+
+INSERT INTO investigation_cases (ref, name, stage, priority, channel_id, description) VALUES
+  ('F-001', 'CLEARWATER',      'BUILDING',   'HIGH',   'investigations',  'Procurement chain investigation — five-layer structure'),
+  ('F-003', 'INFLUENCE ARCH',  'REVIEW',     'HIGH',   'investigations',  'Cross-border influence architecture mapping'),
+  ('F-009', 'NORTHERN GATEWAY','READY',      'NORMAL', 'west-coast-case', 'Beneficial ownership trace — Northern Bridge Consortium'),
+  ('F-017', 'ALLIED MEDIA',    'MONITORING', 'HIGH',   'signals',         'Media network equity mapping — Eastern Europe'),
+  ('F-019', 'LOBBYING MAP',    'BUILDING',   'NORMAL', 'investigations',  'Foreign-interest lobbying channel documentation'),
+  ('D-004', 'MERIDIAN',        'REVIEW',     'HIGH',   'investigations',  'Asia-Pacific acquisition node analysis'),
+  ('D-013', 'REGIONAL FUTURES','REVIEW',     'NORMAL', 'off-grid',        'Regional Futures Fund equity structure review'),
+  ('F-018', 'BOND STRUCTURE',  'NEW',        'NORMAL', 'signals',         'Infrastructure bond capital flow analysis')
+ON CONFLICT (ref) DO NOTHING;
+
+-- ============================================================
+-- MIGRATION: Channel archived flag + admin channel management
+-- ============================================================
+
+ALTER TABLE room_channels ADD COLUMN IF NOT EXISTS archived BOOLEAN DEFAULT FALSE;
+
+DROP POLICY IF EXISTS "Admins can manage channels" ON room_channels;
+CREATE POLICY "Admins can manage channels"
+  ON room_channels FOR ALL TO authenticated
+  USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'admin')
+  WITH CHECK ((SELECT role FROM profiles WHERE id = auth.uid()) = 'admin');
+
+-- Update policy: allow admin to update channels
+DROP POLICY IF EXISTS "Admins can update channels" ON room_channels;
+CREATE POLICY "Admins can update channels"
+  ON room_channels FOR UPDATE TO authenticated
+  USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'admin');
+
+-- ============================================================
+-- MIGRATION: Admin message delete
+-- ============================================================
+
+DROP POLICY IF EXISTS "Users and admins can delete messages" ON room_messages;
+CREATE POLICY "Users and admins can delete messages"
+  ON room_messages FOR DELETE TO authenticated
+  USING (
+    auth.uid() = user_id OR
+    (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
+  );

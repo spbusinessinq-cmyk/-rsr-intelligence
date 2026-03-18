@@ -1,9 +1,22 @@
-import { useState } from "react";
-import { Link } from "wouter";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "wouter";
+import { useAuth } from "@/lib/auth";
 
 export default function Briefing() {
   const [form, setForm] = useState({ name: "", organization: "", role: "", interest: "", email: "" });
   const [submitted, setSubmitted] = useState(false);
+  const { user, profile, loading: authLoading } = useAuth();
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) return;
+    if (profile?.role === "admin") {
+      setLocation("/command");
+    } else {
+      setLocation("/investigation-room");
+    }
+  }, [user, profile, authLoading, setLocation]);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
@@ -13,6 +26,16 @@ export default function Briefing() {
     e.preventDefault();
     setSubmitted(true);
   }
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-700 animate-pulse">AUTHENTICATING...</div>
+      </div>
+    );
+  }
+
+  if (user) return null;
 
   return (
     <div className="min-h-screen bg-black text-zinc-100 flex flex-col relative">
