@@ -639,9 +639,9 @@ function AnalystRoster({ configured, user }: { configured: boolean; user: unknow
 /* ── Main page ──────────────────────────────────────────────────────── */
 
 export default function InvestigationRoom() {
-  const { profile: user } = useAuth();
-  const configured = isConfigured;
-  const isAdmin = user?.role === "admin";
+  const { user: authUser, profile, configured } = useAuth();
+  const user = profile;
+  const isAdmin = profile?.role === "admin";
 
   const [activeChannel, setActiveChannel] = useState("investigations");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -699,14 +699,27 @@ export default function InvestigationRoom() {
   }, [messages]);
 
   async function handleSend() {
-    if (!composerVal.trim() || !user || !configured) return;
+    if (!composerVal.trim() || !authUser || !configured) return;
     setSending(true);
     setSendError(null);
+
+    const handle = profile?.handle
+      ?? (authUser.email ?? "operator").split("@")[0].toUpperCase().replace(/[^A-Z0-9-]/g, "-").slice(0, 24);
+    const role = profile?.role ?? "member";
+
+    const chData = DEFAULT_CHANNELS.find(c => c.id === activeChannel);
+    if (chData) {
+      await supabase.from("room_channels").upsert(
+        { id: chData.id, slug: chData.slug, name: chData.name, description: chData.description ?? null },
+        { onConflict: "id", ignoreDuplicates: true }
+      );
+    }
+
     const { error } = await supabase.from("room_messages").insert({
       channel_id: activeChannel,
-      user_id: user.id,
-      handle: user.handle,
-      role: user.role,
+      user_id: authUser.id,
+      handle,
+      role,
       body: composerVal.trim(),
     });
     if (error) {
@@ -878,10 +891,10 @@ export default function InvestigationRoom() {
                       handleSend();
                     }
                   }}
-                  disabled={!configured || !user || sending}
+                  disabled={!configured || !authUser || sending}
                   placeholder={
                     !configured ? "Supabase not configured — offline mode"
-                    : !user ? "Sign in to post"
+                    : !authUser ? "Sign in to post"
                     : `Transmit to #${activeChannel}... (Enter to send · Shift+Enter for newline)`
                   }
                   rows={2}
@@ -896,7 +909,7 @@ export default function InvestigationRoom() {
               </div>
               <button
                 onClick={handleSend}
-                disabled={!configured || !user || !composerVal.trim() || sending}
+                disabled={!configured || !authUser || !composerVal.trim() || sending}
                 className="shrink-0 border border-zinc-700 hover:border-emerald-700/50 text-zinc-500 hover:text-emerald-400 font-mono text-[10px] tracking-[0.25em] px-4 py-3.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 {sending ? "..." : "SEND"}

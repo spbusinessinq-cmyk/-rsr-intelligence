@@ -1,0 +1,148 @@
+Strict fix pass — live news Signal Room + Investigation Room message fix.
+
+Do NOT redesign the site.
+Do NOT weaken the homepage.
+Do NOT change the established visual identity.
+
+This is NOT a broad creative pass.
+This is a direct fix-and-convert pass.
+
+MAIN GOAL
+Fix the Investigation Room so live messaging actually works, and convert the Signal Room from mock/internal signal cards into a real breaking-news intelligence layer.
+
+PRESERVE
+- black base
+- restrained emerald accents
+- thin borders
+- premium command-interface feel
+- monospace micro-labels
+- serious intelligence-network tone
+
+CRITICAL RULES
+- Do not just restyle mock data again
+- Do not claim “live” unless the data is actually live
+- Do not avoid the message bug
+- Fix the real functional issues first
+
+==================================================
+1. INVESTIGATION ROOM — MESSAGE BUG FIRST
+==================================================
+
+This is the highest priority.
+
+The Investigation Room message composer is still not functioning correctly for me.
+
+Fix and confirm all of the following:
+- I can type in the composer normally
+- send button works
+- Enter-to-send works
+- message posts to the currently selected channel
+- message persists in Supabase
+- message appears immediately in the feed
+- channel switching still works correctly
+- empty channels can accept first message correctly
+
+Do not move on to cosmetic work until this is actually fixed.
+
+After fixing, clearly explain what was wrong.
+
+==================================================
+2. INVESTIGATION ROOM — READABILITY + ADMIN ACCESS
+==================================================
+
+Readability still needs improvement in Investigation Room.
+
+Increase readability to match the better Signal Room sizing:
+- message text
+- role labels
+- timestamps
+- sidebar content
+- active cases
+- analyst roster
+- composer text
+
+Also:
+- add a clearly visible admin-only COMMAND / COMMAND CONSOLE button in the Investigation Room UI
+- make sure it is actually visible and not buried
+- keep it subtle and on-brand
+
+==================================================
+3. SIGNAL ROOM — STOP USING MOCK SIGNALS
+==================================================
+
+This is the key correction.
+
+Signal Room should no longer be driven by mock/internal signal cards pretending to be live.
+Convert it into a real monitored breaking-news layer.
+
+Use a real source/feed or a clean backend route that fetches real current news relevant to:
+- war
+- geopolitics
+- intelligence
+- defense
+- political power
+- major macro / market signals when relevant
+
+If a truly live API/feed is needed, implement it cleanly.
+If rate limits require a lightweight server-side fetch/cache approach, do that.
+
+But the important part:
+- the feed content itself should be real current news, not mock records rewritten as signals
+
+==================================================
+4. SIGNAL ROOM — SIDEBAR HIERARCHY
+==================================================
+
+Rebuild the right sidebar logic:
+
+CURRENT WATCH
+- should show the 6 newest / hottest breaking news items
+- concise headline format
+- clearly current
+
+REGIONAL POSTURES
+- should become a top 5 major developments block
+- organized by region/topic cluster
+- based on real current developments, not fake numeric posture counts
+
+REFERENCED THIS CYCLE
+- can remain linked to internal files/dossiers if helpful
+- but do not let this dominate the page over the real news layer
+
+==================================================
+5. SIGNAL ROOM — HONEST LABELING
+==================================================
+
+If some market values or news items are not truly live to-the-second, label them honestly:
+- live feed
+- recent monitored feed
+- delayed monitored feed
+- cached current feed
+
+Do not present mock values as live.
+Do not present internal records as breaking news.
+
+==================================================
+6. SAGE TERMINAL
+==================================================
+
+Keep the current Sage improvements.
+Do not remove the expanded Sage view.
+
+But do not let Sage distract from fixing:
+1. Investigation Room messaging
+2. Signal Room real-news conversion
+
+==================================================
+7. IMPLEMENTATION DELIVERABLES
+==================================================
+
+Please do all of the following:
+1. fix the Investigation Room message posting bug first
+2. explain what caused the bug
+3. improve Investigation Room readability to match Signal Room
+4. add a clearly visible admin-only Command Console button
+5. convert Signal Room from mock/internal signals to real current news
+6. rebuild Current Watch as the top 6 breaking items
+7. rebuild Regional Postures as top 5 major developments
+8. preserve the current visual identity and overall page architecture

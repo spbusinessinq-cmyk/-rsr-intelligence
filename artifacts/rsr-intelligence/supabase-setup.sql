@@ -77,16 +77,30 @@ CREATE POLICY "Admins can update any profile"
     (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
   );
 
--- Channels: authenticated users can read
+-- Channels: authenticated users can read and insert (needed for auto-seed before first message)
 DROP POLICY IF EXISTS "Anyone can read channels" ON room_channels;
 CREATE POLICY "Anyone can read channels"
   ON room_channels FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "Authenticated can insert channels" ON room_channels;
+CREATE POLICY "Authenticated can insert channels"
+  ON room_channels FOR INSERT TO authenticated
+  WITH CHECK (true);
 
 -- 7. ENABLE REALTIME on room_messages
 -- In Supabase Dashboard: Database → Replication → enable supabase_realtime for room_messages
 -- Or run:
 ALTER PUBLICATION supabase_realtime ADD TABLE room_messages;
 
+
+-- ============================================================
+-- MIGRATION: Remove FK constraint on room_messages.channel_id
+-- (allows messages before channels are seeded)
+-- ============================================================
+ALTER TABLE room_messages DROP CONSTRAINT IF EXISTS room_messages_channel_id_fkey;
+
+-- Allow authenticated users to upsert channels (needed for auto-seed)
+-- (Policy already defined above; skip if running for first time)
 
 -- ============================================================
 -- MIGRATION: Approval Workflow (run if profiles table exists)

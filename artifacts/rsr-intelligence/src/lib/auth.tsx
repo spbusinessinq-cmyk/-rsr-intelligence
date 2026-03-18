@@ -38,7 +38,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .select("*")
       .eq("id", userId)
       .single();
-    if (data) setProfile(data as Profile);
+    if (data) {
+      setProfile(data as Profile);
+    } else {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (authUser) {
+        const handle = (authUser.email ?? "operator")
+          .split("@")[0]
+          .toUpperCase()
+          .replace(/[^A-Z0-9-]/g, "-")
+          .slice(0, 24);
+        await supabase.from("profiles").upsert({
+          id: userId,
+          email: authUser.email ?? "",
+          handle,
+          role: "member",
+          approval_status: "pending",
+          account_status: "active",
+        }, { onConflict: "id" });
+        setProfile({
+          id: userId,
+          handle,
+          role: "member",
+          approval_status: "pending",
+          account_status: "active",
+          email: authUser.email ?? "",
+        });
+      }
+    }
   }
 
   useEffect(() => {
