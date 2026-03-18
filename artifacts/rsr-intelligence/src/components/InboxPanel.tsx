@@ -2,22 +2,28 @@ import { useState, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
 import { supabase } from "@/lib/supabase";
 
-/* ── Normalize a notification link to a safe internal wouter path ──── */
+/* ── Normalize a notification link for the hash router ──────────────── */
 function normalizeLink(raw: string): string | null {
   if (!raw) return null;
-  try {
-    // If it looks like an absolute URL, extract just the path+search+hash
-    const url = new URL(raw, window.location.href);
-    if (url.hostname === window.location.hostname) {
-      return (url.pathname + url.search + url.hash) || "/";
+
+  // Strip leading # (hash-router format stored in DB: "#/investigation-room")
+  const withoutHash = raw.startsWith("#") ? raw.slice(1) : raw;
+
+  // If it's a full URL on the same host, extract path+search
+  if (withoutHash.startsWith("http://") || withoutHash.startsWith("https://")) {
+    try {
+      const url = new URL(withoutHash);
+      if (url.hostname === window.location.hostname) {
+        return url.pathname + url.search || "/";
+      }
+      return null; // external URL — don't route internally
+    } catch {
+      return null;
     }
-    // External URL — don't route internally
-    return null;
-  } catch {
-    // Not a valid URL — treat as a path fragment
-    const path = raw.startsWith("/") ? raw : "/" + raw;
-    return path;
   }
+
+  // Bare path fragment — ensure leading slash
+  return withoutHash.startsWith("/") ? withoutHash : "/" + withoutHash;
 }
 
 /* ── Types ───────────────────────────────────────────────────────────── */
@@ -46,9 +52,9 @@ const TYPE_STYLE: Record<string, string> = {
 function formatAge(iso: string): string {
   try {
     const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
-    if (diff < 60)   return `${diff}S AGO`;
-    if (diff < 3600) return `${Math.floor(diff / 60)}M AGO`;
-    if (diff < 86400)return `${Math.floor(diff / 3600)}H AGO`;
+    if (diff < 60)    return `${diff}S AGO`;
+    if (diff < 3600)  return `${Math.floor(diff / 60)}M AGO`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}H AGO`;
     return `${Math.floor(diff / 86400)}D AGO`;
   } catch { return "RECENT"; }
 }
@@ -56,18 +62,20 @@ function formatAge(iso: string): string {
 /* ── InboxPanel ──────────────────────────────────────────────────────── */
 
 interface InboxPanelProps {
-  userId:          string;
-  onUnreadChange:  (count: number) => void;
-  onClose:         () => void;
+  userId:         string;
+  onUnreadChange: (count: number) => void;
+  onClose:        () => void;
 }
 
 export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps) {
   const [, setLocation] = useLocation();
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [markingAll, setMarkingAll] = useState(false);
-
-  const [schemaError, setSchemaError] = useState(false);
+  const [loading,       setLoading]       = useState(true);
+  const [markingAll,    setMarkingAll]    = useState(false);
+  const [schemaError,   setSchemaError]   = useState(false);
+  // track which notification is in "confirm delete" state
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [deletingId,    setDeletingId]    = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const { data, error } = await supabase
@@ -80,7 +88,8 @@ export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps)
       const isSchema =
         error.code === "PGRST204" ||
         error.message?.toLowerCase().includes("schema cache") ||
-        (error.message?.toLowerCase().includes("notifications") && error.message?.toLowerCase().includes("table"));
+        (error.message?.toLowerCase().includes("notifications") &&
+         error.message?.toLowerCase().includes("table"));
       if (isSchema) setSchemaError(true);
       setLoading(false);
       return;
@@ -95,8 +104,6 @@ export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps)
 
   useEffect(() => {
     load();
-
-    // Realtime subscription for new notifications
     const channel = supabase
       .channel(`inbox-${userId}`)
       .on("postgres_changes", {
@@ -106,16 +113,21 @@ export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps)
         filter: `user_id=eq.${userId}`,
       }, () => load())
       .subscribe();
-
     return () => { supabase.removeChannel(channel); };
   }, [load, userId]);
 
   useEffect(() => {
-    function onKey(e: KeyboardEvent) { if (e.key === "Escape") onClose(); }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        if (confirmDelete) setConfirmDelete(null);
+        else onClose();
+      }
+    }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, [onClose, confirmDelete]);
 
+  /* ── Mark read + navigate ── */
   async function markRead(n: Notification) {
     if (!n.is_read) {
       await supabase.from("notifications").update({ is_read: true }).eq("id", n.id);
@@ -131,6 +143,7 @@ export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps)
     }
   }
 
+  /* ── Mark all read ── */
   async function markAllRead() {
     const unread = notifications.filter(n => !n.is_read);
     if (unread.length === 0) return;
@@ -145,10 +158,52 @@ export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps)
     setMarkingAll(false);
   }
 
+  /* ── Delete notification ── */
+  async function deleteNotification(id: string, e: React.MouseEvent) {
+    e.stopPropagation();
+    if (confirmDelete !== id) {
+      // First click — enter confirm state
+      setConfirmDelete(id);
+      return;
+    }
+    // Second click — confirmed, delete
+    setConfirmDelete(null);
+    setDeletingId(id);
+
+    // Optimistic remove
+    const removed = notifications.find(n => n.id === id);
+    setNotifications(prev => prev.filter(n => n.id !== id));
+    const newUnread = notifications.filter(n => !n.is_read && n.id !== id).length;
+    onUnreadChange(newUnread);
+
+    const { error } = await supabase.from("notifications").delete().eq("id", id);
+    if (error && removed) {
+      // Restore on failure
+      setNotifications(prev => [removed, ...prev].sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      ));
+      onUnreadChange(notifications.filter(n => !n.is_read).length);
+    }
+    setDeletingId(null);
+  }
+
+  /* ── Dismiss confirm delete on outside click ── */
+  function handleRowClick(n: Notification) {
+    if (confirmDelete && confirmDelete !== n.id) {
+      setConfirmDelete(null);
+      return;
+    }
+    markRead(n);
+  }
+
   const unread = notifications.filter(n => !n.is_read).length;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end" style={{ background: "rgba(0,0,0,0.7)" }} onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex justify-end"
+      style={{ background: "rgba(0,0,0,0.7)" }}
+      onClick={() => { setConfirmDelete(null); onClose(); }}
+    >
       <div
         className="w-full max-w-sm bg-black border-l border-zinc-800 flex flex-col h-full overflow-hidden"
         onClick={e => e.stopPropagation()}
@@ -193,48 +248,76 @@ export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps)
               <div className="font-mono text-[10px] tracking-[0.3em] text-zinc-700">NO NOTIFICATIONS</div>
             </div>
           ) : (
-            notifications.map(n => (
-              <div
-                key={n.id}
-                role="button"
-                tabIndex={0}
-                onClick={() => markRead(n)}
-                onKeyDown={e => e.key === "Enter" && markRead(n)}
-                className={`px-5 py-4 border-b border-zinc-900/40 last:border-0 cursor-pointer transition-colors ${
-                  n.is_read ? "bg-black hover:bg-zinc-950/30" : "bg-zinc-950/40 hover:bg-zinc-950/60"
-                }`}
-              >
-                <div className="flex items-start justify-between gap-3 mb-2">
-                  <div className="flex items-center gap-2">
-                    {!n.is_read && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0 mt-0.5" />}
-                    <span className={`font-mono text-[9px] tracking-[0.25em] border px-1.5 py-0.5 shrink-0 ${TYPE_STYLE[n.type] ?? TYPE_STYLE.NOTICE}`}>
-                      {n.type}
-                    </span>
+            notifications.map(n => {
+              const isConfirm  = confirmDelete === n.id;
+              const isDeleting = deletingId === n.id;
+              return (
+                <div
+                  key={n.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => handleRowClick(n)}
+                  onKeyDown={e => e.key === "Enter" && handleRowClick(n)}
+                  className={`group relative px-5 py-4 border-b border-zinc-900/40 last:border-0 cursor-pointer transition-colors ${
+                    isConfirm
+                      ? "bg-red-950/20"
+                      : n.is_read
+                        ? "bg-black hover:bg-zinc-950/30"
+                        : "bg-zinc-950/40 hover:bg-zinc-950/60"
+                  } ${isDeleting ? "opacity-40 pointer-events-none" : ""}`}
+                >
+                  {/* Top row: type badge + age + delete */}
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      {!n.is_read && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0 mt-0.5" />}
+                      <span className={`font-mono text-[9px] tracking-[0.25em] border px-1.5 py-0.5 shrink-0 ${TYPE_STYLE[n.type] ?? TYPE_STYLE.NOTICE}`}>
+                        {n.type}
+                      </span>
+                      <span className="font-mono text-[9px] tracking-[0.15em] text-zinc-700 whitespace-nowrap">
+                        {formatAge(n.created_at)}
+                      </span>
+                    </div>
+
+                    {/* Delete control */}
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      onClick={e => deleteNotification(n.id, e)}
+                      onKeyDown={e => { if (e.key === "Enter") { e.stopPropagation(); deleteNotification(n.id, e as unknown as React.MouseEvent); } }}
+                      className={`shrink-0 font-mono text-[8px] tracking-[0.2em] px-1.5 py-0.5 border transition-colors cursor-pointer ${
+                        isConfirm
+                          ? "border-red-600/60 text-red-400 hover:bg-red-900/20"
+                          : "border-transparent text-zinc-800 hover:border-zinc-800 hover:text-zinc-600 opacity-0 group-hover:opacity-100"
+                      }`}
+                    >
+                      {isConfirm ? "CONFIRM" : "DEL"}
+                    </div>
                   </div>
-                  <span className="font-mono text-[9px] tracking-[0.15em] text-zinc-700 whitespace-nowrap shrink-0">
-                    {formatAge(n.created_at)}
-                  </span>
-                </div>
 
-                <div className={`font-mono text-[11px] tracking-[0.06em] leading-snug mb-1.5 ${n.is_read ? "text-zinc-500" : "text-zinc-200"}`}>
-                  {n.title}
-                </div>
-
-                <div className="font-mono text-[10px] tracking-[0.04em] text-zinc-600 leading-relaxed line-clamp-2">
-                  {n.body}
-                </div>
-
-                {n.link && (
-                  <div className="mt-2 font-mono text-[9px] tracking-[0.2em] text-emerald-700">
-                    {n.link} →
+                  <div className={`font-mono text-[11px] tracking-[0.06em] leading-snug mb-1.5 ${n.is_read ? "text-zinc-500" : "text-zinc-200"}`}>
+                    {n.title}
                   </div>
-                )}
-              </div>
-            ))
+
+                  <div className="font-mono text-[10px] tracking-[0.04em] text-zinc-600 leading-relaxed line-clamp-2">
+                    {n.body}
+                  </div>
+
+                  {n.link && !isConfirm && (
+                    <div className="mt-2 font-mono text-[9px] tracking-[0.2em] text-emerald-700 truncate">
+                      {n.link.replace(/^#/, "")} →
+                    </div>
+                  )}
+                  {isConfirm && (
+                    <div className="mt-1.5 font-mono text-[9px] tracking-[0.15em] text-red-700">
+                      CLICK CONFIRM TO DELETE — ESC TO CANCEL
+                    </div>
+                  )}
+                </div>
+              );
+            })
           )}
         </div>
       </div>
     </div>
   );
 }
-

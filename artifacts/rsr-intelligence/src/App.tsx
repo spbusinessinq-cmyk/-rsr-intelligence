@@ -1,4 +1,5 @@
 import { Switch, Route, Router as WouterRouter } from "wouter";
+import { useHashLocation } from "@/lib/hashLocation";
 import { AuthProvider, ProtectedRoute } from "@/lib/auth";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
@@ -22,9 +23,9 @@ function Router() {
       <Route path="/systems"                 component={Systems} />
       <Route path="/systems/:slug"           component={SystemDetail} />
       <Route path="/files"                   component={Files} />
-      <Route path="/files/:id"               component={FileDetail} />
+      <Route path="/files/:id"              component={FileDetail} />
       <Route path="/dossiers"                component={Dossiers} />
-      <Route path="/dossiers/:id"            component={DossierDetail} />
+      <Route path="/dossiers/:id"           component={DossierDetail} />
       <Route path="/world"                   component={World} />
       <Route path="/signal-room"             component={SignalRoom} />
       <Route path="/investigation-room">
@@ -42,7 +43,7 @@ function Router() {
 
 function App() {
   return (
-    <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+    <WouterRouter hook={useHashLocation}>
       <AuthProvider>
         <Router />
       </AuthProvider>

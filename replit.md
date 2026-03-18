@@ -119,6 +119,14 @@ Express server, port 8080 in dev.
 - `POST /api/sage` — SAGE AI terminal (OpenAI gpt-5.2, 600 token max, RSR context)
 - `GET /api/health` — Health check
 
+### Client-Side Routing (IMPORTANT)
+The app uses **hash-based routing** via a custom `useHashLocation` hook (`src/lib/hashLocation.ts`). This eliminates all 404s from server-side SPA fallback issues. All URLs use the `#/path` format (e.g. `https://example.com/#/investigation-room`).
+
+- Internal navigation links use paths like `/investigation-room` (no `#` needed — wouter handles it)
+- Notification links stored in DB should use the format: `#/investigation-room?channel=investigations`
+- `useSearch()` still works — our navigate function puts `?channel=` in the real URL search, not inside the hash
+- `useSearch()` in InvestigationRoom correctly reads `?channel=` and `?message=` for deep-linking
+
 ### API Routing
 In development, Vite proxies `/api/*` → `http://localhost:8080` (api-server) automatically via the proxy in `vite.config.ts`.
 
