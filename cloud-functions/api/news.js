@@ -3,13 +3,16 @@
 // IMPORTANT: GDELT rate-limits to 1 request per 5 seconds.
 // Queries MUST be sequential with a 5.5 s delay between each.
 // 4 queries × 5.5 s = ~22 s total — safely within EdgeOne's 30 s budget.
+// timespan=168H (7 days) gives significantly more results than 72H.
 
 const QUERIES = [
-  { q: "war conflict military strike ukraine russia israel iran nato sourcelang:english",          category: "GEOPOLITICAL", priority: "HIGH" },
-  { q: "intelligence surveillance espionage nuclear weapons sanctions coup sourcelang:english",    category: "INTELLIGENCE", priority: "HIGH" },
-  { q: "military defense weapons procurement army navy air force contractor sourcelang:english",   category: "DEFENSE",      priority: "HIGH" },
-  { q: "energy oil gas crisis pipeline geopolitics electricity grid sourcelang:english",           category: "ENERGY",       priority: "NORMAL" },
+  { q: "war conflict military strike attack explosion combat ukraine russia israel iran sourcelang:english",   category: "GEOPOLITICAL", priority: "HIGH" },
+  { q: "intelligence espionage surveillance nuclear sanctions diplomatic crisis coup sourcelang:english",       category: "INTELLIGENCE", priority: "HIGH" },
+  { q: "military defense weapons army navy air force procurement contractor security sourcelang:english",      category: "DEFENSE",      priority: "HIGH" },
+  { q: "energy oil gas pipeline electricity grid geopolitics supply crisis sourcelang:english",               category: "ENERGY",       priority: "NORMAL" },
 ];
+
+const MIN_GOOD = 8;
 
 function inferRegion(article) {
   const text = (article.title + " " + (article.sourcecountry ?? "")).toLowerCase();
@@ -44,7 +47,7 @@ function sleep(ms) {
 async function fetchGdelt(query) {
   const url =
     `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(query)}` +
-    `&mode=artlist&maxrecords=20&format=json&timespan=72H`;
+    `&mode=artlist&maxrecords=25&format=json&timespan=168H`;
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
     if (!res.ok) return [];
@@ -89,7 +92,7 @@ export const onRequestGet = async () => {
 
     all.sort((a, b) => {
       if (a.priority === "HIGH" && b.priority !== "HIGH") return -1;
-      if (a.priority !== "HIGH" && b.priority === "HIGH") return 1;
+      if (a.priority !== "HIGH" && b.priority === "HIGH") return  1;
       return new Date(b.seendate).getTime() - new Date(a.seendate).getTime();
     });
 
@@ -98,6 +101,7 @@ export const onRequestGet = async () => {
     return new Response(
       JSON.stringify({
         articles:    all,
+        healthy:     all.length >= MIN_GOOD,
         cached:      false,
         cachedAt:    now,
         nextRefresh: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
@@ -115,18 +119,12 @@ export const onRequestGet = async () => {
     const msg = err instanceof Error ? err.message : "Unknown error";
     return new Response(
       JSON.stringify({
-        articles:    [],
-        error:       "GDELT fetch failed: " + msg,
-        cached:      false,
-        cachedAt:    new Date().toISOString(),
-        nextRefresh: new Date().toISOString(),
+        articles: [], error: "GDELT fetch failed: " + msg,
+        cached: false, cachedAt: new Date().toISOString(), nextRefresh: new Date().toISOString(),
       }),
       {
         status: 500,
-        headers: {
-          "Content-Type":                "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
+        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
       }
     );
   }

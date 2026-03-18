@@ -765,13 +765,21 @@ export default function InvestigationRoom() {
     setMessages(prev => prev.filter(m => m.id !== id));
   }
 
+  function isSchemaError(msg: string): boolean {
+    return msg.includes("column") && (msg.includes("schema cache") || msg.includes("does not exist") || msg.includes("Could not find"));
+  }
+
   async function updateMessage(id: string, newBody: string) {
     if (!newBody.trim() || !configured) return;
     const edited_at = new Date().toISOString();
     const { error } = await supabase.from("room_messages").update({ body: newBody, edited_at }).eq("id", id);
     if (error) {
       console.error("[IR] updateMessage error:", error);
-      setMsgOpError("EDIT FAILED: " + error.message);
+      if (isSchemaError(error.message)) {
+        setMsgOpError("SCHEMA UPDATE REQUIRED — run supabase-setup.sql in your Supabase dashboard to enable message editing");
+      } else {
+        setMsgOpError("EDIT FAILED: " + error.message);
+      }
       return;
     }
     setMessages(prev => prev.map(m => m.id === id ? { ...m, body: newBody, edited_at } : m));
@@ -782,7 +790,11 @@ export default function InvestigationRoom() {
     const { error } = await supabase.from("room_messages").update({ pinned }).eq("id", id);
     if (error) {
       console.error("[IR] togglePin error:", error);
-      setMsgOpError("PIN FAILED: " + error.message);
+      if (isSchemaError(error.message)) {
+        setMsgOpError("SCHEMA UPDATE REQUIRED — run supabase-setup.sql in your Supabase dashboard to enable message pinning");
+      } else {
+        setMsgOpError("PIN FAILED: " + error.message);
+      }
       return;
     }
     setMessages(prev => prev.map(m => m.id === id ? { ...m, pinned } : m));

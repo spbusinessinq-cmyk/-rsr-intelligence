@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
 
 export default function Briefing() {
   const [form, setForm] = useState({ name: "", organization: "", role: "", interest: "", email: "" });
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted, setSubmitted]   = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const { user, profile, loading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
 
@@ -22,8 +25,29 @@ export default function Briefing() {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!form.name.trim() || !form.email.trim() || !form.interest.trim()) return;
+    setSubmitting(true);
+    setSubmitError(null);
+
+    const { error } = await supabase.from("brief_requests").insert({
+      name:         form.name.trim(),
+      organization: form.organization.trim() || null,
+      role:         form.role.trim() || null,
+      interest:     form.interest.trim(),
+      email:        form.email.trim().toLowerCase(),
+      status:       "NEW",
+    });
+
+    setSubmitting(false);
+
+    if (error) {
+      console.error("[Briefing] submit error:", error);
+      setSubmitError("Submission failed — please try again or contact us directly.");
+      return;
+    }
+
     setSubmitted(true);
   }
 
@@ -84,7 +108,7 @@ export default function Briefing() {
               BRIEFING REQUEST LOGGED
             </div>
             <p className="font-mono text-[11px] tracking-widest text-zinc-500 leading-relaxed mb-6">
-              Your inquiry has been received. The RSR analysis team will review
+              Your inquiry has been received and logged. The RSR analysis team will review
               your request and respond via the contact address provided.
               Review cycles are conducted on a bi-weekly basis.
             </p>
@@ -147,15 +171,22 @@ export default function Briefing() {
               />
             </div>
 
+            {submitError && (
+              <div className="border border-red-900/40 bg-red-950/10 px-4 py-3">
+                <div className="font-mono text-[10px] tracking-[0.2em] text-red-400">{submitError}</div>
+              </div>
+            )}
+
             <div className="border-t border-zinc-900 pt-4 flex items-center justify-between">
               <p className="font-mono text-[10px] tracking-widest text-zinc-800 leading-relaxed max-w-xs">
                 All submissions are reviewed manually. RSR does not share contact information.
               </p>
               <button
                 type="submit"
-                className="border border-emerald-500/30 bg-emerald-500/5 px-6 py-3 font-mono text-[10px] tracking-[0.35em] text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500/50 hover:text-emerald-300 transition-colors"
+                disabled={submitting}
+                className="border border-emerald-500/30 bg-emerald-500/5 px-6 py-3 font-mono text-[10px] tracking-[0.35em] text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500/50 hover:text-emerald-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                SUBMIT INQUIRY →
+                {submitting ? "SUBMITTING..." : "SUBMIT INQUIRY →"}
               </button>
             </div>
 

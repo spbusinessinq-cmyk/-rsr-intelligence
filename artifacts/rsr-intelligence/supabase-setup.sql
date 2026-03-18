@@ -40,6 +40,8 @@ CREATE TABLE IF NOT EXISTS room_channels (
 ALTER TABLE room_channels ADD COLUMN IF NOT EXISTS archived BOOLEAN DEFAULT FALSE;
 
 -- ── 3. MESSAGES TABLE ─────────────────────────────────────────
+-- IMPORTANT: If pin/edit features show "column not found" errors,
+-- re-run this entire file to apply the ALTER TABLE statements below.
 
 CREATE TABLE IF NOT EXISTS room_messages (
   id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -53,7 +55,7 @@ CREATE TABLE IF NOT EXISTS room_messages (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Idempotent column additions
+-- REQUIRED for pin/edit to work — safe to run on existing databases
 ALTER TABLE room_messages ADD COLUMN IF NOT EXISTS pinned    BOOLEAN DEFAULT FALSE;
 ALTER TABLE room_messages ADD COLUMN IF NOT EXISTS edited_at TIMESTAMPTZ;
 
@@ -75,20 +77,44 @@ CREATE TABLE IF NOT EXISTS investigation_cases (
   updated_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Idempotent column additions for existing databases (covers older schema versions)
+-- Idempotent column additions for existing databases
 ALTER TABLE investigation_cases ADD COLUMN IF NOT EXISTS channel_id  TEXT;
 ALTER TABLE investigation_cases ADD COLUMN IF NOT EXISTS description TEXT;
 ALTER TABLE investigation_cases ADD COLUMN IF NOT EXISTS created_by  UUID;
 ALTER TABLE investigation_cases ADD COLUMN IF NOT EXISTS updated_at  TIMESTAMPTZ DEFAULT NOW();
 
--- ── 5. ENABLE ROW LEVEL SECURITY ──────────────────────────────
+-- ── 5. BRIEF REQUESTS TABLE ───────────────────────────────────
+-- Receives public briefing requests from /briefing page.
+-- Anonymous users can INSERT; only admins can SELECT/UPDATE.
 
-ALTER TABLE profiles           ENABLE ROW LEVEL SECURITY;
-ALTER TABLE room_channels      ENABLE ROW LEVEL SECURITY;
-ALTER TABLE room_messages      ENABLE ROW LEVEL SECURITY;
+CREATE TABLE IF NOT EXISTS brief_requests (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name         TEXT NOT NULL,
+  organization TEXT,
+  role         TEXT,
+  interest     TEXT NOT NULL,
+  email        TEXT NOT NULL,
+  status       TEXT NOT NULL DEFAULT 'NEW',
+  notes        TEXT,
+  created_at   TIMESTAMPTZ DEFAULT NOW(),
+  updated_at   TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Idempotent column additions for existing databases
+ALTER TABLE brief_requests ADD COLUMN IF NOT EXISTS organization TEXT;
+ALTER TABLE brief_requests ADD COLUMN IF NOT EXISTS role         TEXT;
+ALTER TABLE brief_requests ADD COLUMN IF NOT EXISTS notes        TEXT;
+ALTER TABLE brief_requests ADD COLUMN IF NOT EXISTS updated_at   TIMESTAMPTZ DEFAULT NOW();
+
+-- ── 6. ENABLE ROW LEVEL SECURITY ──────────────────────────────
+
+ALTER TABLE profiles            ENABLE ROW LEVEL SECURITY;
+ALTER TABLE room_channels       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE room_messages       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE investigation_cases ENABLE ROW LEVEL SECURITY;
+ALTER TABLE brief_requests      ENABLE ROW LEVEL SECURITY;
 
--- ── 6. RLS POLICIES — PROFILES ────────────────────────────────
+-- ── 7. RLS POLICIES — PROFILES ────────────────────────────────
 
 DROP POLICY IF EXISTS "Authenticated can read profiles"  ON profiles;
 CREATE POLICY "Authenticated can read profiles"
@@ -104,7 +130,7 @@ CREATE POLICY "Admins can update any profile"
   ON profiles FOR UPDATE TO authenticated
   USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'admin');
 
--- ── 7. RLS POLICIES — CHANNELS ────────────────────────────────
+-- ── 8. RLS POLICIES — CHANNELS ────────────────────────────────
 
 DROP POLICY IF EXISTS "Authenticated can read channels"  ON room_channels;
 CREATE POLICY "Authenticated can read channels"
@@ -124,7 +150,7 @@ CREATE POLICY "Admins can manage channels"
 
 DROP POLICY IF EXISTS "Admins can update channels"       ON room_channels;
 
--- ── 8. RLS POLICIES — MESSAGES ────────────────────────────────
+-- ── 9. RLS POLICIES — MESSAGES ────────────────────────────────
 
 DROP POLICY IF EXISTS "Authenticated can read messages"        ON room_messages;
 CREATE POLICY "Authenticated can read messages"
@@ -151,7 +177,7 @@ CREATE POLICY "Users and admins can delete messages"
     (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
   );
 
--- ── 9. RLS POLICIES — CASES ───────────────────────────────────
+-- ── 10. RLS POLICIES — CASES ───────────────────────────────────
 
 DROP POLICY IF EXISTS "Authenticated can read cases"    ON investigation_cases;
 CREATE POLICY "Authenticated can read cases"
@@ -163,7 +189,36 @@ CREATE POLICY "Admins can manage cases"
   USING  ((SELECT role FROM profiles WHERE id = auth.uid()) = 'admin')
   WITH CHECK ((SELECT role FROM profiles WHERE id = auth.uid()) = 'admin');
 
--- ── 10. SEED CHANNELS ─────────────────────────────────────────
+-- ── 11. RLS POLICIES — BRIEF REQUESTS ─────────────────────────
+
+-- Public (unauthenticated) users can submit briefing requests
+DROP POLICY IF EXISTS "Public can submit brief requests" ON brief_requests;
+CREATE POLICY "Public can submit brief requests"
+  ON brief_requests FOR INSERT TO anon WITH CHECK (true);
+
+-- Authenticated users (any) can also submit
+DROP POLICY IF EXISTS "Authenticated can submit brief requests" ON brief_requests;
+CREATE POLICY "Authenticated can submit brief requests"
+  ON brief_requests FOR INSERT TO authenticated WITH CHECK (true);
+
+-- Only admins can read/update/delete brief requests
+DROP POLICY IF EXISTS "Admins can read brief requests"   ON brief_requests;
+CREATE POLICY "Admins can read brief requests"
+  ON brief_requests FOR SELECT TO authenticated
+  USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'admin');
+
+DROP POLICY IF EXISTS "Admins can update brief requests" ON brief_requests;
+CREATE POLICY "Admins can update brief requests"
+  ON brief_requests FOR UPDATE TO authenticated
+  USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'admin')
+  WITH CHECK ((SELECT role FROM profiles WHERE id = auth.uid()) = 'admin');
+
+DROP POLICY IF EXISTS "Admins can delete brief requests" ON brief_requests;
+CREATE POLICY "Admins can delete brief requests"
+  ON brief_requests FOR DELETE TO authenticated
+  USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'admin');
+
+-- ── 12. SEED CHANNELS ─────────────────────────────────────────
 
 INSERT INTO room_channels (id, slug, name, description) VALUES
   ('general',         'general',         'general',         'General coordination'),
@@ -173,7 +228,7 @@ INSERT INTO room_channels (id, slug, name, description) VALUES
   ('off-grid',        'off-grid',        'off-grid',        'Off-network discussions')
 ON CONFLICT (id) DO NOTHING;
 
--- ── 11. SEED CASES ────────────────────────────────────────────
+-- ── 13. SEED CASES ────────────────────────────────────────────
 
 INSERT INTO investigation_cases (ref, name, stage, priority, channel_id, description) VALUES
   ('F-001', 'CLEARWATER',       'BUILDING',   'HIGH',   'investigations',  'Procurement chain investigation — five-layer structure'),
@@ -186,23 +241,14 @@ INSERT INTO investigation_cases (ref, name, stage, priority, channel_id, descrip
   ('F-018', 'BOND STRUCTURE',   'NEW',        'NORMAL', 'signals',         'Infrastructure bond capital flow analysis')
 ON CONFLICT (ref) DO NOTHING;
 
--- ── 12. REALTIME ──────────────────────────────────────────────
+-- ── 14. REALTIME ──────────────────────────────────────────────
 
--- Enable realtime on required tables
--- (If these fail with "already exists", that is fine — they are already enabled)
 ALTER PUBLICATION supabase_realtime ADD TABLE room_messages;
 ALTER PUBLICATION supabase_realtime ADD TABLE profiles;
 
--- REPLICA IDENTITY FULL is required so Supabase Realtime sends the full
--- old row on DELETE events (including channel_id, user_id, etc.).
--- Without this, DELETE events only carry the primary key and cannot be
--- filtered or matched reliably by subscribers.
 ALTER TABLE room_messages REPLICA IDENTITY FULL;
 
--- ── 13. ADMIN SETUP ───────────────────────────────────────────
+-- ── 15. ADMIN SETUP ───────────────────────────────────────────
 
 -- After registering your account, run this to grant yourself admin access:
 -- UPDATE profiles SET role = 'admin', approval_status = 'approved' WHERE email = 'your@email.com';
-
--- To approve the test analyst account:
--- UPDATE profiles SET approval_status = 'approved' WHERE handle = 'TEST-ANALYST';

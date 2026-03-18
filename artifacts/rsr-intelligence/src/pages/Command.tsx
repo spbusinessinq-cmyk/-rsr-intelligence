@@ -35,6 +35,19 @@ interface Case {
 
 const STAGES = ["NEW", "BUILDING", "REVIEW", "MONITORING", "READY"];
 
+interface BriefRequest {
+  id: string;
+  name: string;
+  organization: string | null;
+  role: string | null;
+  interest: string;
+  email: string;
+  status: "NEW" | "REVIEWING" | "APPROVED" | "CLOSED";
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 /* ── Helpers ────────────────────────────────────────────────────────── */
 
 function displayHandle(op: Profile): string {
@@ -352,6 +365,108 @@ function CaseEditModal({
   );
 }
 
+/* ── Brief Request Status Badge ─────────────────────────────────────── */
+
+const BRIEF_STATUSES = ["NEW", "REVIEWING", "APPROVED", "CLOSED"] as const;
+
+function BriefStatusBadge({ status }: { status: string }) {
+  const cls: Record<string, string> = {
+    NEW:       "text-amber-400 border-amber-500/30 bg-amber-500/5",
+    REVIEWING: "text-blue-400 border-blue-500/30 bg-blue-500/5",
+    APPROVED:  "text-emerald-400 border-emerald-500/30 bg-emerald-500/5",
+    CLOSED:    "text-zinc-600 border-zinc-700",
+  };
+  return (
+    <span className={`font-mono text-[9px] tracking-[0.3em] border px-1.5 py-0.5 ${cls[status] ?? "text-zinc-500 border-zinc-700"}`}>
+      {status}
+    </span>
+  );
+}
+
+/* ── Brief Request View Modal ────────────────────────────────────────── */
+
+function BriefRequestModal({
+  req,
+  onStatusChange,
+  onClose,
+}: {
+  req: BriefRequest;
+  onStatusChange: (id: string, status: string) => Promise<void>;
+  onClose: () => void;
+}) {
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) { if (e.key === "Escape") onClose(); }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  async function changeStatus(status: string) {
+    setSaving(true);
+    await onStatusChange(req.id, status);
+    setSaving(false);
+    onClose();
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.88)" }}>
+      <div className="bg-black border border-zinc-800 w-full max-w-2xl mx-6 p-6 space-y-5">
+        <div className="flex items-center justify-between">
+          <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-500">BRIEFING REQUEST</div>
+          <button onClick={onClose} className="font-mono text-[10px] text-zinc-700 hover:text-zinc-400 transition-colors">✕</button>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          {[
+            ["ID",           req.id.slice(0, 8) + "…"],
+            ["STATUS",       req.status],
+            ["NAME",         req.name],
+            ["ORGANIZATION", req.organization ?? "—"],
+            ["ROLE",         req.role ?? "—"],
+            ["EMAIL",        req.email],
+            ["RECEIVED",     new Date(req.created_at).toLocaleDateString("en-US", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase()],
+          ].map(([label, val]) => (
+            <div key={label} className="border border-zinc-900 bg-zinc-950 px-3 py-2">
+              <div className="font-mono text-[9px] tracking-[0.35em] text-zinc-600 mb-1">{label}</div>
+              <div className="font-mono text-[11px] text-zinc-300 break-all leading-relaxed">{val}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="border border-zinc-900 bg-zinc-950 px-3 py-3">
+          <div className="font-mono text-[9px] tracking-[0.35em] text-zinc-600 mb-2">AREA OF INTEREST / REQUEST</div>
+          <div className="font-mono text-[11px] text-zinc-300 leading-relaxed whitespace-pre-wrap">{req.interest}</div>
+        </div>
+
+        <div className="border-t border-zinc-900 pt-4 space-y-3">
+          <div className="font-mono text-[10px] tracking-[0.3em] text-zinc-600">SET STATUS</div>
+          <div className="flex items-center gap-2 flex-wrap">
+            {BRIEF_STATUSES.map(s => (
+              <button
+                key={s}
+                disabled={saving || req.status === s}
+                onClick={() => changeStatus(s)}
+                className={`font-mono text-[10px] tracking-[0.2em] border px-3 py-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+                  req.status === s
+                    ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/5"
+                    : "text-zinc-500 border-zinc-700 hover:text-zinc-300 hover:border-zinc-600"
+                }`}
+              >
+                {saving ? "..." : s}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex justify-end">
+          <button onClick={onClose} className="font-mono text-[10px] tracking-[0.25em] text-zinc-600 hover:text-zinc-400 transition-colors">CLOSE</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── Main Command Console ───────────────────────────────────────────── */
 
 export default function Command() {
@@ -361,6 +476,8 @@ export default function Command() {
   const [messages,       setMessages]       = useState<MessageRow[]>([]);
   const [channels,       setChannels]       = useState<Channel[]>([]);
   const [cases,          setCases]          = useState<Case[]>([]);
+  const [briefRequests,  setBriefRequests]  = useState<BriefRequest[]>([]);
+  const [viewingBrief,   setViewingBrief]   = useState<BriefRequest | null>(null);
   const [loading,        setLoading]        = useState(true);
   const [actionLoading,  setActionLoading]  = useState<string | null>(null);
   const [toast,          setToast]          = useState<string | null>(null);
@@ -396,18 +513,39 @@ export default function Command() {
 
   /* ── Fetch all data ── */
   const fetchData = useCallback(async () => {
-    const [opRes, msgRes, chRes, csRes] = await Promise.all([
+    const [opRes, msgRes, chRes, csRes, brRes] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("room_messages").select("id, channel_id, handle, body, created_at, role, pinned").order("created_at", { ascending: false }).limit(40),
       supabase.from("room_channels").select("*").order("created_at", { ascending: true }),
       supabase.from("investigation_cases").select("*").order("created_at", { ascending: true }),
+      supabase.from("brief_requests").select("*").order("created_at", { ascending: false }),
     ]);
     if (opRes.data)  setOperators(opRes.data as Profile[]);
     if (msgRes.data) setMessages(msgRes.data as MessageRow[]);
     if (chRes.data)  setChannels(chRes.data as Channel[]);
     if (csRes.data)  setCases(csRes.data as Case[]);
+    if (brRes.data)  setBriefRequests(brRes.data as BriefRequest[]);
     setLoading(false);
   }, []);
+
+  /* ── Brief request status update ── */
+  async function updateBriefStatus(id: string, status: string) {
+    const { data, error } = await supabase
+      .from("brief_requests")
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq("id", id)
+      .select("id");
+    if (error) {
+      showToast("FAILED: " + error.message, "err");
+      return;
+    }
+    if (!data || data.length === 0) {
+      showToast("UPDATE BLOCKED — ensure admin role in DB", "err");
+      return;
+    }
+    showToast("STATUS → " + status, "ok");
+    await fetchData();
+  }
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -716,6 +854,15 @@ export default function Command() {
           channels={channels}
           onSave={updateCaseMeta}
           onClose={() => setCaseEditTarget(null)}
+        />
+      )}
+
+      {/* Brief request view modal */}
+      {viewingBrief && (
+        <BriefRequestModal
+          req={viewingBrief}
+          onStatusChange={updateBriefStatus}
+          onClose={() => setViewingBrief(null)}
         />
       )}
 
@@ -1264,6 +1411,63 @@ export default function Command() {
                       <button onClick={() => deleteCase(c.id, c.ref)}
                         className="font-mono text-[10px] text-zinc-700 hover:text-red-400 border border-zinc-900 hover:border-red-900/30 px-2 py-0.5 transition-colors">
                         DEL
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* ── BRIEF REQUESTS ── */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <div className="font-mono text-[10px] tracking-[0.45em] text-zinc-500">BRIEF REQUESTS</div>
+              <div className="flex items-center gap-4">
+                {briefRequests.length > 0 && (
+                  <span className="font-mono text-[9px] tracking-[0.3em] text-zinc-700">{briefRequests.length} TOTAL · {briefRequests.filter(r => r.status === "NEW").length} NEW</span>
+                )}
+              </div>
+            </div>
+
+            <div className="border border-zinc-900">
+              <div className="grid grid-cols-[1fr_130px_130px_90px_90px_80px] gap-3 px-5 py-2.5 border-b border-zinc-900 bg-zinc-950">
+                {["REQUESTER", "ORGANIZATION", "EMAIL", "RECEIVED", "STATUS", "ACTION"].map(h => (
+                  <div key={h} className="font-mono text-[10px] tracking-[0.25em] text-zinc-500">{h}</div>
+                ))}
+              </div>
+
+              {loading ? (
+                <div className="px-5 py-6 text-center font-mono text-[10px] tracking-[0.3em] text-zinc-700 animate-pulse">LOADING...</div>
+              ) : briefRequests.length === 0 ? (
+                <div className="px-5 py-8 text-center space-y-2">
+                  <div className="font-mono text-[10px] tracking-[0.3em] text-zinc-700">NO BRIEFING REQUESTS</div>
+                  <div className="font-mono text-[10px] tracking-[0.2em] text-zinc-800">
+                    Requests submitted via /briefing will appear here after you run the supabase-setup.sql schema update
+                  </div>
+                </div>
+              ) : (
+                briefRequests.map(br => (
+                  <div
+                    key={br.id}
+                    className={`grid grid-cols-[1fr_130px_130px_90px_90px_80px] gap-3 px-5 py-3 border-b border-zinc-900/30 last:border-0 items-center hover:bg-zinc-950/20 transition-colors ${
+                      br.status === "NEW" ? "bg-amber-950/5" : ""
+                    }`}
+                  >
+                    <div>
+                      <div className="font-mono text-[11px] tracking-[0.06em] text-zinc-200 truncate">{br.name}</div>
+                      {br.role && <div className="font-mono text-[10px] text-zinc-600 truncate">{br.role}</div>}
+                    </div>
+                    <div className="font-mono text-[10px] tracking-[0.04em] text-zinc-500 truncate">{br.organization ?? "—"}</div>
+                    <div className="font-mono text-[10px] tracking-[0.04em] text-zinc-600 truncate">{br.email}</div>
+                    <div className="font-mono text-[10px] text-zinc-600 whitespace-nowrap">{formatDate(br.created_at)}</div>
+                    <div><BriefStatusBadge status={br.status} /></div>
+                    <div>
+                      <button
+                        onClick={() => setViewingBrief(br)}
+                        className="font-mono text-[10px] tracking-[0.15em] text-zinc-500 hover:text-emerald-400 border border-zinc-800 hover:border-emerald-900/30 px-2 py-0.5 transition-colors"
+                      >
+                        OPEN →
                       </button>
                     </div>
                   </div>

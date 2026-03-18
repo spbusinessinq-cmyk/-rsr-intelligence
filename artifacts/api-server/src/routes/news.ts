@@ -26,16 +26,22 @@ export interface NewsItem {
   region: string;
 }
 
-let cache: { data: NewsItem[]; timestamp: number } | null = null;
+let cache:       { data: NewsItem[]; timestamp: number } | null = null;
+let backupCache: { data: NewsItem[]; timestamp: number } | null = null;
 let fetching = false;
-const CACHE_TTL = 10 * 60 * 1000;
 
+const CACHE_TTL    = 10 * 60  * 1000;    // 10 min active cache
+const BACKUP_TTL   = 24 * 3600 * 1000;   // 24 hr backup — padded when live feed is thin
+const MIN_GOOD     = 8;                   // threshold for "healthy" result set
+
+// Broader queries + 168H timespan (7 days) → much more coverage than 72H
 const QUERIES: Array<{ q: string; category: NewsItem["category"]; priority: NewsItem["priority"] }> = [
-  { q: "war conflict military strike ukraine russia israel iran nato sourcelang:english",          category: "GEOPOLITICAL", priority: "HIGH" },
-  { q: "intelligence surveillance espionage nuclear weapons sanctions coup sourcelang:english",    category: "INTELLIGENCE", priority: "HIGH" },
-  { q: "military defense weapons procurement army navy air force contractor sourcelang:english",   category: "DEFENSE",      priority: "HIGH" },
-  { q: "energy oil gas crisis pipeline geopolitics electricity grid sourcelang:english",           category: "ENERGY",       priority: "NORMAL" },
-  { q: "government policy legislation sanctions regulation congress parliament sourcelang:english", category: "POLICY",       priority: "NORMAL" },
+  { q: "war conflict military strike attack explosion frontline combat sourcelang:english",                 category: "GEOPOLITICAL", priority: "HIGH" },
+  { q: "ukraine russia israel iran nato offensive ceasefire missile airstrikes sourcelang:english",         category: "GEOPOLITICAL", priority: "HIGH" },
+  { q: "intelligence espionage surveillance nuclear sanctions diplomatic coup sourcelang:english",          category: "INTELLIGENCE", priority: "HIGH" },
+  { q: "military defense weapons army navy air force procurement contractor security sourcelang:english",   category: "DEFENSE",      priority: "HIGH" },
+  { q: "energy oil gas pipeline electricity grid crisis geopolitics supply sourcelang:english",            category: "ENERGY",       priority: "NORMAL" },
+  { q: "government policy legislation sanctions regulation parliament elections sourcelang:english",        category: "POLICY",       priority: "NORMAL" },
 ];
 
 function inferRegion(article: GdeltArticle): string {
@@ -43,7 +49,7 @@ function inferRegion(article: GdeltArticle): string {
   if (/israel|iran|iraq|syria|lebanon|yemen|saudi|qatar|gulf|hormuz|middle east|gaza|hamas|hezbollah/.test(text)) return "Middle East";
   if (/ukraine|russia|poland|nato|eastern europe|moldova|belarus|crimea|zaporizhzhia/.test(text)) return "Eastern Europe";
   if (/china|taiwan|japan|korea|asia|pacific|india|beijing|hong kong|xinjiang/.test(text)) return "Asia-Pacific";
-  if (/europe|eu |germany|france|britain|uk |brussels|nato|spain|italy|paris/.test(text)) return "European Union";
+  if (/europe|eu |germany|france|britain|uk |brussels|spain|italy|paris/.test(text)) return "European Union";
   if (/canada|mexico|washington|congress|senate|white house| us |united states|pentagon/.test(text)) return "North America";
   if (/africa|nigeria|ethiopia|kenya|sahel|sudan|somalia|mali|libya/.test(text)) return "Africa";
   if (/brazil|venezuela|colombia|argentina|latin|south america/.test(text)) return "Latin America";
@@ -52,12 +58,12 @@ function inferRegion(article: GdeltArticle): string {
 
 function parseSeen(seendate: string): string {
   try {
-    const y = seendate.slice(0, 4);
+    const y  = seendate.slice(0, 4);
     const mo = seendate.slice(4, 6);
-    const d = seendate.slice(6, 8);
-    const h = seendate.slice(9, 11);
-    const m = seendate.slice(11, 13);
-    const s = seendate.slice(13, 15);
+    const d  = seendate.slice(6, 8);
+    const h  = seendate.slice(9, 11);
+    const m  = seendate.slice(11, 13);
+    const s  = seendate.slice(13, 15);
     return `${y}-${mo}-${d}T${h}:${m}:${s}Z`;
   } catch {
     return new Date().toISOString();
@@ -71,7 +77,7 @@ function sleep(ms: number): Promise<void> {
 async function fetchGdelt(query: string): Promise<GdeltArticle[]> {
   const url =
     `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(query)}`
-    + `&mode=artlist&maxrecords=20&format=json&timespan=72H`;
+    + `&mode=artlist&maxrecords=25&format=json&timespan=168H`;
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(12000) });
     if (!res.ok) return [];
@@ -84,15 +90,24 @@ async function fetchGdelt(query: string): Promise<GdeltArticle[]> {
   }
 }
 
+function sortArticles(items: NewsItem[]): NewsItem[] {
+  return [...items].sort((a, b) => {
+    if (a.priority === "HIGH" && b.priority !== "HIGH") return -1;
+    if (a.priority !== "HIGH" && b.priority === "HIGH") return  1;
+    return new Date(b.seendate).getTime() - new Date(a.seendate).getTime();
+  });
+}
+
 async function refreshCache() {
   if (fetching) return;
   fetching = true;
-  const all: NewsItem[]     = [];
-  const seenUrl             = new Set<string>();
-  const seenTitle           = new Set<string>();
+  const all: NewsItem[]  = [];
+  const seenUrl          = new Set<string>();
+  const seenTitle        = new Set<string>();
+
   try {
     for (let i = 0; i < QUERIES.length; i++) {
-      if (i > 0) await sleep(5500);
+      if (i > 0) await sleep(5500);   // GDELT rate limit: 1 req / 5 s
       const q = QUERIES[i];
       try {
         const articles = await fetchGdelt(q.q);
@@ -102,27 +117,42 @@ async function refreshCache() {
             seenUrl.add(a.url);
             if (titleKey) seenTitle.add(titleKey);
             all.push({
-              id: `gdelt-${q.category.toLowerCase()}-${j}-${Date.now()}`,
-              title: a.title,
-              domain: a.domain,
-              url: a.url,
+              id:       `gdelt-${q.category.toLowerCase()}-${j}-${Date.now()}`,
+              title:    a.title,
+              domain:   a.domain,
+              url:      a.url,
               seendate: parseSeen(a.seendate),
               category: q.category,
               priority: q.priority,
-              region: inferRegion(a),
+              region:   inferRegion(a),
             });
           }
         }
       } catch { /* continue on individual query failure */ }
-      // Update cache after every query so partial results are served immediately
+
+      // Update cache incrementally after every query so partial results are served immediately
       if (all.length > 0) {
-        const sorted = [...all].sort((a, b) => {
-          if (a.priority === "HIGH" && b.priority !== "HIGH") return -1;
-          if (a.priority !== "HIGH" && b.priority === "HIGH") return 1;
-          return new Date(b.seendate).getTime() - new Date(a.seendate).getTime();
-        });
-        cache = { data: sorted, timestamp: Date.now() };
+        cache = { data: sortArticles(all), timestamp: Date.now() };
       }
+    }
+
+    // If this cycle produced a good result set, update the long-term backup
+    if (all.length >= MIN_GOOD) {
+      backupCache = { data: sortArticles(all), timestamp: Date.now() };
+    } else if (all.length > 0 && backupCache && Date.now() - backupCache.timestamp < BACKUP_TTL) {
+      // Pad thin live result with stale backup items (deduplicated)
+      const padded = [...all];
+      for (const item of backupCache.data) {
+        if (padded.length >= 30) break;
+        if (!seenUrl.has(item.url)) {
+          seenUrl.add(item.url);
+          padded.push({ ...item, id: item.id + "-stale" });
+        }
+      }
+      cache = { data: sortArticles(padded), timestamp: Date.now() };
+    } else if (all.length === 0 && backupCache && Date.now() - backupCache.timestamp < BACKUP_TTL) {
+      // No live results at all — serve backup cache
+      cache = { data: backupCache.data, timestamp: backupCache.timestamp };
     }
   } finally {
     fetching = false;
@@ -138,7 +168,7 @@ router.get("/news", async (_req, res) => {
       return res.json({
         articles:    cache.data,
         cached:      true,
-        fetching,                           // still building more categories?
+        fetching,
         cachedAt:    new Date(cache.timestamp).toISOString(),
         nextRefresh: new Date(cache.timestamp + CACHE_TTL).toISOString(),
       });

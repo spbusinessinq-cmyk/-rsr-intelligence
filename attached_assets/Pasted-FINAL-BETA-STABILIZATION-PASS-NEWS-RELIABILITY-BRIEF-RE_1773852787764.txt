@@ -1,0 +1,235 @@
+FINAL BETA STABILIZATION PASS — NEWS RELIABILITY + BRIEF REQUESTS + MESSAGE PIN/EDIT SCHEMA FIX + SAGE INTELLIGENCE UPGRADE
+
+Do NOT redesign the site.
+Do NOT change the visual identity.
+Do NOT weaken the homepage.
+Do NOT break working chat, auth, command console, or the current live deploy.
+
+MAIN GOAL
+I need four things stabilized quickly for launch:
+
+1. Signal Room must reliably show a fuller live news feed
+2. Brief Requests must appear inside Command Console so I can review and manage them
+3. Message pin/edit must work correctly by fixing the missing room_messages schema fields
+4. Sage Terminal must become much smarter and more generally useful as an internal intelligence assistant
+
+This is a focused production stabilization pass only.
+
+==================================================
+1. SIGNAL ROOM — MAKE NEWS RELIABLE, NOT FRAGILE
+==================================================
+
+Current issue:
+The live news feed is unstable and only returns 1–4 items depending on GDELT rate limits and query fragility.
+
+I do NOT want another pass that technically changes the query logic but still leaves me with a nearly empty feed.
+
+Fix this practically.
+
+Requirements:
+- preserve the current Signal Room layout and styling
+- return a fuller feed consistently
+- target at least 8–15 usable items when live data exists
+- do not let the UI collapse to 1–3 items if more recent valid items are already cached
+- keep categories represented where possible:
+  - geopolitical
+  - defense
+  - intelligence
+  - energy
+  - policy
+
+Stabilization approach:
+- if GDELT is still used, make the backend resilient to low-result/rate-limited queries
+- do NOT let one weak query collapse the whole feed
+- if live fetch returns too few items, merge with recent cached items instead of showing an almost empty room
+- keep dedupe sensible (exact duplicates only)
+- prefer a stable, fuller monitored feed over a brittle “perfect category” feed
+
+Important:
+I need this to feel alive and populated for beta.
+Do not over-optimize query purity at the expense of actually having enough headlines.
+
+Verification:
+- confirm the live feed is returning materially more than 1–4 items
+- confirm the frontend is rendering the full returned dataset
+- confirm the feed remains visually unchanged
+
+==================================================
+2. COMMAND CONSOLE — BRIEF REQUESTS SECTION
+==================================================
+
+I need briefing requests to show up in Command Console.
+
+If a user submits a briefing request, I need to be able to:
+- see it in Command Console
+- open it
+- read it
+- change status
+- manage it from there
+
+Implement this in the cleanest fast way.
+
+Requirements:
+- create/use a Supabase table for brief requests if needed
+- if the existing /briefing form already exists, make sure submissions persist to Supabase
+- add a BRIEF REQUESTS section in Command Console
+- show requests in a readable list/table
+- fields should include at least:
+  - id
+  - name
+  - organization if provided
+  - contact email
+  - requested topic / area of interest
+  - message / request body
+  - created_at
+  - status
+
+Statuses can be simple:
+- NEW
+- REVIEWING
+- APPROVED
+- CLOSED
+
+Admin controls:
+- open/view request
+- change status
+- mark approved / closed
+- no fake actions
+
+Keep styling fully consistent with the current Command Console.
+
+==================================================
+3. MESSAGE PIN / EDIT — FIX MISSING SCHEMA
+==================================================
+
+Current issue:
+Trying to pin or edit a message gives these errors:
+
+- PIN FAILED: Could not find the 'pinned' column of 'room_messages' in the schema cache
+- EDIT FAILED: Could not find the 'edited_at' column of 'room_messages' in the schema cache
+
+Fix this end-to-end.
+
+Requirements:
+- audit the room_messages schema
+- add any missing required columns for message pin/edit behavior
+- at minimum ensure the schema supports:
+  - pinned
+  - edited_at
+- if the UI uses any other message-edit metadata fields, ensure they also exist and match the code
+
+Implementation requirements:
+- update the migration / supabase setup SQL so it is safe to re-run
+- use ALTER TABLE ... ADD COLUMN IF NOT EXISTS for missing fields
+- make the app resilient if the schema is temporarily stale
+- after schema is fixed, pin/edit must work in production
+- pin state must persist after refresh
+- edited message content and edited timestamp must persist after refresh
+
+UI requirements:
+- no raw schema-cache errors shown to users
+- show clear success/failure feedback
+- do not fake success if DB write fails
+
+Verification:
+- pin a message → refresh → it remains pinned
+- edit a message → refresh → edited content remains
+- no schema errors remain in the UI
+
+==================================================
+4. SAGE TERMINAL — INTELLIGENCE UPGRADE
+==================================================
+
+Current issue:
+Sage is too narrow, too literal, and too weak for broad internal questions.
+It behaves like a brittle record lookup instead of a smart internal intelligence assistant.
+
+I need Sage to stay grounded in RSR data, but become much more capable for general intelligence use.
+
+Requirements:
+- keep the current terminal UI and modes
+- make Sage more intelligent, flexible, and useful
+- preserve RSR/INTEL tone
+- do not turn it into a generic chatbot with fluffy answers
+
+Desired behavior:
+- if the query is broad, Sage should intelligently interpret it instead of failing immediately
+- if the user asks something vague like “tell me about the site” or “what’s going on in the Middle East,” Sage should still provide the best grounded answer possible
+- Sage should use:
+  - internal RSR records first
+  - linked files/dossiers/systems when relevant
+  - live news context if available
+  - general structured reasoning when exact records are missing
+
+Rules:
+- do NOT hallucinate fake internal records
+- if exact internal data is missing, Sage should still be helpful:
+  - summarize what is known
+  - infer carefully from available context
+  - ask for refinement only when truly necessary
+- do not answer every broad query with “NO RSR RECORDS”
+- make responses more natural, concise, and useful for operators
+
+Mode behavior:
+- QUERY → broad intelligent answer with internal context priority
+- BRIEF → structured internal intelligence brief
+- SUMMARIZE → concise summary of records/context
+- FACT CHECK → grounded verification style
+- TRACE → cross-reference records, files, dossiers, signals, systems
+
+Improve:
+- prompt/system instructions behind Sage
+- retrieval/use of available internal records
+- fallback behavior when exact match is missing
+- response quality for broad intelligence questions
+
+Goal:
+Sage should feel like a real internal analyst tool, not just a strict database error wrapper.
+
+Verification:
+- broad prompts produce useful grounded answers
+- exact prompts still work
+- no fake internal records are invented
+- no repetitive “NO RSR RECORDS” dead-end behavior unless truly necessary
+
+==================================================
+5. DO NOT OVERBUILD
+==================================================
+
+This is a launch-focused pass.
+
+Do NOT introduce unnecessary new systems.
+Do NOT redesign the page.
+Do NOT add complex notification flows.
+
+Just:
+- make the news feed reliably populated
+- make brief requests appear and be manageable in Command Console
+- make message pin/edit actually work by fixing the schema and persistence path
+- make Sage much smarter and more useful while staying grounded
+
+==================================================
+6. FINAL VERIFICATION
+==================================================
+
+Before finishing, explicitly verify:
+- Signal Room shows a fuller feed, not 1–4 items only
+- feed remains stable even when live query volume is weak
+- briefing submissions persist
+- brief requests appear in Command Console
+- status changes work
+- pin works and persists after refresh
+- edit works and persists after refresh
+- Sage gives better broad intelligence responses
+- Sage still stays grounded in actual internal data
+- no raw schema or DB errors are shown to users
+- existing working systems remain intact
+
+SUCCESS CRITERIA
+
+This pass is complete only if:
+- Signal Room feels populated and reliable for beta
+- Brief Requests are visible and manageable in Command Console
+- message pin/edit works cleanly in production
+- Sage feels materially smarter and more useful
+- no existing working features are broken
