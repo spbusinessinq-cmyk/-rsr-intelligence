@@ -1,0 +1,145 @@
+FINAL CASE/CHANNEL BUG-FIX PASS — NO NEW FEATURES
+
+Do NOT redesign the site.
+Do NOT change layout structure.
+Do NOT weaken the homepage.
+Do NOT change the visual identity.
+
+This is a strict final bug-fix pass.
+Do not add anything new.
+Only fix the remaining broken controls so launch is possible.
+
+MAIN GOAL
+Fix the last real failures in Investigation Room:
+- create case from the right sidebar does not work
+- delete case from the Active Cases area does not work
+- channel archive/remove still throws archived-column errors if schema is missing or stale
+- updated names still do not fully reflect in message feed rows in all cases
+- all visible controls must either work or be removed
+
+CRITICAL RULES
+- Do not claim a control works unless it is verified end-to-end
+- If a control depends on DB schema, check the schema first
+- If a visible control still cannot be made reliable, disable or remove it for launch
+- No dead buttons
+- No fake controls
+
+==================================================
+1. DB-FIRST AUDIT
+==================================================
+
+Before changing UI, audit the live Supabase schema actually in use by the app.
+
+Verify the following exist and are the correct types:
+- room_channels.id
+- room_channels.archived
+- investigation_cases.id
+- investigation_cases.ref
+- investigation_cases.name
+- investigation_cases.stage
+- investigation_cases.priority
+- investigation_cases.channel_id
+- investigation_cases.description
+- investigation_cases.created_at
+
+Also verify the policies for investigation_cases allow admin create/update/delete.
+
+Do not assume the DB matches the code.
+Align the code with the real DB schema first.
+
+==================================================
+2. CASE CREATION — RIGHT SIDEBAR MUST WORK
+==================================================
+
+The right Active Cases creation form still does not create a case.
+
+Fix it end-to-end.
+
+Requirements:
+- CREATE button on the right sidebar must insert into investigation_cases
+- validate required fields properly
+- if channel_id is optional, handle null correctly
+- show clear success or failure state
+- new case must appear immediately in Active Cases after save
+- no silent failure
+
+If the right sidebar form is not launch-ready, disable it honestly and keep only one working case-creation path.
+
+==================================================
+3. CASE DELETION — ACTIVE CASES MUST WORK
+==================================================
+
+The delete/X control for cases still does not work.
+
+Fix it end-to-end.
+
+Requirements:
+- delete button must actually delete or archive the case in DB
+- case must disappear immediately from sidebar and room context
+- if deletion is blocked by schema/policy, show a branded error
+- no dead delete buttons
+
+If delete is not stable enough, disable/remove the visible delete control for launch.
+
+==================================================
+4. CHANNEL ARCHIVE ERROR — HANDLE IT CLEANLY
+==================================================
+
+The UI is still surfacing:
+“Could not find the archived column of room_channels”
+
+Fix this properly.
+
+Requirements:
+- if room_channels.archived exists, archive/remove must work
+- if it does not exist, do not throw raw DB errors into the room UI
+- instead show a clean branded error like:
+  SCHEMA UPDATE NEEDED — run supabase setup to enable channel archive
+- do not leave broken archive controls active if schema is missing
+
+==================================================
+5. MESSAGE NAME DISPLAY — FORCE CURRENT HANDLE
+==================================================
+
+Saved handle changes now update in some places but message feed rows are still inconsistent.
+
+Fix message rendering so displayed identity uses the current profile handle wherever possible.
+
+Requirements:
+- message feed should prefer live profile handle over stale snapshot handle
+- updated identity must reflect in:
+  - message feed
+  - analyst roster
+  - command console
+- refresh should not revert to old names
+
+If there is any stale cached path, remove it.
+
+==================================================
+6. STRICT CONTROL CLEANUP
+==================================================
+
+Audit all remaining visible controls in Investigation Room:
+- new case
+- delete case
+- rename/archive channel
+- message actions
+- hover icons
+
+If a control is visible, it must work.
+If it cannot be made reliable in this pass, remove or disable it honestly.
+
+==================================================
+7. FINAL VERIFICATION
+==================================================
+
+Before finishing, explicitly test and confirm:
+- create case from right sidebar
+- delete case from Active Cases
+- archive/remove channel no longer throws raw missing-column error
+- updated handle appears in message feed
+- updated handle appears in analyst roster
+- no dead visible buttons remain
+
+Do not just say implemented.
+Verify each interaction end-to-end against the live DB.

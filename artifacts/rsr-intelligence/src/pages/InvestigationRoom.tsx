@@ -759,14 +759,31 @@ export default function InvestigationRoom() {
     setChannels(data && data.length > 0 ? (data as Channel[]) : DEFAULT_CHANNELS);
   }, [configured]);
 
+  /* ── Translate raw Supabase errors into branded messages ── */
+  function dbErr(raw: string, prefix: string): string {
+    if (raw.includes("does not exist") || raw.includes("relation") || raw.includes("42P01"))
+      return prefix + " — TABLE MISSING. Run supabase-setup.sql in your Supabase project.";
+    if (raw.includes("column") || raw.includes("42703"))
+      return prefix + " — SCHEMA INCOMPLETE. Run supabase-setup.sql to apply all migrations.";
+    if (raw.includes("policy") || raw.includes("row-level") || raw.includes("42501") || raw.includes("permission"))
+      return prefix + " — PERMISSION DENIED. Admin role required.";
+    if (raw.includes("duplicate") || raw.includes("unique") || raw.includes("23505"))
+      return prefix + " — DUPLICATE ENTRY. That reference already exists.";
+    return prefix + ": " + raw;
+  }
+
   /* ── Load cases from DB ── */
   const loadCases = useCallback(async () => {
     if (!configured) { setCases(STATIC_CASES); return; }
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("investigation_cases")
       .select("*")
       .order("created_at", { ascending: true });
-    if (data) setCases(data as Case[]);
+    if (error) {
+      setCaseOpError(dbErr(error.message, "CASE LOAD FAILED"));
+      return;
+    }
+    setCases((data ?? []) as Case[]);
   }, [configured]);
 
   useEffect(() => {
@@ -779,14 +796,21 @@ export default function InvestigationRoom() {
     const slug = channelNewName.trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
     if (!slug) return;
     const { error } = await supabase.from("room_channels").insert({ id: slug, slug, name: slug, description: null });
-    if (error) { setChError("CREATE FAILED: " + error.message); return; }
+    if (error) { setChError(dbErr(error.message, "CHANNEL CREATE FAILED")); return; }
     setChannelCreateOpen(false); setChannelNewName("");
     await loadChannels();
   }
 
   async function archiveChannel(id: string) {
     const { error } = await supabase.from("room_channels").update({ archived: true }).eq("id", id);
-    if (error) { setChError("ARCHIVE FAILED: " + error.message); return; }
+    if (error) {
+      setChError(
+        error.message.includes("archived") || error.message.includes("column")
+          ? "SCHEMA UPDATE NEEDED — run supabase-setup.sql to enable channel archiving"
+          : dbErr(error.message, "ARCHIVE FAILED")
+      );
+      return;
+    }
     if (activeChannel === id) setActiveChannel(channels.find(c => c.id !== id && !c.archived)?.id ?? "general");
     await loadChannels();
   }
@@ -794,7 +818,7 @@ export default function InvestigationRoom() {
   async function renameChannel(id: string) {
     if (!renameVal.trim()) return;
     const { error } = await supabase.from("room_channels").update({ name: renameVal.trim() }).eq("id", id);
-    if (error) { setChError("RENAME FAILED: " + error.message); return; }
+    if (error) { setChError(dbErr(error.message, "RENAME FAILED")); return; }
     setRenamingCh(null);
     await loadChannels();
   }
@@ -803,8 +827,9 @@ export default function InvestigationRoom() {
   async function createCase() {
     const ref  = newCaseForm.ref.trim().toUpperCase();
     const name = newCaseForm.name.trim().toUpperCase();
-    if (!ref || !name) return;
     setNewCaseError(null);
+    if (!ref)  { setNewCaseError("REF is required (e.g. F-021)"); return; }
+    if (!name) { setNewCaseError("CASE NAME is required"); return; }
     const { error } = await supabase.from("investigation_cases").insert({
       ref, name,
       stage:      newCaseForm.stage,
@@ -812,7 +837,7 @@ export default function InvestigationRoom() {
       channel_id: newCaseForm.channel_id || null,
       created_by: authUser?.id ?? null,
     });
-    if (error) { setNewCaseError(error.message); return; }
+    if (error) { setNewCaseError(dbErr(error.message, "CREATE FAILED")); return; }
     setNewCaseOpen(false);
     setNewCaseForm({ ref: "", name: "", stage: "NEW", priority: "NORMAL", channel_id: "" });
     await loadCases();
@@ -821,18 +846,18 @@ export default function InvestigationRoom() {
   async function updateCaseStage(id: string, stage: string) {
     const { error } = await supabase.from("investigation_cases").update({ stage, updated_at: new Date().toISOString() }).eq("id", id);
     if (!error) await loadCases();
-    else setCaseOpError("STAGE UPDATE FAILED: " + error.message);
+    else setCaseOpError(dbErr(error.message, "STAGE UPDATE FAILED"));
   }
 
   async function updateCasePriority(id: string, priority: string) {
     const { error } = await supabase.from("investigation_cases").update({ priority, updated_at: new Date().toISOString() }).eq("id", id);
     if (!error) await loadCases();
-    else setCaseOpError("PRIORITY UPDATE FAILED: " + error.message);
+    else setCaseOpError(dbErr(error.message, "PRIORITY UPDATE FAILED"));
   }
 
   async function deleteCase(id: string) {
     const { error } = await supabase.from("investigation_cases").delete().eq("id", id);
-    if (error) { setCaseOpError("DELETE FAILED: " + error.message); return; }
+    if (error) { setCaseOpError(dbErr(error.message, "DELETE FAILED")); return; }
     setSelectedCaseRef(null);
     await loadCases();
   }
@@ -842,7 +867,7 @@ export default function InvestigationRoom() {
     const { error } = await supabase.from("investigation_cases")
       .update({ channel_id: activeChannel, updated_at: new Date().toISOString() })
       .eq("id", attachCaseId);
-    if (error) { setCaseOpError("ATTACH FAILED: " + error.message); return; }
+    if (error) { setCaseOpError(dbErr(error.message, "ATTACH FAILED")); return; }
     setAttachCaseOpen(false);
     setAttachCaseId("");
     await loadCases();
