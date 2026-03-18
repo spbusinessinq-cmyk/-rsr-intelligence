@@ -1,0 +1,105 @@
+Final launch feature pass — add lightweight user inbox / notifications.
+
+Do NOT redesign the site.
+Do NOT change the visual identity.
+Do NOT weaken the homepage.
+Do NOT break working chat, auth, command console, cases, Signal Room, or Sage.
+
+MAIN GOAL
+Add a lightweight inbox / notifications system for users as the final launch feature.
+
+This should be a clean, practical v1 system — not an overbuilt messaging platform.
+
+==================================================
+1. USER INBOX / NOTIFICATIONS SYSTEM
+==================================================
+
+Add a simple user notifications system.
+
+Requirements:
+- create/use a Supabase table for notifications
+- notifications should belong to users
+- each notification should support at least:
+  - id
+  - user_id
+  - title
+  - body
+  - type
+  - link (optional)
+  - is_read
+  - created_at
+
+==================================================
+2. USER EXPERIENCE
+==================================================
+
+Users need a clear way to see notifications.
+
+Requirements:
+- add a small inbox / notifications entry point in the UI
+- show unread count if there are unread items
+- provide a clean list view / panel
+- allow notification to be marked read
+- allow mark all read if easy
+- clicking a notification should go to its linked destination if link exists
+
+Keep styling fully consistent with current site aesthetic.
+
+==================================================
+3. ADMIN / SYSTEM CREATION
+==================================================
+
+Add lightweight admin notification controls.
+
+Requirements:
+- from Command Console, allow admin to create/send notifications
+- support:
+  - single-user notification
+  - optional broadcast to all approved users if quick and safe
+- no fake actions
+- notifications must persist to Supabase
+
+==================================================
+4. GOOD V1 NOTIFICATION TYPES
+==================================================
+
+Design it so the system can support:
+- briefing request updates
+- account approval / denial
+- admin notices
+- system alerts
+- case/channel related notices if easy
+
+Do NOT overbuild beyond this.
+
+==================================================
+5. DO NOT TURN THIS INTO FULL MESSAGING
+==================================================
+
+Do NOT build:
+- direct messages
+- threads
+- large email-style inbox logic
+- notification preferences
+- complex realtime toast systems unless already easy
+
+This is a clean practical launch inbox only.
+
+==================================================
+6. FINAL VERIFICATION
+==================================================
+
+Before finishing, explicitly verify:
+- notifications save to Supabase
+- users can see them
+- unread/read state works
+- admin can create/send them
+- UI matches existing visual system
+- no existing working features are broken
+
+SUCCESS CRITERIA
+
+This pass is complete only if:
+- users have a working inbox/notification view
+- admin can send/manage notifications
+- the feature feels clean, lightweight, and launch-ready

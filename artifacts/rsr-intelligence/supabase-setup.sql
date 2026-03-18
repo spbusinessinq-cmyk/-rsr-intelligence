@@ -241,7 +241,46 @@ INSERT INTO investigation_cases (ref, name, stage, priority, channel_id, descrip
   ('F-018', 'BOND STRUCTURE',   'NEW',        'NORMAL', 'signals',         'Infrastructure bond capital flow analysis')
 ON CONFLICT (ref) DO NOTHING;
 
--- ── 14. REALTIME ──────────────────────────────────────────────
+-- ── 14. NOTIFICATIONS TABLE ───────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS notifications (
+  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id    UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  title      TEXT NOT NULL,
+  body       TEXT NOT NULL,
+  type       TEXT NOT NULL DEFAULT 'NOTICE',
+  link       TEXT,
+  is_read    BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+
+-- Users can see their own notifications
+DROP POLICY IF EXISTS "notif_own_select" ON notifications;
+CREATE POLICY "notif_own_select" ON notifications
+  FOR SELECT TO authenticated
+  USING (user_id = auth.uid());
+
+-- Users can update (mark read) their own notifications
+DROP POLICY IF EXISTS "notif_own_update" ON notifications;
+CREATE POLICY "notif_own_update" ON notifications
+  FOR UPDATE TO authenticated
+  USING (user_id = auth.uid())
+  WITH CHECK (user_id = auth.uid());
+
+-- Admins can do everything
+DROP POLICY IF EXISTS "notif_admin_all" ON notifications;
+CREATE POLICY "notif_admin_all" ON notifications
+  FOR ALL TO authenticated
+  USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'admin')
+  WITH CHECK ((SELECT role FROM profiles WHERE id = auth.uid()) = 'admin');
+
+-- Add to realtime publication
+ALTER PUBLICATION supabase_realtime ADD TABLE notifications;
+ALTER TABLE notifications REPLICA IDENTITY FULL;
+
+-- ── 15. REALTIME ──────────────────────────────────────────────
 
 ALTER PUBLICATION supabase_realtime ADD TABLE room_messages;
 ALTER PUBLICATION supabase_realtime ADD TABLE profiles;

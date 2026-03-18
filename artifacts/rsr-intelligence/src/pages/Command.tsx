@@ -478,6 +478,15 @@ export default function Command() {
   const [cases,          setCases]          = useState<Case[]>([]);
   const [briefRequests,  setBriefRequests]  = useState<BriefRequest[]>([]);
   const [viewingBrief,   setViewingBrief]   = useState<BriefRequest | null>(null);
+
+  /* Notification sender state */
+  const [notifTarget,   setNotifTarget]    = useState<string>("all");
+  const [notifType,     setNotifType]      = useState<string>("NOTICE");
+  const [notifTitle,    setNotifTitle]     = useState("");
+  const [notifBody,     setNotifBody]      = useState("");
+  const [notifLink,     setNotifLink]      = useState("");
+  const [notifSending,  setNotifSending]   = useState(false);
+  const [notifResult,   setNotifResult]    = useState<{ ok: boolean; msg: string } | null>(null);
   const [loading,        setLoading]        = useState(true);
   const [actionLoading,  setActionLoading]  = useState<string | null>(null);
   const [toast,          setToast]          = useState<string | null>(null);
@@ -527,6 +536,48 @@ export default function Command() {
     if (brRes.data)  setBriefRequests(brRes.data as BriefRequest[]);
     setLoading(false);
   }, []);
+
+  /* ── Send notification ── */
+  async function sendNotification() {
+    if (!notifTitle.trim() || !notifBody.trim()) return;
+    setNotifSending(true);
+    setNotifResult(null);
+
+    try {
+      const approved = operators.filter(op => op.approval_status === "approved");
+
+      // Determine targets
+      const targets: string[] = notifTarget === "all"
+        ? approved.map(op => op.id)
+        : [notifTarget];
+
+      if (targets.length === 0) {
+        setNotifResult({ ok: false, msg: "No approved users to notify" });
+        return;
+      }
+
+      const rows = targets.map(userId => ({
+        user_id:  userId,
+        title:    notifTitle.trim(),
+        body:     notifBody.trim(),
+        type:     notifType,
+        link:     notifLink.trim() || null,
+        is_read:  false,
+      }));
+
+      const { error } = await supabase.from("notifications").insert(rows);
+
+      if (error) {
+        setNotifResult({ ok: false, msg: error.message });
+        return;
+      }
+
+      setNotifResult({ ok: true, msg: `Sent to ${targets.length} user${targets.length > 1 ? "s" : ""}` });
+      setNotifTitle(""); setNotifBody(""); setNotifLink(""); setNotifTarget("all"); setNotifType("NOTICE");
+    } finally {
+      setNotifSending(false);
+    }
+  }
 
   /* ── Brief request status update ── */
   async function updateBriefStatus(id: string, status: string) {
@@ -1415,6 +1466,98 @@ export default function Command() {
                     </div>
                   </div>
                 ))
+              )}
+            </div>
+          </div>
+
+          {/* ── SEND NOTIFICATION ── */}
+          <div>
+            <div className="font-mono text-[10px] tracking-[0.45em] text-zinc-500 mb-3">SEND NOTIFICATION</div>
+            <div className="bg-zinc-950/30 border border-zinc-900 p-4 space-y-3">
+
+              {/* Row 1: Target + Type */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-600 mb-1">TARGET</div>
+                  <select
+                    value={notifTarget}
+                    onChange={e => setNotifTarget(e.target.value)}
+                    className="w-full bg-black border border-zinc-800 text-zinc-300 font-mono text-[10px] tracking-[0.06em] px-2 py-1.5 focus:border-emerald-700 outline-none"
+                  >
+                    <option value="all">ALL APPROVED USERS</option>
+                    {operators.filter(op => op.approval_status === "approved").map(op => (
+                      <option key={op.id} value={op.id}>{op.handle}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-600 mb-1">TYPE</div>
+                  <select
+                    value={notifType}
+                    onChange={e => setNotifType(e.target.value)}
+                    className="w-full bg-black border border-zinc-800 text-zinc-300 font-mono text-[10px] tracking-[0.06em] px-2 py-1.5 focus:border-emerald-700 outline-none"
+                  >
+                    {["NOTICE", "APPROVAL", "ALERT", "BRIEFING", "CASE"].map(t => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Row 2: Title */}
+              <div>
+                <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-600 mb-1">TITLE</div>
+                <input
+                  type="text"
+                  value={notifTitle}
+                  onChange={e => setNotifTitle(e.target.value)}
+                  placeholder="Short headline..."
+                  maxLength={120}
+                  className="w-full bg-black border border-zinc-800 text-zinc-300 font-mono text-[10px] tracking-[0.06em] px-2 py-1.5 placeholder-zinc-800 focus:border-emerald-700 outline-none"
+                />
+              </div>
+
+              {/* Row 3: Body */}
+              <div>
+                <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-600 mb-1">BODY</div>
+                <textarea
+                  value={notifBody}
+                  onChange={e => setNotifBody(e.target.value)}
+                  placeholder="Notification message body..."
+                  rows={2}
+                  maxLength={500}
+                  className="w-full bg-black border border-zinc-800 text-zinc-300 font-mono text-[10px] tracking-[0.06em] px-2 py-1.5 placeholder-zinc-800 focus:border-emerald-700 outline-none resize-none"
+                />
+              </div>
+
+              {/* Row 4: Link + Send */}
+              <div className="flex items-end gap-3">
+                <div className="flex-1">
+                  <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-600 mb-1">LINK (OPTIONAL)</div>
+                  <input
+                    type="text"
+                    value={notifLink}
+                    onChange={e => setNotifLink(e.target.value)}
+                    placeholder="/investigation-room"
+                    maxLength={200}
+                    className="w-full bg-black border border-zinc-800 text-zinc-300 font-mono text-[10px] tracking-[0.06em] px-2 py-1.5 placeholder-zinc-800 focus:border-emerald-700 outline-none"
+                  />
+                </div>
+                <button
+                  onClick={sendNotification}
+                  disabled={notifSending || !notifTitle.trim() || !notifBody.trim()}
+                  className="shrink-0 font-mono text-[9px] tracking-[0.35em] border px-4 py-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed border-emerald-700/60 text-emerald-500 hover:bg-emerald-500/10"
+                >
+                  {notifSending ? "SENDING..." : "TRANSMIT"}
+                </button>
+              </div>
+
+              {/* Result feedback */}
+              {notifResult && (
+                <div className={`font-mono text-[9px] tracking-[0.25em] ${notifResult.ok ? "text-emerald-500" : "text-red-400"}`}>
+                  {notifResult.ok ? "✓ " : "✗ "}{notifResult.msg.toUpperCase()}
+                </div>
               )}
             </div>
           </div>
