@@ -193,6 +193,12 @@ ON CONFLICT (ref) DO NOTHING;
 ALTER PUBLICATION supabase_realtime ADD TABLE room_messages;
 ALTER PUBLICATION supabase_realtime ADD TABLE profiles;
 
+-- REPLICA IDENTITY FULL is required so Supabase Realtime sends the full
+-- old row on DELETE events (including channel_id, user_id, etc.).
+-- Without this, DELETE events only carry the primary key and cannot be
+-- filtered or matched reliably by subscribers.
+ALTER TABLE room_messages REPLICA IDENTITY FULL;
+
 -- ── 13. ADMIN SETUP ───────────────────────────────────────────
 
 -- After registering your account, run this to grant yourself admin access:

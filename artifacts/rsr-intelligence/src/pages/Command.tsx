@@ -370,8 +370,21 @@ export default function Command() {
 
   /* ── Message delete ── */
   async function deleteMessage(id: string) {
-    const { error } = await supabase.from("room_messages").delete().eq("id", id);
-    if (error) { showToast("FAILED: " + error.message, "err"); return; }
+    const { data, error } = await supabase
+      .from("room_messages")
+      .delete()
+      .eq("id", id)
+      .select("id");
+    if (error) {
+      console.error("[CMD] deleteMessage error:", error);
+      showToast("DELETE FAILED: " + error.message, "err");
+      return;
+    }
+    if (!data || data.length === 0) {
+      console.error("[CMD] deleteMessage: RLS blocked or row not found", id);
+      showToast("DELETE BLOCKED — RLS policy or row already gone", "err");
+      return;
+    }
     showToast("MESSAGE DELETED", "ok");
     setMessages(prev => prev.filter(m => m.id !== id));
   }

@@ -1,0 +1,88 @@
+FINAL MESSAGE DELETE PERSISTENCE FIX — HARD VERIFICATION PASS
+
+Do NOT redesign the site.
+Do NOT change the visual identity.
+Do NOT add features.
+
+MAIN GOAL
+Fix message deletion so that when a message is deleted, it is permanently removed for all users and does not reappear after refresh.
+
+CURRENT BUG
+A deleted message disappears in the UI temporarily, but after page refresh it comes back.
+This means deletion is not persisting correctly in Supabase or the fetch query is still returning the message.
+
+==================================================
+REQUIREMENTS
+==================================================
+
+1. FULL DELETE FLOW AUDIT
+Audit the delete process end-to-end:
+
+- what UI action triggers delete
+- what Supabase query is executed
+- whether it is:
+  a) DELETE FROM room_messages
+  OR
+  b) a soft delete (deleted_at / flag)
+
+- whether RLS policies are blocking the operation
+- whether errors are being ignored
+- whether the UI is hiding messages without DB success
+
+==================================================
+2. FORCE TRUE PERSISTENCE
+==================================================
+
+Ensure deletion is real:
+
+IF using hard delete:
+- the row must be removed from room_messages using:
+  .delete().eq("id", messageId)
+
+IF using soft delete:
+- all queries (loadMessages + realtime) MUST exclude deleted rows
+- no deleted messages should ever be returned to the UI
+
+==================================================
+3. REALTIME CONSISTENCY
+==================================================
+
+- when one user deletes a message, all users must see it disappear
+- realtime subscriptions must listen for DELETE events (not just INSERT/UPDATE)
+- no local-only state hacks
+
+==================================================
+4. ERROR HANDLING (CRITICAL)
+==================================================
+
+- if Supabase delete fails, DO NOT remove message from UI
+- surface the real error in console + UI
+- do not fake success
+
+==================================================
+5. REQUIRED LOW-LEVEL CHECKS (DO NOT SKIP)
+==================================================
+
+Explicitly verify:
+
+- room_messages has a DELETE policy allowing admins (or appropriate role)
+- delete query is actually:
+  supabase.from("room_messages").delete().eq("id", messageId)
+
+- loadMessages does NOT return deleted rows
+- realtime subscription includes DELETE events
+- no stale local state is rehydrating deleted messages
+
+==================================================
+6. FINAL VERIFICATION (MANDATORY)
+==================================================
+
+You must test and confirm:
+
+- delete a message → disappears immediately
+- refresh page → message stays gone
+- open second session/user → message is gone there too
+- no deleted message ever reappears
+
+Do NOT say “should work”.
+Verify true database persistence.

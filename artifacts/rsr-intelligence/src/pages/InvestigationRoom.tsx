@@ -696,6 +696,7 @@ export default function InvestigationRoom() {
   const [composerVal, setComposerVal] = useState("");
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
+  const [msgOpError, setMsgOpError] = useState<string | null>(null);
   const [sageOpen, setSageOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
@@ -745,8 +746,23 @@ export default function InvestigationRoom() {
   /* ── Message ops ── */
   async function deleteMessage(id: string) {
     if (!isAdmin || !configured) return;
-    const { error } = await supabase.from("room_messages").delete().eq("id", id);
-    if (!error) setMessages(prev => prev.filter(m => m.id !== id));
+    setMsgOpError(null);
+    const { data, error } = await supabase
+      .from("room_messages")
+      .delete()
+      .eq("id", id)
+      .select("id");
+    if (error) {
+      console.error("[IR] deleteMessage error:", error);
+      setMsgOpError("DELETE FAILED: " + error.message);
+      return;
+    }
+    if (!data || data.length === 0) {
+      console.error("[IR] deleteMessage: RLS blocked or row not found", id);
+      setMsgOpError("DELETE BLOCKED — check that your profile has admin role in the DB, or the row no longer exists");
+      return;
+    }
+    setMessages(prev => prev.filter(m => m.id !== id));
   }
 
   async function updateMessage(id: string, newBody: string) {
@@ -812,8 +828,11 @@ export default function InvestigationRoom() {
             m.id === updated.id ? { ...updated, profiles: m.profiles } : m
           ));
         })
-      .on("postgres_changes", { event: "DELETE", schema: "public", table: "room_messages", filter: `channel_id=eq.${activeChannel}` },
-        payload => { setMessages(prev => prev.filter(m => m.id !== (payload.old as Message).id)); })
+      .on("postgres_changes", { event: "DELETE", schema: "public", table: "room_messages" },
+        payload => {
+          const deletedId = (payload.old as { id: string }).id;
+          setMessages(prev => prev.filter(m => m.id !== deletedId));
+        })
       .subscribe();
     return () => { supabase.removeChannel(sub); };
   }, [activeChannel, configured]);
@@ -1048,6 +1067,12 @@ export default function InvestigationRoom() {
 
           {/* Composer */}
           <div className="border-t border-zinc-900 shrink-0">
+            {msgOpError && (
+              <div className="border-b border-zinc-900 px-6 py-2 bg-red-950/10 flex items-start justify-between gap-3">
+                <div className="font-mono text-[9px] tracking-[0.15em] text-red-400 leading-relaxed">{msgOpError}</div>
+                <button onClick={() => setMsgOpError(null)} className="font-mono text-[9px] text-red-800 hover:text-red-400 shrink-0 mt-0.5 transition-colors">✕</button>
+              </div>
+            )}
             {sendError && (
               <div className="border-b border-zinc-900 px-6 py-2 bg-red-950/10">
                 <div className="font-mono text-[9px] tracking-[0.2em] text-red-400">{sendError}</div>
