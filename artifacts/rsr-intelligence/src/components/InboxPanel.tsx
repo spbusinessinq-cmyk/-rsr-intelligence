@@ -1,29 +1,37 @@
 import { useState, useEffect, useCallback } from "react";
-import { useLocation } from "wouter";
 import { supabase } from "@/lib/supabase";
 
-/* ── Normalize a notification link for the hash router ──────────────── */
-function normalizeLink(raw: string): string | null {
+/**
+ * Convert any notification link to a clean hash-path string.
+ * Output: "/investigation-room?channel=investigations"  (no leading '#')
+ * This is assigned directly to window.location.hash — zero server round-trips.
+ * Returns null for external URLs or empty/invalid input.
+ */
+function normalizeHashPath(raw: string): string | null {
   if (!raw) return null;
 
-  // Strip leading # (hash-router format stored in DB: "#/investigation-room")
-  const withoutHash = raw.startsWith("#") ? raw.slice(1) : raw;
+  // Strip any leading '#' characters (avoids double-hash)
+  let stripped = raw.replace(/^#+/, "");
 
-  // If it's a full URL on the same host, extract path+search
-  if (withoutHash.startsWith("http://") || withoutHash.startsWith("https://")) {
+  // If it's an absolute URL, extract the internal path+search
+  if (stripped.startsWith("http://") || stripped.startsWith("https://")) {
     try {
-      const url = new URL(withoutHash);
-      if (url.hostname === window.location.hostname) {
-        return url.pathname + url.search || "/";
-      }
-      return null; // external URL — don't route internally
+      const url = new URL(stripped);
+      if (url.hostname !== window.location.hostname) return null; // external
+      stripped = url.pathname + url.search;
     } catch {
       return null;
     }
   }
 
-  // Bare path fragment — ensure leading slash
-  return withoutHash.startsWith("/") ? withoutHash : "/" + withoutHash;
+  // Ensure exactly one leading slash, collapse multiples
+  stripped = stripped.replace(/^\/+/, "");
+  const path = "/" + stripped;
+
+  // Reject suspiciously empty results
+  if (path === "/") return null;
+
+  return path;
 }
 
 /* ── Types ───────────────────────────────────────────────────────────── */
@@ -68,15 +76,14 @@ interface InboxPanelProps {
 }
 
 export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps) {
-  const [, setLocation] = useLocation();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading,       setLoading]       = useState(true);
   const [markingAll,    setMarkingAll]    = useState(false);
   const [schemaError,   setSchemaError]   = useState(false);
-  // track which notification is in "confirm delete" state
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [deletingId,    setDeletingId]    = useState<string | null>(null);
 
+  /* ── Load notifications ── */
   const load = useCallback(async () => {
     const { data, error } = await supabase
       .from("notifications")
@@ -127,7 +134,7 @@ export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps)
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose, confirmDelete]);
 
-  /* ── Mark read + navigate ── */
+  /* ── Mark read + navigate via direct hash assignment (NEVER 404s) ── */
   async function markRead(n: Notification) {
     if (!n.is_read) {
       await supabase.from("notifications").update({ is_read: true }).eq("id", n.id);
@@ -135,10 +142,11 @@ export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps)
       onUnreadChange(notifications.filter(x => !x.is_read && x.id !== n.id).length);
     }
     if (n.link) {
-      const path = normalizeLink(n.link);
+      const path = normalizeHashPath(n.link);
       if (path) {
         onClose();
-        setLocation(path);
+        // Direct hash assignment — bypasses router entirely, zero server request
+        window.location.hash = path;
       }
     }
   }
@@ -162,32 +170,29 @@ export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps)
   async function deleteNotification(id: string, e: React.MouseEvent) {
     e.stopPropagation();
     if (confirmDelete !== id) {
-      // First click — enter confirm state
       setConfirmDelete(id);
       return;
     }
-    // Second click — confirmed, delete
+    // Confirmed — optimistic remove
     setConfirmDelete(null);
     setDeletingId(id);
-
-    // Optimistic remove
     const removed = notifications.find(n => n.id === id);
     setNotifications(prev => prev.filter(n => n.id !== id));
-    const newUnread = notifications.filter(n => !n.is_read && n.id !== id).length;
-    onUnreadChange(newUnread);
+    onUnreadChange(notifications.filter(n => !n.is_read && n.id !== id).length);
 
     const { error } = await supabase.from("notifications").delete().eq("id", id);
     if (error && removed) {
       // Restore on failure
-      setNotifications(prev => [removed, ...prev].sort(
-        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      ));
+      setNotifications(prev =>
+        [removed, ...prev].sort(
+          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )
+      );
       onUnreadChange(notifications.filter(n => !n.is_read).length);
     }
     setDeletingId(null);
   }
 
-  /* ── Dismiss confirm delete on outside click ── */
   function handleRowClick(n: Notification) {
     if (confirmDelete && confirmDelete !== n.id) {
       setConfirmDelete(null);
@@ -240,7 +245,9 @@ export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps)
             <div className="flex flex-col items-center justify-center h-48 gap-3 px-6 text-center">
               <div className="w-1.5 h-1.5 rounded-full bg-amber-800" />
               <div className="font-mono text-[9px] tracking-[0.2em] text-amber-800">SCHEMA UPDATE REQUIRED</div>
-              <div className="font-mono text-[9px] tracking-[0.1em] text-zinc-800 leading-relaxed">Run supabase-setup.sql in your Supabase project</div>
+              <div className="font-mono text-[9px] tracking-[0.1em] text-zinc-800 leading-relaxed">
+                Run supabase-setup.sql in your Supabase project
+              </div>
             </div>
           ) : notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-48 gap-3 px-6 text-center">
@@ -266,10 +273,12 @@ export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps)
                         : "bg-zinc-950/40 hover:bg-zinc-950/60"
                   } ${isDeleting ? "opacity-40 pointer-events-none" : ""}`}
                 >
-                  {/* Top row: type badge + age + delete */}
+                  {/* Top row: type + age + delete */}
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="flex items-center gap-2 min-w-0">
-                      {!n.is_read && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0 mt-0.5" />}
+                      {!n.is_read && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0 mt-0.5" />
+                      )}
                       <span className={`font-mono text-[9px] tracking-[0.25em] border px-1.5 py-0.5 shrink-0 ${TYPE_STYLE[n.type] ?? TYPE_STYLE.NOTICE}`}>
                         {n.type}
                       </span>
@@ -283,7 +292,12 @@ export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps)
                       role="button"
                       tabIndex={0}
                       onClick={e => deleteNotification(n.id, e)}
-                      onKeyDown={e => { if (e.key === "Enter") { e.stopPropagation(); deleteNotification(n.id, e as unknown as React.MouseEvent); } }}
+                      onKeyDown={e => {
+                        if (e.key === "Enter") {
+                          e.stopPropagation();
+                          deleteNotification(n.id, e as unknown as React.MouseEvent);
+                        }
+                      }}
                       className={`shrink-0 font-mono text-[8px] tracking-[0.2em] px-1.5 py-0.5 border transition-colors cursor-pointer ${
                         isConfirm
                           ? "border-red-600/60 text-red-400 hover:bg-red-900/20"
@@ -294,7 +308,9 @@ export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps)
                     </div>
                   </div>
 
-                  <div className={`font-mono text-[11px] tracking-[0.06em] leading-snug mb-1.5 ${n.is_read ? "text-zinc-500" : "text-zinc-200"}`}>
+                  <div className={`font-mono text-[11px] tracking-[0.06em] leading-snug mb-1.5 ${
+                    n.is_read ? "text-zinc-500" : "text-zinc-200"
+                  }`}>
                     {n.title}
                   </div>
 
@@ -304,7 +320,7 @@ export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps)
 
                   {n.link && !isConfirm && (
                     <div className="mt-2 font-mono text-[9px] tracking-[0.2em] text-emerald-700 truncate">
-                      {n.link.replace(/^#/, "")} →
+                      {n.link.replace(/^#+/, "")} →
                     </div>
                   )}
                   {isConfirm && (

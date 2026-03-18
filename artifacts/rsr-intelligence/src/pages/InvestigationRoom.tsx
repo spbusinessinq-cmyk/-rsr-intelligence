@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Link, useSearch } from "wouter";
+import { Link } from "wouter";
+import { useHashSearch } from "@/lib/hashLocation";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/lib/auth";
 import { supabase, isConfigured } from "@/lib/supabase";
@@ -687,7 +688,7 @@ export default function InvestigationRoom() {
   const { user: authUser, profile, configured } = useAuth();
   const user = profile;
   const isAdmin = profile?.role === "admin";
-  const searchStr = useSearch();
+  const searchStr = useHashSearch();
 
   /* ── Core state ── */
   const initChannel = () => {

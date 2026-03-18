@@ -1,0 +1,77 @@
+CRITICAL FINAL FIX — FORCE HASH NAVIGATION FOR INBOX LINKS (ELIMINATE 404 COMPLETELY)
+
+Do NOT redesign anything.
+
+ROOT ISSUE:
+Even after implementing hash routing, clicking a notification still results in a 404.
+
+This means navigation is still using path-based routing somewhere instead of true hash navigation.
+
+==================================================
+FIX REQUIRED
+==================================================
+
+For ALL inbox notification clicks:
+
+- DO NOT rely on setLocation() for navigation
+- DO NOT rely on router interpretation
+
+Instead:
+
+- force navigation using window.location.hash
+
+==================================================
+IMPLEMENTATION
+==================================================
+
+On notification click:
+
+- if link is:
+  "/investigation-room?channel=investigations"
+
+convert it to:
+
+  "#/investigation-room?channel=investigations"
+
+Then execute:
+
+  window.location.hash = "/investigation-room?channel=investigations"
+
+==================================================
+BEHAVIOR
+==================================================
+
+- clicking notification NEVER triggers server request
+- NEVER results in 404
+- always stays inside SPA
+- Investigation Room loads correctly
+- channel switching works
+- message scroll still works
+
+==================================================
+CLEANUP
+==================================================
+
+- ensure normalizeLink always outputs correct internal format
+- strip full domains
+- ensure leading slash
+- ensure no double hashes
+
+==================================================
+DELETE FEATURE
+==================================================
+
+Keep inbox delete working:
+- delete button per notification
+- confirm click
+- remove from Supabase
+- update UI immediately
+
+==================================================
+SUCCESS CRITERIA
+==================================================
+
+- clicking ANY notification NEVER causes 404
+- user always lands inside the app
+- correct channel loads
+- message scroll works if provided
