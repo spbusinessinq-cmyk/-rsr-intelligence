@@ -49,14 +49,26 @@ export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps)
   const [loading, setLoading] = useState(true);
   const [markingAll, setMarkingAll] = useState(false);
 
+  const [schemaError, setSchemaError] = useState(false);
+
   const load = useCallback(async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("notifications")
       .select("*")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(50);
+    if (error) {
+      const isSchema =
+        error.code === "PGRST204" ||
+        error.message?.toLowerCase().includes("schema cache") ||
+        (error.message?.toLowerCase().includes("notifications") && error.message?.toLowerCase().includes("table"));
+      if (isSchema) setSchemaError(true);
+      setLoading(false);
+      return;
+    }
     if (data) {
+      setSchemaError(false);
       setNotifications(data as Notification[]);
       onUnreadChange(data.filter(n => !n.is_read).length);
     }
@@ -148,6 +160,12 @@ export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps)
             <div className="flex items-center justify-center h-32">
               <div className="font-mono text-[10px] tracking-[0.3em] text-zinc-700 animate-pulse">LOADING...</div>
             </div>
+          ) : schemaError ? (
+            <div className="flex flex-col items-center justify-center h-48 gap-3 px-6 text-center">
+              <div className="w-1.5 h-1.5 rounded-full bg-amber-800" />
+              <div className="font-mono text-[9px] tracking-[0.2em] text-amber-800">SCHEMA UPDATE REQUIRED</div>
+              <div className="font-mono text-[9px] tracking-[0.1em] text-zinc-800 leading-relaxed">Run supabase-setup.sql in your Supabase project</div>
+            </div>
           ) : notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-48 gap-3 px-6 text-center">
               <div className="w-1.5 h-1.5 rounded-full bg-zinc-800" />
@@ -199,37 +217,3 @@ export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps)
   );
 }
 
-/* ── useInbox hook ────────────────────────────────────────────────────── */
-
-export function useInboxCount(userId: string | null): number {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    if (!userId) return;
-
-    async function fetchCount() {
-      const { count: c } = await supabase
-        .from("notifications")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", userId)
-        .eq("is_read", false);
-      setCount(c ?? 0);
-    }
-
-    fetchCount();
-
-    const channel = supabase
-      .channel(`inbox-count-${userId}`)
-      .on("postgres_changes", {
-        event: "*",
-        schema: "public",
-        table: "notifications",
-        filter: `user_id=eq.${userId}`,
-      }, fetchCount)
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
-  }, [userId]);
-
-  return count;
-}

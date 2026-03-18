@@ -1,6 +1,9 @@
-import { type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import UTCClock from "./UTCClock";
+import { useAuth } from "@/lib/auth";
+import { InboxPanel } from "@/components/InboxPanel";
+import { useInboxCount } from "@/components/useInboxCount";
 
 interface LayoutProps {
   children: ReactNode;
@@ -8,6 +11,9 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   const [location] = useLocation();
+  const { user: authUser } = useAuth();
+  const inboxUnread = useInboxCount(authUser?.id ?? null);
+  const [inboxOpen, setInboxOpen] = useState(false);
 
   const navLinks = [
     { name: "HOME",     path: "/" },
@@ -21,6 +27,15 @@ export default function Layout({ children }: LayoutProps) {
     <div className="min-h-screen bg-black text-zinc-100 relative flex flex-col">
       {/* Scanline overlay — barely visible, purely textural */}
       <div className="pointer-events-none fixed inset-0 opacity-[0.025] bg-[repeating-linear-gradient(0deg,transparent,transparent_3px,rgba(0,0,0,0.3)_3px,rgba(0,0,0,0.3)_4px)] z-50" />
+
+      {/* Global inbox panel */}
+      {inboxOpen && authUser && (
+        <InboxPanel
+          userId={authUser.id}
+          onUnreadChange={() => {}}
+          onClose={() => setInboxOpen(false)}
+        />
+      )}
 
       <div className="mx-auto w-full max-w-7xl px-6 py-5 relative z-10 flex flex-col flex-1">
 
@@ -43,7 +58,7 @@ export default function Layout({ children }: LayoutProps) {
             </div>
           </Link>
 
-          {/* Right side: clock + nav */}
+          {/* Right side: clock + nav + inbox */}
           <div className="flex items-center gap-3">
             <UTCClock />
             <nav className="flex gap-1 font-mono text-[11px] tracking-[0.3em]">
@@ -67,6 +82,28 @@ export default function Layout({ children }: LayoutProps) {
                 );
               })}
             </nav>
+
+            {/* Inbox trigger — only when logged in */}
+            {authUser && (
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => setInboxOpen(true)}
+                onKeyDown={e => e.key === "Enter" && setInboxOpen(true)}
+                className="relative cursor-pointer group ml-1"
+                title="Open inbox"
+                aria-label="Open notifications inbox"
+              >
+                <div className="font-mono text-[10px] tracking-[0.25em] text-zinc-600 group-hover:text-zinc-300 border border-zinc-900 group-hover:border-zinc-700 px-3 py-2 transition-all duration-150 whitespace-nowrap">
+                  INBOX
+                </div>
+                {inboxUnread > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-[16px] rounded-full bg-amber-500 flex items-center justify-center font-mono text-[8px] text-black font-bold px-0.5 leading-none">
+                    {inboxUnread > 9 ? "9+" : inboxUnread}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
         </header>

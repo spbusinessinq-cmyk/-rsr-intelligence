@@ -276,9 +276,15 @@ CREATE POLICY "notif_admin_all" ON notifications
   USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'admin')
   WITH CHECK ((SELECT role FROM profiles WHERE id = auth.uid()) = 'admin');
 
--- Add to realtime publication
-ALTER PUBLICATION supabase_realtime ADD TABLE notifications;
+-- Add to realtime publication (idempotent — safe to re-run)
 ALTER TABLE notifications REPLICA IDENTITY FULL;
+DO $$
+BEGIN
+  ALTER PUBLICATION supabase_realtime ADD TABLE notifications;
+EXCEPTION WHEN duplicate_object THEN
+  -- already in publication, nothing to do
+  NULL;
+END $$;
 
 -- ── 15. REALTIME ──────────────────────────────────────────────
 

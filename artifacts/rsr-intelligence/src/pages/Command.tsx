@@ -568,7 +568,16 @@ export default function Command() {
       const { error } = await supabase.from("notifications").insert(rows);
 
       if (error) {
-        setNotifResult({ ok: false, msg: error.message });
+        const isSchemaErr =
+          error.code === "PGRST204" ||
+          error.message?.toLowerCase().includes("schema cache") ||
+          error.message?.toLowerCase().includes("notifications") && error.message?.toLowerCase().includes("table");
+        setNotifResult({
+          ok: false,
+          msg: isSchemaErr
+            ? "SCHEMA UPDATE REQUIRED — run supabase-setup.sql in your Supabase project, then retry"
+            : error.message,
+        });
         return;
       }
 

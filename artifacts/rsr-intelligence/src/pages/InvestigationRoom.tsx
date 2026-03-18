@@ -3,7 +3,6 @@ import { Link } from "wouter";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/lib/auth";
 import { supabase, isConfigured } from "@/lib/supabase";
-import { InboxPanel, useInboxCount } from "@/components/InboxPanel";
 
 /* ── Types ─────────────────────────────────────────────────────────── */
 
@@ -688,7 +687,6 @@ export default function InvestigationRoom() {
   const { user: authUser, profile, configured } = useAuth();
   const user = profile;
   const isAdmin = profile?.role === "admin";
-  const inboxUnread = useInboxCount(authUser?.id ?? null);
 
   /* ── Core state ── */
   const [activeChannel, setActiveChannel] = useState("investigations");
@@ -700,7 +698,6 @@ export default function InvestigationRoom() {
   const [sendError, setSendError] = useState<string | null>(null);
   const [msgOpError, setMsgOpError] = useState<string | null>(null);
   const [sageOpen, setSageOpen] = useState(false);
-  const [inboxOpen, setInboxOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
 
@@ -893,13 +890,6 @@ export default function InvestigationRoom() {
   return (
     <Layout>
       {sageOpen && <SageModal onClose={() => setSageOpen(false)} />}
-      {inboxOpen && authUser && (
-        <InboxPanel
-          userId={authUser.id}
-          onUnreadChange={() => {}}
-          onClose={() => setInboxOpen(false)}
-        />
-      )}
 
       <div className="-my-10 -mx-6 flex" style={{ height: "calc(100vh - 3.25rem)" }}>
 
@@ -967,32 +957,12 @@ export default function InvestigationRoom() {
             })}
           </div>
 
-          {/* Operator identity + inbox */}
+          {/* Operator identity */}
           {user && (
             <div className="border-t border-zinc-900 p-4">
-              <div className="flex items-center justify-between mb-0.5">
-                <div className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
-                  <span className="font-mono text-[11px] tracking-[0.08em] text-zinc-300">{user.handle}</span>
-                </div>
-                {/* Inbox trigger */}
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setInboxOpen(true)}
-                  onKeyDown={e => e.key === "Enter" && setInboxOpen(true)}
-                  className="relative cursor-pointer group"
-                  title="Open inbox"
-                >
-                  <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-700 group-hover:text-zinc-400 border border-zinc-900 group-hover:border-zinc-700 px-2 py-0.5 transition-colors">
-                    INBOX
-                  </div>
-                  {inboxUnread > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 min-w-[14px] h-[14px] rounded-full bg-amber-500 flex items-center justify-center font-mono text-[8px] text-black font-bold px-0.5">
-                      {inboxUnread > 9 ? "9+" : inboxUnread}
-                    </span>
-                  )}
-                </div>
+              <div className="flex items-center gap-2 mb-0.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
+                <span className="font-mono text-[11px] tracking-[0.08em] text-zinc-300">{user.handle}</span>
               </div>
               {user.title && (
                 <div className="font-mono text-[9px] tracking-[0.08em] text-zinc-600 pl-3.5">{user.title}</div>

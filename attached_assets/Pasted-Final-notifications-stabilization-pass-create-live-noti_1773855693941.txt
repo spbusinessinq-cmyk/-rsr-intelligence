@@ -1,0 +1,136 @@
+Final notifications stabilization pass — create live notifications table, fix schema-cache failure, and move inbox trigger to the global top nav.
+
+Do NOT redesign the site.
+Do NOT change the visual identity.
+Do NOT weaken the homepage.
+Do NOT break working chat, auth, command console, Signal Room, Sage, cases, or navigation.
+
+MAIN GOAL
+The notifications system code is in place, but it is failing because the live Supabase table does not yet exist, and the inbox trigger needs to be globally accessible near the top of every page.
+
+Fix this fully.
+
+CURRENT ISSUE
+Sending a notification throws:
+COULD NOT FIND THE TABLE 'PUBLIC.NOTIFICATIONS' IN THE SCHEMA CACHE
+
+Also:
+- users need a small inbox trigger near the top of every page
+- clicking it should open a compact notification panel/dropdown
+- it should show recent notifications clearly
+
+==================================================
+1. FIX THE LIVE NOTIFICATIONS SCHEMA
+==================================================
+
+Requirements:
+- audit the notifications table creation SQL
+- ensure the notifications table exists in supabase-setup.sql
+- make the migration safe to re-run
+- use CREATE TABLE IF NOT EXISTS and idempotent policy setup
+- ensure RLS policies are correct
+- ensure realtime publication is enabled
+- make sure the app handles schema-cache errors gracefully until the SQL is run
+
+At minimum the table should support:
+- id
+- user_id
+- title
+- body
+- type
+- link
+- is_read
+- created_at
+
+Verification:
+- after running the SQL, sending a notification must work
+- no schema-cache error should remain
+
+==================================================
+2. COMMAND CONSOLE — NOTIFICATIONS MUST WORK
+==================================================
+
+Requirements:
+- sending notification from Command Console must insert successfully
+- support single-user send and all-approved-users send if already implemented
+- no fake success
+- show clear UI confirmation on success
+- if DB write fails, show exact reason clearly
+
+Verification:
+- send a test notification
+- verify it appears for the target user
+- verify it persists after refresh
+
+==================================================
+3. GLOBAL INBOX TRIGGER — TOP OF EVERY PAGE
+==================================================
+
+Current issue:
+Inbox is too buried. Users need a small top-level trigger on all major pages.
+
+Requirements:
+- add a small inbox/notifications trigger near the top navigation/header area on every major page
+- keep styling subtle and fully on-brand
+- do NOT redesign the header
+- include unread count badge if unread items exist
+- clicking it should open a compact notification panel/dropdown or slideover with recent items
+
+Target behavior:
+- visible on all major pages
+- easy to access
+- not oversized
+- consistent across the app
+
+==================================================
+4. GLOBAL NOTIFICATION PANEL
+==================================================
+
+Requirements:
+- panel should show recent notifications clearly
+- newest first
+- show title, short body preview, type, unread state, time
+- clicking an item marks it read
+- clicking linked items routes correctly if link exists
+- optional “view all” / “mark all read” if already easy
+
+Important:
+- keep this compact and clean
+- do NOT overbuild it into a giant messaging system
+
+==================================================
+5. DO NOT BREAK EXISTING GOOD STATE
+==================================================
+
+Do NOT break:
+- live chat
+- auth/session
+- command console
+- brief requests
+- Signal Room
+- Sage
+- case management
+- back buttons
+- current navigation
+
+==================================================
+6. FINAL VERIFICATION
+==================================================
+
+Before finishing, explicitly verify:
+- notifications table exists in SQL setup
+- sending a notification from Command Console works
+- notification appears for user
+- unread count updates
+- inbox trigger exists near the top on major pages
+- compact panel opens and shows recent notifications
+- mark read works
+- no raw schema-cache errors shown to users
+
+SUCCESS CRITERIA
+
+This pass is complete only if:
+- the notifications table works in the live DB
+- Command Console can send notifications successfully
+- users have a small top-level inbox on all major pages
+- the notification experience feels lightweight, clean, and launch-ready
