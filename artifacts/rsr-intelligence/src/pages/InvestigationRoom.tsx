@@ -231,7 +231,7 @@ function MessageRow({
             <button
               onClick={startEdit}
               title="Edit"
-              className="font-mono text-[9px] text-zinc-700 hover:text-zinc-300 transition-colors w-6 h-6 flex items-center justify-center hover:bg-zinc-900"
+              className="font-mono text-[10px] text-zinc-700 hover:text-zinc-300 transition-colors w-6 h-6 flex items-center justify-center hover:bg-zinc-900"
             >
               ✎
             </button>
@@ -240,7 +240,7 @@ function MessageRow({
             <button
               onClick={() => onPin(msg.id, !msg.pinned)}
               title={msg.pinned ? "Unpin" : "Pin to top"}
-              className={`font-mono text-[9px] transition-colors w-6 h-6 flex items-center justify-center hover:bg-zinc-900 ${msg.pinned ? "text-emerald-600 hover:text-zinc-500" : "text-zinc-700 hover:text-emerald-500"}`}
+              className={`font-mono text-[10px] transition-colors w-6 h-6 flex items-center justify-center hover:bg-zinc-900 ${msg.pinned ? "text-emerald-600 hover:text-zinc-500" : "text-zinc-700 hover:text-emerald-500"}`}
             >
               ⊕
             </button>
@@ -249,7 +249,7 @@ function MessageRow({
             <button
               onClick={() => onDelete(msg.id)}
               title="Delete"
-              className="font-mono text-[9px] text-zinc-700 hover:text-red-500 transition-colors w-6 h-6 flex items-center justify-center hover:bg-zinc-900"
+              className="font-mono text-[10px] text-zinc-700 hover:text-red-500 transition-colors w-6 h-6 flex items-center justify-center hover:bg-zinc-900"
             >
               ✕
             </button>
@@ -266,18 +266,18 @@ function MessageRow({
           <div className="flex items-center gap-3 flex-wrap mb-2">
             <span className="font-mono text-xs tracking-[0.1em] text-zinc-200 font-medium">{displayHandle}</span>
             {roleCls && displayRole && (
-              <span className={`font-mono text-[10px] tracking-[0.15em] border px-1.5 py-0.5 ${roleCls}`}>
+              <span className={`font-mono text-[11px] tracking-[0.15em] border px-1.5 py-0.5 ${roleCls}`}>
                 {displayRole.toUpperCase()}
               </span>
             )}
             <span className="font-mono text-[11px] text-zinc-600">{fmtTime(msg.created_at)}</span>
             {msg.pinned && (
-              <span className="font-mono text-[8px] tracking-[0.25em] text-emerald-700 border border-emerald-900/30 px-1.5 py-0.5">
+              <span className="font-mono text-[9px] tracking-[0.25em] text-emerald-700 border border-emerald-900/30 px-1.5 py-0.5">
                 PINNED
               </span>
             )}
             {msg.edited_at && !msg.pinned && (
-              <span className="font-mono text-[8px] text-zinc-700">edited</span>
+              <span className="font-mono text-[9px] text-zinc-700">edited</span>
             )}
           </div>
 
@@ -296,11 +296,11 @@ function MessageRow({
                 <button
                   onClick={saveEdit}
                   disabled={!editBody.trim()}
-                  className="font-mono text-[9px] tracking-[0.2em] text-emerald-600 hover:text-emerald-400 border border-emerald-900/30 px-3 py-1 transition-colors disabled:opacity-30"
+                  className="font-mono text-[10px] tracking-[0.2em] text-emerald-600 hover:text-emerald-400 border border-emerald-900/30 px-3 py-1 transition-colors disabled:opacity-30"
                 >
                   SAVE
                 </button>
-                <button onClick={cancelEdit} className="font-mono text-[9px] text-zinc-600 hover:text-zinc-400 transition-colors">
+                <button onClick={cancelEdit} className="font-mono text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors">
                   CANCEL
                 </button>
               </div>
@@ -311,12 +311,12 @@ function MessageRow({
               {(files.length > 0 || dossiers.length > 0) && (
                 <div className="flex flex-wrap gap-2 mt-2.5">
                   {files.map(f => (
-                    <Link key={f} href={`/files/${f}`} className="font-mono text-[9px] tracking-widest text-zinc-600 hover:text-emerald-400 border border-zinc-900 hover:border-emerald-900/40 px-2 py-0.5 transition-colors">
+                    <Link key={f} href={`/files/${f}`} className="font-mono text-[10px] tracking-widest text-zinc-600 hover:text-emerald-400 border border-zinc-900 hover:border-emerald-900/40 px-2 py-0.5 transition-colors">
                       {f} →
                     </Link>
                   ))}
                   {dossiers.map(d => (
-                    <Link key={d} href={`/dossiers/${d}`} className="font-mono text-[9px] tracking-widest text-zinc-600 hover:text-emerald-400 border border-zinc-900 hover:border-emerald-900/40 px-2 py-0.5 transition-colors">
+                    <Link key={d} href={`/dossiers/${d}`} className="font-mono text-[10px] tracking-widest text-zinc-600 hover:text-emerald-400 border border-zinc-900 hover:border-emerald-900/40 px-2 py-0.5 transition-colors">
                       {d} →
                     </Link>
                   ))}
@@ -336,17 +336,17 @@ function SageEntryView({ e }: { e: SageEntry }) {
   return (
     <div className="p-4 space-y-2.5 border-b border-zinc-900/50 last:border-0">
       <div className="flex items-start gap-2">
-        <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-600 shrink-0 mt-0.5 min-w-[60px]">
+        <span className="font-mono text-[10px] tracking-[0.2em] text-zinc-600 shrink-0 mt-0.5 min-w-[60px]">
           {e.action.toUpperCase()} »
         </span>
-        <span className="font-mono text-[10px] text-zinc-500 leading-relaxed">{e.query}</span>
+        <span className="font-mono text-[11px] text-zinc-500 leading-relaxed">{e.query}</span>
       </div>
       {e.loading ? (
-        <div className="font-mono text-[10px] text-emerald-700 animate-pulse pl-[68px]">
+        <div className="font-mono text-[11px] text-emerald-700 animate-pulse pl-[68px]">
           SAGE processing...
         </div>
       ) : e.error ? (
-        <div className="font-mono text-[10px] text-red-500 pl-[68px] leading-relaxed">{e.error}</div>
+        <div className="font-mono text-[11px] text-red-500 pl-[68px] leading-relaxed">{e.error}</div>
       ) : (
         <div className="font-mono text-[11px] text-[#9ebf9e] leading-relaxed pl-[68px] whitespace-pre-wrap">
           {e.response}
@@ -396,24 +396,24 @@ function SageModal({ onClose }: { onClose: () => void }) {
         <div className="border-b border-zinc-800 px-6 py-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-4">
             <div className="font-mono text-xs tracking-[0.4em] text-zinc-400">SAGE TERMINAL</div>
-            <span className={`font-mono text-[9px] tracking-widest flex items-center gap-1.5 ${online ? "text-emerald-500" : "text-zinc-700"}`}>
+            <span className={`font-mono text-[10px] tracking-widest flex items-center gap-1.5 ${online ? "text-emerald-500" : "text-zinc-700"}`}>
               <span className={`w-1.5 h-1.5 rounded-full ${online ? "bg-emerald-500 animate-pulse" : "bg-zinc-700 animate-pulse"}`} />
               {online ? "ONLINE — RSR DATA LOADED" : "INITIALIZING..."}
             </span>
           </div>
           <div className="flex items-center gap-4">
             {entries.length > 0 && (
-              <button onClick={() => setEntries([])} className="font-mono text-[9px] tracking-[0.25em] text-zinc-700 hover:text-zinc-400 transition-colors">CLR</button>
+              <button onClick={() => setEntries([])} className="font-mono text-[10px] tracking-[0.25em] text-zinc-700 hover:text-zinc-400 transition-colors">CLR</button>
             )}
-            <button onClick={onClose} className="font-mono text-[9px] tracking-[0.3em] text-zinc-600 hover:text-zinc-300 border border-zinc-800 hover:border-zinc-600 px-3 py-1.5 transition-colors">CLOSE ✕</button>
+            <button onClick={onClose} className="font-mono text-[10px] tracking-[0.3em] text-zinc-600 hover:text-zinc-300 border border-zinc-800 hover:border-zinc-600 px-3 py-1.5 transition-colors">CLOSE ✕</button>
           </div>
         </div>
 
         <div className="border-b border-zinc-900 px-6 py-3 flex gap-2 shrink-0 flex-wrap">
-          <span className="font-mono text-[9px] tracking-[0.3em] text-zinc-700 mr-2 flex items-center">QUICK:</span>
+          <span className="font-mono text-[10px] tracking-[0.3em] text-zinc-700 mr-2 flex items-center">QUICK:</span>
           {QUICK_BRIEFS.map(b => (
             <button key={b.label} disabled={!online} onClick={() => handleQuery(b.query, b.action)}
-              className="font-mono text-[9px] tracking-[0.2em] border border-zinc-800 text-zinc-500 hover:text-emerald-400 hover:border-emerald-900/40 px-3 py-1.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+              className="font-mono text-[10px] tracking-[0.2em] border border-zinc-800 text-zinc-500 hover:text-emerald-400 hover:border-emerald-900/40 px-3 py-1.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
               {b.label}
             </button>
           ))}
@@ -422,16 +422,16 @@ function SageModal({ onClose }: { onClose: () => void }) {
         <div className="flex-1 overflow-y-auto">
           {entries.length === 0 ? (
             <div className="p-6 space-y-2 font-mono">
-              <div className="text-zinc-600 text-[10px]">&gt; SAGE // RSR STRATEGIC ANALYSIS ENGINE</div>
-              <div className="text-zinc-800 text-[10px]">&gt; CONTEXT: 20 files · 14 dossiers · 5 systems · 6 regions · 10 active signals</div>
-              <div className="text-zinc-800 text-[10px]">&gt; ────────────────────────────────────────────────</div>
+              <div className="text-zinc-600 text-[11px]">&gt; SAGE // RSR STRATEGIC ANALYSIS ENGINE</div>
+              <div className="text-zinc-800 text-[11px]">&gt; CONTEXT: 20 files · 14 dossiers · 5 systems · 6 regions · 10 active signals</div>
+              <div className="text-zinc-800 text-[11px]">&gt; ────────────────────────────────────────────────</div>
               {online ? (
-                <div className="text-emerald-700 text-[10px] animate-pulse">&gt; READY. Submit a query or use a quick action above.</div>
+                <div className="text-emerald-700 text-[11px] animate-pulse">&gt; READY. Submit a query or use a quick action above.</div>
               ) : (
-                <div className="text-zinc-800 text-[10px] animate-pulse">&gt; Loading knowledge base...</div>
+                <div className="text-zinc-800 text-[11px] animate-pulse">&gt; Loading knowledge base...</div>
               )}
               <div className="mt-6 pt-4 border-t border-zinc-900 space-y-1">
-                <div className="text-zinc-800 text-[10px]">Example queries:</div>
+                <div className="text-zinc-800 text-[11px]">Example queries:</div>
                 {[
                   "Summarize F-001 Operation Clearwater",
                   "Trace connections between D-004 Meridian Capital and F-006",
@@ -439,7 +439,7 @@ function SageModal({ onClose }: { onClose: () => void }) {
                   "What is the current posture for Eastern Europe?",
                 ].map(q => (
                   <button key={q} disabled={!online} onClick={() => handleQuery(q, "query")}
-                    className="block text-left font-mono text-[10px] text-zinc-700 hover:text-[#9ebf9e] transition-colors disabled:opacity-30 py-0.5">
+                    className="block text-left font-mono text-[11px] text-zinc-700 hover:text-[#9ebf9e] transition-colors disabled:opacity-30 py-0.5">
                     &gt; {q}
                   </button>
                 ))}
@@ -457,7 +457,7 @@ function SageModal({ onClose }: { onClose: () => void }) {
           <div className="border-b border-zinc-900 px-6 py-2 flex gap-2 flex-wrap">
             {ACTION_OPTS.map(a => (
               <button key={a.value} onClick={() => setSelectedAction(a.value)}
-                className={`font-mono text-[9px] tracking-[0.2em] border px-2.5 py-1 transition-colors ${
+                className={`font-mono text-[10px] tracking-[0.2em] border px-2.5 py-1 transition-colors ${
                   selectedAction === a.value ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/5" : "text-zinc-600 border-zinc-800 hover:text-zinc-400 hover:border-zinc-700"
                 }`}>
                 {a.label}
@@ -473,12 +473,12 @@ function SageModal({ onClose }: { onClose: () => void }) {
                 rows={3}
                 className="w-full bg-black text-[#9ebf9e] font-mono text-[13px] tracking-[0.02em] px-4 py-3 resize-none outline-none placeholder-zinc-800 disabled:opacity-50" />
               <div className="border-t border-zinc-900 px-4 py-2 flex items-center justify-between">
-                <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-700">{inputVal.length} chars</span>
-                <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-800">Shift+Enter for newline · Esc to close</span>
+                <span className="font-mono text-[10px] tracking-[0.2em] text-zinc-700">{inputVal.length} chars</span>
+                <span className="font-mono text-[10px] tracking-[0.2em] text-zinc-800">Shift+Enter for newline · Esc to close</span>
               </div>
             </div>
             <button disabled={!online || !inputVal.trim()} onClick={submit}
-              className="shrink-0 font-mono text-[10px] tracking-[0.3em] border border-zinc-700 text-zinc-400 hover:text-emerald-400 hover:border-emerald-700/40 px-5 py-4 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+              className="shrink-0 font-mono text-[11px] tracking-[0.3em] border border-zinc-700 text-zinc-400 hover:text-emerald-400 hover:border-emerald-700/40 px-5 py-4 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
               SEND →
             </button>
           </div>
@@ -521,13 +521,13 @@ function SageTerminal({ onExpand }: { onExpand: () => void }) {
     <div className="p-4 flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-500">SAGE</div>
-          <span className={`font-mono text-[8px] tracking-widest flex items-center gap-1 ${online ? "text-emerald-600" : "text-zinc-700"}`}>
+          <div className="font-mono text-[11px] tracking-[0.35em] text-zinc-500">SAGE</div>
+          <span className={`font-mono text-[9px] tracking-widest flex items-center gap-1 ${online ? "text-emerald-600" : "text-zinc-700"}`}>
             <span className={`w-1 h-1 rounded-full ${online ? "bg-emerald-500 animate-pulse" : "bg-zinc-700 animate-pulse"}`} />
             {online ? "ONLINE" : "INIT"}
           </span>
         </div>
-        <button onClick={onExpand} className="font-mono text-[8px] tracking-[0.2em] text-zinc-600 hover:text-emerald-400 border border-zinc-800 hover:border-emerald-900/40 px-2 py-1 transition-colors">
+        <button onClick={onExpand} className="font-mono text-[9px] tracking-[0.2em] text-zinc-600 hover:text-emerald-400 border border-zinc-800 hover:border-emerald-900/40 px-2 py-1 transition-colors">
           EXPAND ↗
         </button>
       </div>
@@ -535,7 +535,7 @@ function SageTerminal({ onExpand }: { onExpand: () => void }) {
       <div className="grid grid-cols-2 gap-1">
         {QUICK_BRIEFS.map(b => (
           <button key={b.label} disabled={!online} onClick={() => handleQuery(b.query, b.action)}
-            className="font-mono text-[8px] tracking-[0.15em] border border-zinc-800 text-zinc-600 hover:text-emerald-400 hover:border-emerald-900/40 px-2 py-1.5 transition-colors text-left disabled:opacity-30 disabled:cursor-not-allowed">
+            className="font-mono text-[9px] tracking-[0.15em] border border-zinc-800 text-zinc-600 hover:text-emerald-400 hover:border-emerald-900/40 px-2 py-1.5 transition-colors text-left disabled:opacity-30 disabled:cursor-not-allowed">
             {b.label}
           </button>
         ))}
@@ -544,12 +544,12 @@ function SageTerminal({ onExpand }: { onExpand: () => void }) {
       <div className="border border-zinc-900 bg-zinc-950/50 min-h-[160px] max-h-[260px] overflow-y-auto">
         {!hasEntries ? (
           <div className="p-3 space-y-1 font-mono">
-            <div className="text-[9px] text-zinc-700">&gt; SAGE // RSR STRATEGIC ANALYSIS ENGINE</div>
-            <div className="text-[9px] text-zinc-800">&gt; 20 files · 14 dossiers · 5 systems · 6 regions</div>
+            <div className="text-[10px] text-zinc-700">&gt; SAGE // RSR STRATEGIC ANALYSIS ENGINE</div>
+            <div className="text-[10px] text-zinc-800">&gt; 20 files · 14 dossiers · 5 systems · 6 regions</div>
             {online ? (
-              <div className="text-[9px] text-emerald-700 animate-pulse">&gt; READY — use EXPAND ↗ for full workspace</div>
+              <div className="text-[10px] text-emerald-700 animate-pulse">&gt; READY — use EXPAND ↗ for full workspace</div>
             ) : (
-              <div className="text-[9px] text-zinc-800 animate-pulse">&gt; Initializing...</div>
+              <div className="text-[10px] text-zinc-800 animate-pulse">&gt; Initializing...</div>
             )}
           </div>
         ) : (
@@ -557,15 +557,15 @@ function SageTerminal({ onExpand }: { onExpand: () => void }) {
             {entries.map(e => (
               <div key={e.id} className="p-3 border-b border-zinc-900/50 last:border-0 space-y-2">
                 <div className="flex items-start gap-2">
-                  <span className="font-mono text-[8px] tracking-[0.15em] text-zinc-700 shrink-0">{e.action.toUpperCase()} »</span>
-                  <span className="font-mono text-[9px] text-zinc-500 leading-relaxed">{e.query}</span>
+                  <span className="font-mono text-[9px] tracking-[0.15em] text-zinc-700 shrink-0">{e.action.toUpperCase()} »</span>
+                  <span className="font-mono text-[10px] text-zinc-500 leading-relaxed">{e.query}</span>
                 </div>
                 {e.loading ? (
-                  <div className="font-mono text-[9px] text-emerald-700 animate-pulse pl-2">Processing...</div>
+                  <div className="font-mono text-[10px] text-emerald-700 animate-pulse pl-2">Processing...</div>
                 ) : e.error ? (
-                  <div className="font-mono text-[9px] text-red-500 pl-2 leading-relaxed">{e.error}</div>
+                  <div className="font-mono text-[10px] text-red-500 pl-2 leading-relaxed">{e.error}</div>
                 ) : (
-                  <div className="font-mono text-[10px] text-[#9ebf9e] leading-relaxed pl-2 whitespace-pre-wrap">{e.response}</div>
+                  <div className="font-mono text-[11px] text-[#9ebf9e] leading-relaxed pl-2 whitespace-pre-wrap">{e.response}</div>
                 )}
               </div>
             ))}
@@ -577,7 +577,7 @@ function SageTerminal({ onExpand }: { onExpand: () => void }) {
       <div className="flex gap-1 flex-wrap">
         {ACTION_OPTS.map(a => (
           <button key={a.value} onClick={() => setSelectedAction(a.value)}
-            className={`font-mono text-[8px] tracking-[0.15em] border px-1.5 py-0.5 transition-colors ${
+            className={`font-mono text-[9px] tracking-[0.15em] border px-1.5 py-0.5 transition-colors ${
               selectedAction === a.value ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/5" : "text-zinc-700 border-zinc-800 hover:text-zinc-400 hover:border-zinc-700"
             }`}>
             {a.label}
@@ -593,16 +593,16 @@ function SageTerminal({ onExpand }: { onExpand: () => void }) {
           rows={2}
           className="w-full bg-black text-[#9ebf9e] font-mono text-[11px] tracking-[0.03em] px-3 py-2.5 resize-none outline-none placeholder-zinc-800 disabled:opacity-50" />
         <div className="border-t border-zinc-900 px-3 py-1.5 flex items-center justify-between">
-          <span className="font-mono text-[8px] tracking-[0.15em] text-zinc-800">{inputVal.length}/500</span>
+          <span className="font-mono text-[9px] tracking-[0.15em] text-zinc-800">{inputVal.length}/500</span>
           <button disabled={!online || !inputVal.trim()} onClick={submit}
-            className="font-mono text-[9px] tracking-[0.2em] text-zinc-600 hover:text-emerald-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+            className="font-mono text-[10px] tracking-[0.2em] text-zinc-600 hover:text-emerald-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
             SEND →
           </button>
         </div>
       </div>
 
       {hasEntries && (
-        <button onClick={() => setEntries([])} className="font-mono text-[8px] tracking-[0.15em] text-zinc-800 hover:text-zinc-600 text-left transition-colors">
+        <button onClick={() => setEntries([])} className="font-mono text-[9px] tracking-[0.15em] text-zinc-800 hover:text-zinc-600 text-left transition-colors">
           CLR TERMINAL
         </button>
       )}
@@ -657,9 +657,9 @@ function AnalystRoster({ configured, user }: { configured: boolean; user: unknow
 
   return (
     <div className="border-b border-zinc-900 p-4">
-      <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-600 mb-3">ANALYST ROSTER</div>
+      <div className="font-mono text-[11px] tracking-[0.35em] text-zinc-600 mb-3">ANALYST ROSTER</div>
       {displayAnalysts.length === 0 ? (
-        <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-800">NO APPROVED OPERATORS</div>
+        <div className="font-mono text-[10px] tracking-[0.2em] text-zinc-800">NO APPROVED OPERATORS</div>
       ) : (
         <div className="space-y-2.5">
           {displayAnalysts.map(a => (
@@ -670,7 +670,7 @@ function AnalystRoster({ configured, user }: { configured: boolean; user: unknow
                   {a.handle}
                 </span>
               </div>
-              <span className={`text-[9px] tracking-[0.2em] ${roleCls[a.role] ?? "text-zinc-700"}`}>
+              <span className={`text-[10px] tracking-[0.2em] ${roleCls[a.role] ?? "text-zinc-700"}`}>
                 {a.role?.toUpperCase() ?? "MEMBER"}
               </span>
             </div>
@@ -879,13 +879,13 @@ export default function InvestigationRoom() {
         <div className="w-56 shrink-0 border-r border-zinc-900 flex flex-col overflow-y-auto">
 
           <div className="border-b border-zinc-900 p-4">
-            <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-600 mb-0.5">INVESTIGATION ROOM</div>
-            <div className="font-mono text-[8px] tracking-[0.25em] text-zinc-800">SECURE ANALYST WORKSPACE</div>
+            <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-600 mb-0.5">INVESTIGATION ROOM</div>
+            <div className="font-mono text-[9px] tracking-[0.25em] text-zinc-800">SECURE ANALYST WORKSPACE</div>
           </div>
 
           {!configured && (
             <div className="border-b border-zinc-900 px-4 py-2 bg-amber-500/5">
-              <div className="font-mono text-[8px] tracking-[0.15em] text-amber-700 leading-relaxed">
+              <div className="font-mono text-[9px] tracking-[0.15em] text-amber-700 leading-relaxed">
                 OFFLINE — add Supabase credentials to enable live messaging
               </div>
             </div>
@@ -896,10 +896,10 @@ export default function InvestigationRoom() {
               <Link href="/command">
                 <div className="flex items-center gap-2 group cursor-pointer">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
-                  <span className="font-mono text-[9px] tracking-[0.25em] text-emerald-500 group-hover:text-emerald-400 transition-colors">
+                  <span className="font-mono text-[10px] tracking-[0.25em] text-emerald-500 group-hover:text-emerald-400 transition-colors">
                     COMMAND CONSOLE
                   </span>
-                  <span className="font-mono text-[8px] text-emerald-800 group-hover:text-emerald-600 transition-colors ml-auto">→</span>
+                  <span className="font-mono text-[9px] text-emerald-800 group-hover:text-emerald-600 transition-colors ml-auto">→</span>
                 </div>
               </Link>
             </div>
@@ -907,7 +907,7 @@ export default function InvestigationRoom() {
 
           {/* Channels header */}
           <div className="px-4 py-2 border-b border-zinc-900/40">
-            <div className="font-mono text-[8px] tracking-[0.35em] text-zinc-700">CHANNELS</div>
+            <div className="font-mono text-[9px] tracking-[0.35em] text-zinc-700">CHANNELS</div>
           </div>
 
           {/* Channel list */}
@@ -925,10 +925,10 @@ export default function InvestigationRoom() {
                   className={`w-full text-left px-4 py-2.5 transition-colors cursor-pointer ${isActive ? "bg-zinc-900/60 text-zinc-200" : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-950"}`}
                 >
                   <div className="flex items-center gap-1.5">
-                    <span className="font-mono text-[9px] tracking-[0.1em] text-zinc-700">#</span>
-                    <span className="font-mono text-[10px] tracking-[0.05em] flex-1 truncate">{ch.name}</span>
+                    <span className="font-mono text-[10px] tracking-[0.1em] text-zinc-700">#</span>
+                    <span className="font-mono text-[11px] tracking-[0.05em] flex-1 truncate">{ch.name}</span>
                     {linkedCases > 0 && (
-                      <span className="font-mono text-[7px] text-zinc-700 shrink-0">{linkedCases}</span>
+                      <span className="font-mono text-[8px] text-zinc-700 shrink-0">{linkedCases}</span>
                     )}
                   </div>
                 </div>
@@ -941,15 +941,15 @@ export default function InvestigationRoom() {
             <div className="border-t border-zinc-900 p-4">
               <div className="flex items-center gap-2 mb-0.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
-                <span className="font-mono text-[10px] tracking-[0.08em] text-zinc-300">{user.handle}</span>
+                <span className="font-mono text-[11px] tracking-[0.08em] text-zinc-300">{user.handle}</span>
               </div>
               {user.title && (
-                <div className="font-mono text-[8px] tracking-[0.08em] text-zinc-600 pl-3.5">{user.title}</div>
+                <div className="font-mono text-[9px] tracking-[0.08em] text-zinc-600 pl-3.5">{user.title}</div>
               )}
-              <div className="font-mono text-[8px] tracking-[0.2em] text-zinc-600 pl-3.5">{user.role?.toUpperCase()}</div>
+              <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-600 pl-3.5">{user.role?.toUpperCase()}</div>
               {isAdmin && (
                 <Link href="/command">
-                  <div className="mt-2 font-mono text-[8px] tracking-[0.2em] text-emerald-700 hover:text-emerald-500 transition-colors cursor-pointer pl-3.5">
+                  <div className="mt-2 font-mono text-[9px] tracking-[0.2em] text-emerald-700 hover:text-emerald-500 transition-colors cursor-pointer pl-3.5">
                     → /command
                   </div>
                 </Link>
@@ -968,25 +968,25 @@ export default function InvestigationRoom() {
                 <span className="text-zinc-600"># </span>{activeChannel}
               </div>
               {activeChannelData?.description && (
-                <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-600 mt-0.5">
+                <div className="font-mono text-[10px] tracking-[0.2em] text-zinc-600 mt-0.5">
                   {activeChannelData.description.toUpperCase()}
                 </div>
               )}
             </div>
             <div className="flex items-center gap-4">
-              <span className="font-mono text-[9px] tracking-[0.15em] text-zinc-700">{messages.length} MSG</span>
+              <span className="font-mono text-[10px] tracking-[0.15em] text-zinc-700">{messages.length} MSG</span>
               {pinnedMessages.length > 0 && (
-                <span className="font-mono text-[9px] tracking-[0.15em] text-emerald-700">⊕ {pinnedMessages.length}</span>
+                <span className="font-mono text-[10px] tracking-[0.15em] text-emerald-700">⊕ {pinnedMessages.length}</span>
               )}
               {configured && (
-                <span className="flex items-center gap-1.5 font-mono text-[9px] tracking-[0.15em] text-emerald-600">
+                <span className="flex items-center gap-1.5 font-mono text-[10px] tracking-[0.15em] text-emerald-600">
                   <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
                   LIVE
                 </span>
               )}
               {isAdmin && (
                 <Link href="/command">
-                  <span className="font-mono text-[9px] tracking-[0.2em] text-emerald-600/60 hover:text-emerald-500 border border-emerald-900/30 hover:border-emerald-800/40 px-2.5 py-1 transition-colors cursor-pointer">
+                  <span className="font-mono text-[10px] tracking-[0.2em] text-emerald-600/60 hover:text-emerald-500 border border-emerald-900/30 hover:border-emerald-800/40 px-2.5 py-1 transition-colors cursor-pointer">
                     COMMAND
                   </span>
                 </Link>
@@ -1000,11 +1000,11 @@ export default function InvestigationRoom() {
             if (linked.length === 0) return null;
             return (
               <div className="border-b border-zinc-900/60 px-5 py-2 flex items-center gap-3 bg-zinc-950/20 flex-wrap shrink-0">
-                <span className="font-mono text-[8px] tracking-[0.3em] text-zinc-700 shrink-0">WORKSPACE</span>
+                <span className="font-mono text-[9px] tracking-[0.3em] text-zinc-700 shrink-0">WORKSPACE</span>
                 {linked.map(c => (
                   <span
                     key={c.ref}
-                    className="font-mono text-[9px] tracking-[0.06em] border border-zinc-900 px-2 py-0.5 text-zinc-600"
+                    className="font-mono text-[10px] tracking-[0.06em] border border-zinc-900 px-2 py-0.5 text-zinc-600"
                   >
                     {c.ref} · {c.name}
                   </span>
@@ -1017,13 +1017,13 @@ export default function InvestigationRoom() {
           <div className="flex-1 overflow-y-auto">
             {loading ? (
               <div className="flex items-center justify-center h-full">
-                <div className="font-mono text-[10px] tracking-[0.3em] text-zinc-700 animate-pulse">LOADING TRANSMISSIONS...</div>
+                <div className="font-mono text-[11px] tracking-[0.3em] text-zinc-700 animate-pulse">LOADING TRANSMISSIONS...</div>
               </div>
             ) : messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-4 px-8 text-center">
                 <div className="w-2 h-2 rounded-full bg-zinc-800" />
                 <div className="font-mono text-[11px] tracking-[0.25em] text-zinc-600">NO TRANSMISSIONS IN #{activeChannel}</div>
-                <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-800">
+                <div className="font-mono text-[10px] tracking-[0.2em] text-zinc-800">
                   {configured ? "Begin a thread below. Use [F-001] or [D-001] to reference records." : "Activate Supabase credentials to enable live messaging."}
                 </div>
               </div>
@@ -1033,8 +1033,8 @@ export default function InvestigationRoom() {
                 {pinnedMessages.length > 0 && (
                   <div className="border-b border-emerald-900/20 bg-emerald-950/5">
                     <div className="px-5 py-2 border-b border-emerald-900/15 flex items-center gap-2">
-                      <span className="font-mono text-[8px] tracking-[0.3em] text-emerald-800">⊕ PINNED TRANSMISSIONS</span>
-                      <span className="font-mono text-[8px] text-emerald-900">{pinnedMessages.length}</span>
+                      <span className="font-mono text-[9px] tracking-[0.3em] text-emerald-800">⊕ PINNED TRANSMISSIONS</span>
+                      <span className="font-mono text-[9px] text-emerald-900">{pinnedMessages.length}</span>
                     </div>
                     {pinnedMessages.map(msg => (
                       <MessageRow
@@ -1069,13 +1069,13 @@ export default function InvestigationRoom() {
           <div className="border-t border-zinc-900 shrink-0">
             {msgOpError && (
               <div className="border-b border-zinc-900 px-6 py-2 bg-red-950/10 flex items-start justify-between gap-3">
-                <div className="font-mono text-[9px] tracking-[0.15em] text-red-400 leading-relaxed">{msgOpError}</div>
-                <button onClick={() => setMsgOpError(null)} className="font-mono text-[9px] text-red-800 hover:text-red-400 shrink-0 mt-0.5 transition-colors">✕</button>
+                <div className="font-mono text-[10px] tracking-[0.15em] text-red-400 leading-relaxed">{msgOpError}</div>
+                <button onClick={() => setMsgOpError(null)} className="font-mono text-[10px] text-red-800 hover:text-red-400 shrink-0 mt-0.5 transition-colors">✕</button>
               </div>
             )}
             {sendError && (
               <div className="border-b border-zinc-900 px-6 py-2 bg-red-950/10">
-                <div className="font-mono text-[9px] tracking-[0.2em] text-red-400">{sendError}</div>
+                <div className="font-mono text-[10px] tracking-[0.2em] text-red-400">{sendError}</div>
               </div>
             )}
             <div className="flex items-end gap-3 px-5 py-4">
@@ -1097,8 +1097,8 @@ export default function InvestigationRoom() {
                   className="w-full bg-black font-mono text-[14px] tracking-[0.02em] text-[#9ebf9e] px-4 py-3 resize-none outline-none placeholder-zinc-800 disabled:opacity-40"
                 />
                 <div className="border-t border-zinc-900 px-4 py-2 flex items-center gap-4">
-                  <span className="font-mono text-[8px] tracking-[0.2em] text-zinc-800"># {activeChannel}</span>
-                  <span className="font-mono text-[8px] tracking-[0.12em] text-zinc-800">
+                  <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-800"># {activeChannel}</span>
+                  <span className="font-mono text-[9px] tracking-[0.12em] text-zinc-800">
                     {composerVal.length > 0 ? `${composerVal.length} chars` : "Use [F-001] [D-001] to reference records"}
                   </span>
                 </div>
@@ -1106,7 +1106,7 @@ export default function InvestigationRoom() {
               <button
                 onClick={handleSend}
                 disabled={!configured || !authUser || !composerVal.trim() || sending}
-                className="shrink-0 border border-zinc-700 hover:border-emerald-700/50 text-zinc-500 hover:text-emerald-400 font-mono text-[10px] tracking-[0.25em] px-4 py-3.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                className="shrink-0 border border-zinc-700 hover:border-emerald-700/50 text-zinc-500 hover:text-emerald-400 font-mono text-[11px] tracking-[0.25em] px-4 py-3.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 {sending ? "..." : "SEND"}
               </button>
@@ -1119,7 +1119,7 @@ export default function InvestigationRoom() {
 
           {/* Room status */}
           <div className="border-b border-zinc-900 p-4">
-            <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-600 mb-3">ROOM STATUS</div>
+            <div className="font-mono text-[11px] tracking-[0.35em] text-zinc-600 mb-3">ROOM STATUS</div>
             <div className="space-y-2.5 font-mono">
               {[
                 ["DESIGNATION", "INVESTIGATION ROOM // ALPHA"],
@@ -1127,8 +1127,8 @@ export default function InvestigationRoom() {
                 ["ACCESS",      "TEAM ONLY — RESTRICTED"],
               ].map(([l, v]) => (
                 <div key={l}>
-                  <div className="text-[8px] tracking-[0.3em] text-zinc-700 mb-0.5">{l}</div>
-                  <div className="text-[10px] tracking-[0.05em] text-zinc-400">{v}</div>
+                  <div className="text-[9px] tracking-[0.3em] text-zinc-700 mb-0.5">{l}</div>
+                  <div className="text-[11px] tracking-[0.05em] text-zinc-400">{v}</div>
                 </div>
               ))}
             </div>
@@ -1136,10 +1136,10 @@ export default function InvestigationRoom() {
 
           {/* Active cases — read-only display */}
           <div className="border-b border-zinc-900 p-4">
-            <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-600 mb-3">ACTIVE CASES</div>
+            <div className="font-mono text-[11px] tracking-[0.35em] text-zinc-600 mb-3">ACTIVE CASES</div>
             <div className="space-y-1">
               {cases.length === 0 ? (
-                <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-800">NO CASES</div>
+                <div className="font-mono text-[10px] tracking-[0.2em] text-zinc-800">NO CASES</div>
               ) : (
                 cases.map(c => {
                   const isLinked = c.channel_id === activeChannel;
@@ -1147,14 +1147,14 @@ export default function InvestigationRoom() {
                     <div key={c.ref} className="flex items-center gap-2 py-1.5">
                       <Link
                         href={c.ref.startsWith("F") ? `/files/${c.ref}` : `/dossiers/${c.ref}`}
-                        className="font-mono text-[9px] tracking-[0.1em] text-zinc-600 hover:text-emerald-500 transition-colors shrink-0"
+                        className="font-mono text-[10px] tracking-[0.1em] text-zinc-600 hover:text-emerald-500 transition-colors shrink-0"
                       >
                         {c.ref}
                       </Link>
-                      <span className={`font-mono text-[9px] tracking-[0.04em] truncate flex-1 ${isLinked ? "text-emerald-700/80" : "text-zinc-600"}`}>
+                      <span className={`font-mono text-[10px] tracking-[0.04em] truncate flex-1 ${isLinked ? "text-emerald-700/80" : "text-zinc-600"}`}>
                         {c.name}
                       </span>
-                      <span className={`font-mono text-[9px] tracking-[0.1em] shrink-0 ${stageStyle[c.stage] ?? "text-zinc-600"}`}>
+                      <span className={`font-mono text-[10px] tracking-[0.1em] shrink-0 ${stageStyle[c.stage] ?? "text-zinc-600"}`}>
                         {c.stage}
                       </span>
                     </div>

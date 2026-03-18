@@ -48,7 +48,7 @@ export default function World() {
 
         {/* ── PAGE HEADER ───────────────────────────────────────────────── */}
         <section className="border-b border-zinc-900 pb-6">
-          <div className="font-mono text-[9px] tracking-[0.45em] text-emerald-400 mb-4 flex items-center gap-2">
+          <div className="font-mono text-[10px] tracking-[0.45em] text-emerald-400 mb-4 flex items-center gap-2">
             <span className="w-1 h-1 bg-emerald-400" />
             GLOBAL POSTURE
           </div>
@@ -60,22 +60,22 @@ export default function World() {
         {/* ── GLOBAL SUMMARY BAR ────────────────────────────────────────── */}
         <div className="grid grid-cols-2 md:grid-cols-4 border border-zinc-900 bg-black divide-x divide-zinc-900">
           <div className="p-5">
-            <div className="font-mono text-[9px] tracking-[0.25em] text-zinc-700 mb-3">OVERALL THREAT</div>
+            <div className="font-mono text-[10px] tracking-[0.25em] text-zinc-700 mb-3">OVERALL THREAT</div>
             <div className="font-mono text-base text-amber-400 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
               ELEVATED
             </div>
           </div>
           <div className="p-5">
-            <div className="font-mono text-[9px] tracking-[0.25em] text-zinc-700 mb-3">ACTIVE SIGNALS</div>
+            <div className="font-mono text-[10px] tracking-[0.25em] text-zinc-700 mb-3">ACTIVE SIGNALS</div>
             <div className="font-mono text-base text-white">{totalSignals}</div>
           </div>
           <div className="p-5">
-            <div className="font-mono text-[9px] tracking-[0.25em] text-zinc-700 mb-3">CRITICAL ZONES</div>
+            <div className="font-mono text-[10px] tracking-[0.25em] text-zinc-700 mb-3">CRITICAL ZONES</div>
             <div className="font-mono text-base text-red-400">{criticalCount}</div>
           </div>
           <div className="p-5">
-            <div className="font-mono text-[9px] tracking-[0.25em] text-zinc-700 mb-3">SYSTEM CLOCK</div>
+            <div className="font-mono text-[10px] tracking-[0.25em] text-zinc-700 mb-3">SYSTEM CLOCK</div>
             {/* Live clock — reuse UTCClock's tick logic inline */}
             <LiveSystemClock />
           </div>
@@ -85,7 +85,7 @@ export default function World() {
         <div className="border border-zinc-900 bg-zinc-950 h-28 flex items-center justify-center relative overflow-hidden">
           <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_12px,rgba(24,24,27,0.4)_12px,rgba(24,24,27,0.4)_13px)]" />
           <div className="relative z-10 border border-zinc-800 bg-black px-6 py-3 text-center">
-            <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-600">
+            <div className="font-mono text-[11px] tracking-[0.35em] text-zinc-600">
               GEOSPATIAL LAYER OFFLINE — REGIONAL ANALYSIS ACTIVE
             </div>
           </div>
@@ -96,7 +96,7 @@ export default function World() {
 
           {/* Regions grid */}
           <div className="lg:col-span-2">
-            <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-600 mb-4">REGIONAL POSTURE</div>
+            <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-600 mb-4">REGIONAL POSTURE</div>
             <div className="grid md:grid-cols-2 gap-4">
               {regions.map((region) => (
                 <div
@@ -109,18 +109,18 @@ export default function World() {
                       <h3 className="text-base font-medium text-white mb-1.5">{region.region}</h3>
                       <div className="flex items-center gap-2">
                         <span className={`w-1.5 h-1.5 rounded-full ${postureIndicator(region.posture)}`} />
-                        <span className="font-mono text-[9px] tracking-widest uppercase">{region.posture}</span>
+                        <span className="font-mono text-[10px] tracking-widest uppercase">{region.posture}</span>
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="font-mono text-[28px] font-bold leading-none">{region.signals}</div>
-                      <div className="font-mono text-[8px] tracking-[0.2em] opacity-50 mt-1">SIGNALS</div>
+                      <div className="font-mono text-[9px] tracking-[0.2em] opacity-50 mt-1">SIGNALS</div>
                     </div>
                   </div>
 
                   {/* Activity bar */}
                   <div className="mb-4">
-                    <div className="font-mono text-[8px] tracking-[0.2em] opacity-50 mb-1.5">ACTIVITY</div>
+                    <div className="font-mono text-[9px] tracking-[0.2em] opacity-50 mb-1.5">ACTIVITY</div>
                     <div className="h-[2px] bg-black/40 w-full">
                       <div className={`h-full ${activityBar(region.activity)}`} />
                     </div>
@@ -128,10 +128,10 @@ export default function World() {
 
                   {/* Active lanes */}
                   <div>
-                    <div className="font-mono text-[8px] tracking-[0.2em] opacity-50 mb-2">ACTIVE LANES</div>
+                    <div className="font-mono text-[9px] tracking-[0.2em] opacity-50 mb-2">ACTIVE LANES</div>
                     <div className="flex flex-wrap gap-1.5">
                       {region.lanes.map(lane => (
-                        <span key={lane} className="font-mono text-[8px] tracking-widest bg-black/40 px-2 py-1 uppercase border border-current/15">
+                        <span key={lane} className="font-mono text-[9px] tracking-widest bg-black/40 px-2 py-1 uppercase border border-current/15">
                           {lane}
                         </span>
                       ))}
@@ -139,20 +139,20 @@ export default function World() {
                   </div>
 
                   {/* Last updated */}
-                  <div className="mt-4 font-mono text-[8px] tracking-widest opacity-40">
+                  <div className="mt-4 font-mono text-[9px] tracking-widest opacity-40">
                     UPDATED {formatLastUpdated(region.lastUpdated)}
                   </div>
 
                   {/* Cross-links */}
                   {regionLinks[region.region] && (
                     <div className="mt-4 pt-3 border-t border-current/10">
-                      <div className="font-mono text-[8px] tracking-[0.2em] opacity-40 mb-2">RELATED RECORDS</div>
+                      <div className="font-mono text-[9px] tracking-[0.2em] opacity-40 mb-2">RELATED RECORDS</div>
                       <div className="flex flex-wrap gap-1.5">
                         {regionLinks[region.region].files.map(id => (
                           <Link
                             key={id}
                             href={`/files/${id}`}
-                            className="font-mono text-[8px] tracking-widest bg-black/60 px-2 py-1 border border-current/15 hover:border-current/40 transition-colors"
+                            className="font-mono text-[9px] tracking-widest bg-black/60 px-2 py-1 border border-current/15 hover:border-current/40 transition-colors"
                             onClick={e => e.stopPropagation()}
                           >
                             {id}
@@ -162,7 +162,7 @@ export default function World() {
                           <Link
                             key={id}
                             href={`/dossiers/${id}`}
-                            className="font-mono text-[8px] tracking-widest bg-black/60 px-2 py-1 border border-current/15 hover:border-current/40 transition-colors opacity-70"
+                            className="font-mono text-[9px] tracking-widest bg-black/60 px-2 py-1 border border-current/15 hover:border-current/40 transition-colors opacity-70"
                             onClick={e => e.stopPropagation()}
                           >
                             {id}
@@ -179,14 +179,14 @@ export default function World() {
           {/* Sidebar */}
           <div className="space-y-8">
             <div>
-              <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-600 mb-4 border-b border-zinc-900 pb-3">
+              <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-600 mb-4 border-b border-zinc-900 pb-3">
                 GLOBAL SIGNAL CLUSTER
               </div>
               <SignalFeed items={feedItems} />
             </div>
 
             <div className="border border-zinc-900 p-5">
-              <div className="font-mono text-[9px] tracking-[0.3em] text-emerald-400/70 mb-3 flex items-center gap-2">
+              <div className="font-mono text-[10px] tracking-[0.3em] text-emerald-400/70 mb-3 flex items-center gap-2">
                 <span className="w-1 h-1 bg-emerald-400/70" />
                 SATELLITE DOWNLINK
               </div>

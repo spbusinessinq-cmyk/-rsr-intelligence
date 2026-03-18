@@ -64,7 +64,7 @@ function ClearanceBadge({ status }: { status: string }) {
     denied:   "text-red-400 border-red-500/30 bg-red-500/5",
   };
   return (
-    <span className={`font-mono text-[7px] tracking-[0.3em] border px-1.5 py-0.5 ${cls[status] ?? "text-zinc-500 border-zinc-700"}`}>
+    <span className={`font-mono text-[8px] tracking-[0.3em] border px-1.5 py-0.5 ${cls[status] ?? "text-zinc-500 border-zinc-700"}`}>
       {(status ?? "—").toUpperCase()}
     </span>
   );
@@ -77,7 +77,7 @@ function AccountBadge({ status }: { status?: string }) {
     banned:    "text-red-400 border-red-900/30 bg-red-900/5",
   };
   return (
-    <span className={`font-mono text-[9px] tracking-[0.25em] border px-2 py-0.5 ${cls[status] ?? "text-zinc-500 border-zinc-700"}`}>
+    <span className={`font-mono text-[10px] tracking-[0.25em] border px-2 py-0.5 ${cls[status] ?? "text-zinc-500 border-zinc-700"}`}>
       {status.toUpperCase()}
     </span>
   );
@@ -91,7 +91,7 @@ function RoleBadge({ role }: { role: string }) {
     member:  "text-zinc-600 border-zinc-800",
   };
   return (
-    <span className={`font-mono text-[9px] tracking-[0.25em] border px-2 py-0.5 ${cls[role] ?? "text-zinc-500 border-zinc-700"}`}>
+    <span className={`font-mono text-[10px] tracking-[0.25em] border px-2 py-0.5 ${cls[role] ?? "text-zinc-500 border-zinc-700"}`}>
       {(role ?? "—").toUpperCase()}
     </span>
   );
@@ -120,7 +120,7 @@ function ActionBtn({
   }[color];
   return (
     <button disabled={disabled} onClick={onClick}
-      className={`font-mono text-[10px] tracking-[0.2em] border px-3 py-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${cls}`}>
+      className={`font-mono text-[11px] tracking-[0.2em] border px-3 py-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${cls}`}>
       {loading ? "..." : label}
     </button>
   );
@@ -165,18 +165,18 @@ function IdentityModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.85)" }}>
       <div className="bg-black border border-zinc-800 w-full max-w-md mx-6 p-6 space-y-4">
         <div className="flex items-center justify-between mb-2">
-          <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-500">EDIT IDENTITY</div>
-          <button onClick={onClose} className="font-mono text-[9px] text-zinc-700 hover:text-zinc-400 transition-colors">✕</button>
+          <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-500">EDIT IDENTITY</div>
+          <button onClick={onClose} className="font-mono text-[10px] text-zinc-700 hover:text-zinc-400 transition-colors">✕</button>
         </div>
 
         <div className="border border-zinc-900 bg-zinc-950/50 px-4 py-2.5 flex items-center gap-3">
-          <div className="font-mono text-[8px] tracking-[0.3em] text-zinc-600">OPERATOR</div>
-          <div className="font-mono text-[10px] text-zinc-400">{displayHandle(op)}</div>
-          {op.email && <div className="font-mono text-[9px] text-zinc-700 truncate ml-auto">{op.email}</div>}
+          <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-600">OPERATOR</div>
+          <div className="font-mono text-[11px] text-zinc-400">{displayHandle(op)}</div>
+          {op.email && <div className="font-mono text-[10px] text-zinc-700 truncate ml-auto">{op.email}</div>}
         </div>
 
         <div>
-          <label className="block font-mono text-[8px] tracking-[0.35em] text-zinc-600 mb-2">
+          <label className="block font-mono text-[9px] tracking-[0.35em] text-zinc-600 mb-2">
             HANDLE <span className="text-zinc-800">— required, uppercase, alphanumeric + hyphens</span>
           </label>
           <input
@@ -189,7 +189,7 @@ function IdentityModal({
         </div>
 
         <div>
-          <label className="block font-mono text-[8px] tracking-[0.35em] text-zinc-600 mb-2">
+          <label className="block font-mono text-[9px] tracking-[0.35em] text-zinc-600 mb-2">
             TITLE <span className="text-zinc-800">— optional</span>
           </label>
           <input
@@ -203,26 +203,26 @@ function IdentityModal({
 
         {saveError && (
           <div className="border border-red-900/40 bg-red-950/10 px-3 py-2">
-            <div className="font-mono text-[9px] tracking-[0.2em] text-red-400">SAVE FAILED: {saveError}</div>
+            <div className="font-mono text-[10px] tracking-[0.2em] text-red-400">SAVE FAILED: {saveError}</div>
           </div>
         )}
         {saved && (
           <div className="border border-emerald-900/30 bg-emerald-950/10 px-3 py-2">
-            <div className="font-mono text-[9px] tracking-[0.2em] text-emerald-400">IDENTITY UPDATED ✓</div>
+            <div className="font-mono text-[10px] tracking-[0.2em] text-emerald-400">IDENTITY UPDATED ✓</div>
           </div>
         )}
         <div className="flex items-center gap-4 pt-2 border-t border-zinc-900">
           <button
             onClick={submit}
             disabled={!handle.trim() || saving || saved}
-            className="font-mono text-[10px] tracking-[0.25em] text-emerald-600 hover:text-emerald-400 border border-emerald-900/30 hover:border-emerald-800/40 px-5 py-2.5 transition-colors disabled:opacity-30"
+            className="font-mono text-[11px] tracking-[0.25em] text-emerald-600 hover:text-emerald-400 border border-emerald-900/30 hover:border-emerald-800/40 px-5 py-2.5 transition-colors disabled:opacity-30"
           >
             {saving ? "SAVING..." : saved ? "SAVED ✓" : "SAVE IDENTITY"}
           </button>
-          <button onClick={onClose} className="font-mono text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors">
+          <button onClick={onClose} className="font-mono text-[11px] text-zinc-600 hover:text-zinc-400 transition-colors">
             CANCEL
           </button>
-          <span className="ml-auto font-mono text-[8px] text-zinc-800">{op.id.slice(0, 8)}…</span>
+          <span className="ml-auto font-mono text-[9px] text-zinc-800">{op.id.slice(0, 8)}…</span>
         </div>
       </div>
     </div>
@@ -437,23 +437,23 @@ export default function Command() {
               </div>
               <div>
                 <div className="font-mono text-xs tracking-[0.25em] text-zinc-300 group-hover:text-zinc-100 transition-colors">RSR INTELLIGENCE NETWORK</div>
-                <div className="font-mono text-[8px] tracking-[0.3em] text-zinc-700">INDEPENDENT ANALYSIS SYSTEM</div>
+                <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-700">INDEPENDENT ANALYSIS SYSTEM</div>
               </div>
             </div>
           </Link>
           <div className="w-px h-6 bg-zinc-800" />
-          <div className="font-mono text-[9px] tracking-[0.4em] text-emerald-500">COMMAND CONSOLE</div>
+          <div className="font-mono text-[10px] tracking-[0.4em] text-emerald-500">COMMAND CONSOLE</div>
         </div>
         <div className="flex items-center gap-6">
           {myProfile && (
-            <div className="font-mono text-[8px] tracking-[0.3em] text-zinc-600">
+            <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-600">
               {displayHandle(myProfile)} <span className="text-emerald-600">// ADMIN</span>
             </div>
           )}
           <Link href="/investigation-room">
-            <span className="font-mono text-[8px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 cursor-pointer transition-colors">INVESTIGATION ROOM</span>
+            <span className="font-mono text-[9px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 cursor-pointer transition-colors">INVESTIGATION ROOM</span>
           </Link>
-          <button onClick={signOut} className="font-mono text-[9px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 transition-colors">
+          <button onClick={signOut} className="font-mono text-[10px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 transition-colors">
             SIGN OUT
           </button>
         </div>
@@ -462,7 +462,7 @@ export default function Command() {
       {/* Toast */}
       {toast && (
         <div className={`fixed top-4 right-4 z-50 border px-5 py-3 ${toastType === "ok" ? "border-emerald-500/30 bg-black" : "border-red-500/30 bg-red-950/10"}`}>
-          <div className={`font-mono text-[9px] tracking-[0.3em] ${toastType === "ok" ? "text-emerald-400" : "text-red-400"}`}>{toast}</div>
+          <div className={`font-mono text-[10px] tracking-[0.3em] ${toastType === "ok" ? "text-emerald-400" : "text-red-400"}`}>{toast}</div>
         </div>
       )}
 
@@ -474,13 +474,13 @@ export default function Command() {
       <div className="flex-1 overflow-auto">
         <div className="max-w-7xl mx-auto px-8 py-10 space-y-10">
 
-          <div className="font-mono text-[9px] tracking-[0.45em] text-zinc-700">
+          <div className="font-mono text-[10px] tracking-[0.45em] text-zinc-700">
             » RSR // COMMAND CONSOLE // SYSTEM ADMINISTRATION
           </div>
 
           {/* ── CLEARANCE STATS ── */}
           <div>
-            <div className="font-mono text-[8px] tracking-[0.4em] text-zinc-700 mb-2">CLEARANCE STATUS</div>
+            <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-700 mb-2">CLEARANCE STATUS</div>
             <div className="grid grid-cols-5 gap-px border border-zinc-900 bg-zinc-900">
               {[
                 { label: "TOTAL",              value: stats.total,                            color: "text-white" },
@@ -491,7 +491,7 @@ export default function Command() {
               ].map(s => (
                 <div key={s.label} className="bg-black px-5 py-4">
                   <div className={`font-mono text-2xl font-bold ${s.color}`}>{loading ? "—" : s.value}</div>
-                  <div className={`font-mono text-[9px] tracking-[0.25em] mt-1.5 ${"alert" in s && s.alert ? "text-amber-600" : "text-zinc-600"}`}>{s.label}</div>
+                  <div className={`font-mono text-[10px] tracking-[0.25em] mt-1.5 ${"alert" in s && s.alert ? "text-amber-600" : "text-zinc-600"}`}>{s.label}</div>
                 </div>
               ))}
             </div>
@@ -499,7 +499,7 @@ export default function Command() {
 
           {/* ── ROLE DISTRIBUTION ── */}
           <div>
-            <div className="font-mono text-[8px] tracking-[0.4em] text-zinc-700 mb-2">ROLE DISTRIBUTION</div>
+            <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-700 mb-2">ROLE DISTRIBUTION</div>
             <div className="grid grid-cols-4 gap-px border border-zinc-900 bg-zinc-900">
               {[
                 { label: "ADMIN",   value: stats.byRole.admin,   color: "text-emerald-300" },
@@ -509,7 +509,7 @@ export default function Command() {
               ].map(s => (
                 <div key={s.label} className="bg-black px-5 py-3">
                   <div className={`font-mono text-xl font-bold ${s.color}`}>{loading ? "—" : s.value}</div>
-                  <div className="font-mono text-[9px] tracking-[0.25em] mt-1.5 text-zinc-600">{s.label}</div>
+                  <div className="font-mono text-[10px] tracking-[0.25em] mt-1.5 text-zinc-600">{s.label}</div>
                 </div>
               ))}
             </div>
@@ -518,20 +518,20 @@ export default function Command() {
           {/* ── OPERATOR TABLE ── */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <div className="font-mono text-[9px] tracking-[0.45em] text-zinc-500">REGISTERED OPERATORS</div>
-              <div className="font-mono text-[8px] tracking-[0.3em] text-zinc-700">{stats.total} TOTAL</div>
+              <div className="font-mono text-[10px] tracking-[0.45em] text-zinc-500">REGISTERED OPERATORS</div>
+              <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-700">{stats.total} TOTAL</div>
             </div>
             <div className="border border-zinc-900">
               <div className="grid grid-cols-[1.4fr_auto_auto_auto_auto_auto] gap-4 px-5 py-3 border-b border-zinc-900 bg-zinc-950">
                 {["OPERATOR", "ROLE", "CLEARANCE", "ACCOUNT", "JOINED", "ACTIONS"].map(h => (
-                  <div key={h} className="font-mono text-[9px] tracking-[0.25em] text-zinc-500">{h}</div>
+                  <div key={h} className="font-mono text-[10px] tracking-[0.25em] text-zinc-500">{h}</div>
                 ))}
               </div>
 
               {loading ? (
-                <div className="px-5 py-8 text-center font-mono text-[9px] tracking-[0.3em] text-zinc-700 animate-pulse">LOADING OPERATORS...</div>
+                <div className="px-5 py-8 text-center font-mono text-[10px] tracking-[0.3em] text-zinc-700 animate-pulse">LOADING OPERATORS...</div>
               ) : operators.length === 0 ? (
-                <div className="px-5 py-8 text-center font-mono text-[9px] tracking-[0.3em] text-zinc-700">NO OPERATORS REGISTERED</div>
+                <div className="px-5 py-8 text-center font-mono text-[10px] tracking-[0.3em] text-zinc-700">NO OPERATORS REGISTERED</div>
               ) : (
                 operators.map(op => {
                   const isSelf     = op.id === myProfile?.id;
@@ -546,7 +546,7 @@ export default function Command() {
                         <div className="flex items-center gap-2 min-w-0">
                           <button
                             onClick={() => setExpandedOp(isExpanded ? null : op.id)}
-                            className={`shrink-0 font-mono text-[9px] tracking-[0.15em] border px-2.5 py-1 transition-colors whitespace-nowrap ${
+                            className={`shrink-0 font-mono text-[10px] tracking-[0.15em] border px-2.5 py-1 transition-colors whitespace-nowrap ${
                               isExpanded
                                 ? "text-emerald-600 border-emerald-900/50 bg-emerald-950/20"
                                 : "text-zinc-600 border-zinc-800 hover:text-zinc-300 hover:border-zinc-600"
@@ -555,15 +555,15 @@ export default function Command() {
                             {isExpanded ? "▾ COLLAPSE" : "▸ DETAILS"}
                           </button>
                           <div className="min-w-0">
-                            <div className="font-mono text-[10px] tracking-[0.12em] text-zinc-200 truncate flex items-center gap-2">
+                            <div className="font-mono text-[11px] tracking-[0.12em] text-zinc-200 truncate flex items-center gap-2">
                               {handle}
-                              {isSelf && <span className="text-[8px] text-emerald-600 tracking-[0.2em] shrink-0">YOU</span>}
+                              {isSelf && <span className="text-[9px] text-emerald-600 tracking-[0.2em] shrink-0">YOU</span>}
                             </div>
                             {op.title && (
-                              <div className="font-mono text-[9px] tracking-[0.06em] text-zinc-500 truncate">{op.title}</div>
+                              <div className="font-mono text-[10px] tracking-[0.06em] text-zinc-500 truncate">{op.title}</div>
                             )}
                             {op.email && (
-                              <div className="font-mono text-[9px] tracking-[0.04em] text-zinc-600 truncate">{op.email}</div>
+                              <div className="font-mono text-[10px] tracking-[0.04em] text-zinc-600 truncate">{op.email}</div>
                             )}
                           </div>
                         </div>
@@ -572,11 +572,11 @@ export default function Command() {
                         <div><ClearanceBadge status={op.approval_status ?? "pending"} /></div>
                         <div>
                           {acctStatus === "active"
-                            ? <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-600">ACTIVE</span>
+                            ? <span className="font-mono text-[10px] tracking-[0.2em] text-zinc-600">ACTIVE</span>
                             : <AccountBadge status={acctStatus} />
                           }
                         </div>
-                        <div className="font-mono text-[9px] tracking-[0.04em] text-zinc-600 whitespace-nowrap">
+                        <div className="font-mono text-[10px] tracking-[0.04em] text-zinc-600 whitespace-nowrap">
                           {op.created_at ? formatDate(op.created_at) : "—"}
                         </div>
 
@@ -614,7 +614,7 @@ export default function Command() {
 
                           {/* Operator record */}
                           <div className="border border-zinc-900 bg-black px-4 py-3">
-                            <div className="font-mono text-[8px] tracking-[0.35em] text-zinc-600 mb-3">OPERATOR RECORD</div>
+                            <div className="font-mono text-[9px] tracking-[0.35em] text-zinc-600 mb-3">OPERATOR RECORD</div>
                             <div className="space-y-1.5">
                               {([
                                 ["ID",           op.id],
@@ -628,8 +628,8 @@ export default function Command() {
                                 ["JOINED",       op.created_at ? formatDate(op.created_at) : "—"],
                               ] as [string, string][]).map(([label, val]) => (
                                 <div key={label} className="flex items-start gap-4 font-mono">
-                                  <span className="text-[8px] tracking-[0.3em] text-zinc-700 w-32 shrink-0 pt-0.5">{label}</span>
-                                  <span className="text-[9px] text-zinc-400 break-all leading-relaxed">{val}</span>
+                                  <span className="text-[9px] tracking-[0.3em] text-zinc-700 w-32 shrink-0 pt-0.5">{label}</span>
+                                  <span className="text-[10px] text-zinc-400 break-all leading-relaxed">{val}</span>
                                 </div>
                               ))}
                             </div>
@@ -637,10 +637,10 @@ export default function Command() {
 
                           {/* Identity edit */}
                           <div className="flex items-center gap-3">
-                            <span className="font-mono text-[9px] tracking-[0.25em] text-zinc-600">IDENTITY:</span>
+                            <span className="font-mono text-[10px] tracking-[0.25em] text-zinc-600">IDENTITY:</span>
                             <button
                               onClick={() => setEditingOp(op)}
-                              className="font-mono text-[10px] tracking-[0.2em] text-zinc-400 hover:text-emerald-400 border border-zinc-700 hover:border-emerald-800/50 px-4 py-1 transition-colors"
+                              className="font-mono text-[11px] tracking-[0.2em] text-zinc-400 hover:text-emerald-400 border border-zinc-700 hover:border-emerald-800/50 px-4 py-1 transition-colors"
                             >
                               EDIT HANDLE / TITLE
                             </button>
@@ -650,7 +650,7 @@ export default function Command() {
                             <>
                               {/* Role controls */}
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-mono text-[9px] tracking-[0.25em] text-zinc-600 shrink-0">ROLE:</span>
+                                <span className="font-mono text-[10px] tracking-[0.25em] text-zinc-600 shrink-0">ROLE:</span>
                                 {ROLES.map(r => (
                                   <ActionBtn key={r} label={r.toUpperCase()}
                                     color={r === op.role ? "active" : "zinc"}
@@ -662,7 +662,7 @@ export default function Command() {
 
                               {/* Account status controls */}
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-mono text-[9px] tracking-[0.25em] text-zinc-600 shrink-0">ACCOUNT:</span>
+                                <span className="font-mono text-[10px] tracking-[0.25em] text-zinc-600 shrink-0">ACCOUNT:</span>
                                 {ACCT_STATUSES.map(s => (
                                   <ActionBtn key={s} label={s.toUpperCase()}
                                     color={s === acctStatus ? "active" : s === "banned" ? "red" : s === "suspended" ? "amber" : "zinc"}
@@ -674,7 +674,7 @@ export default function Command() {
                             </>
                           )}
 
-                          <div className="font-mono text-[8px] text-zinc-800">ID: {op.id}</div>
+                          <div className="font-mono text-[9px] text-zinc-800">ID: {op.id}</div>
                         </div>
                       )}
                     </div>
@@ -688,36 +688,36 @@ export default function Command() {
           <div className="grid lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
               <div className="flex items-center justify-between mb-3">
-                <div className="font-mono text-[9px] tracking-[0.45em] text-zinc-500">RECENT ROOM TRANSMISSIONS</div>
+                <div className="font-mono text-[10px] tracking-[0.45em] text-zinc-500">RECENT ROOM TRANSMISSIONS</div>
                 <Link href="/investigation-room">
-                  <span className="font-mono text-[8px] tracking-[0.3em] text-emerald-600 hover:text-emerald-400 cursor-pointer transition-colors">→ INVESTIGATION ROOM</span>
+                  <span className="font-mono text-[9px] tracking-[0.3em] text-emerald-600 hover:text-emerald-400 cursor-pointer transition-colors">→ INVESTIGATION ROOM</span>
                 </Link>
               </div>
               <div className="border border-zinc-900">
                 <div className="grid grid-cols-[50px_80px_1fr_80px_24px] gap-3 px-5 py-2.5 border-b border-zinc-900 bg-zinc-950">
                   {["TIME", "CHANNEL", "MESSAGE", "HANDLE", ""].map(h => (
-                    <div key={h} className="font-mono text-[9px] tracking-[0.25em] text-zinc-500">{h}</div>
+                    <div key={h} className="font-mono text-[10px] tracking-[0.25em] text-zinc-500">{h}</div>
                   ))}
                 </div>
                 {loading ? (
-                  <div className="px-5 py-6 text-center font-mono text-[9px] tracking-[0.3em] text-zinc-700 animate-pulse">LOADING...</div>
+                  <div className="px-5 py-6 text-center font-mono text-[10px] tracking-[0.3em] text-zinc-700 animate-pulse">LOADING...</div>
                 ) : messages.length === 0 ? (
-                  <div className="px-5 py-6 text-center font-mono text-[9px] tracking-[0.3em] text-zinc-700">NO TRANSMISSIONS</div>
+                  <div className="px-5 py-6 text-center font-mono text-[10px] tracking-[0.3em] text-zinc-700">NO TRANSMISSIONS</div>
                 ) : (
                   messages.map(msg => (
                     <div key={msg.id} className="group grid grid-cols-[50px_80px_1fr_80px_24px] gap-3 px-5 py-2.5 border-b border-zinc-900/30 items-start hover:bg-zinc-950/20">
-                      <div className="font-mono text-[9px] text-zinc-600 pt-0.5">{formatTime(msg.created_at)}</div>
-                      <div className="font-mono text-[9px] tracking-[0.1em] text-emerald-700 pt-0.5 truncate">#{msg.channel_id}</div>
-                      <div className="font-mono text-[10px] text-zinc-400 leading-relaxed truncate">
+                      <div className="font-mono text-[10px] text-zinc-600 pt-0.5">{formatTime(msg.created_at)}</div>
+                      <div className="font-mono text-[10px] tracking-[0.1em] text-emerald-700 pt-0.5 truncate">#{msg.channel_id}</div>
+                      <div className="font-mono text-[11px] text-zinc-400 leading-relaxed truncate">
                         {msg.pinned && <span className="text-emerald-800 mr-1">⊕</span>}
                         {msg.body.length > 80 ? msg.body.slice(0, 80) + "…" : msg.body}
                       </div>
-                      <div className="font-mono text-[9px] text-zinc-500 pt-0.5 truncate">{msg.handle}</div>
+                      <div className="font-mono text-[10px] text-zinc-500 pt-0.5 truncate">{msg.handle}</div>
                       <div>
                         <button
                           onClick={() => deleteMessage(msg.id)}
                           title="Delete"
-                          className="font-mono text-[9px] text-zinc-600 hover:text-red-400 transition-colors opacity-30 group-hover:opacity-100"
+                          className="font-mono text-[10px] text-zinc-600 hover:text-red-400 transition-colors opacity-30 group-hover:opacity-100"
                         >
                           ✕
                         </button>
@@ -729,21 +729,21 @@ export default function Command() {
             </div>
 
             <div>
-              <div className="font-mono text-[9px] tracking-[0.45em] text-zinc-500 mb-3">CHANNEL ACTIVITY</div>
+              <div className="font-mono text-[10px] tracking-[0.45em] text-zinc-500 mb-3">CHANNEL ACTIVITY</div>
               <div className="border border-zinc-900 divide-y divide-zinc-900">
                 {activeChannels.length === 0 && !loading ? (
-                  <div className="px-5 py-4 font-mono text-[9px] text-zinc-700">No active channels</div>
+                  <div className="px-5 py-4 font-mono text-[10px] text-zinc-700">No active channels</div>
                 ) : activeChannels.map(ch => (
                   <div key={ch.id} className="flex items-center justify-between px-5 py-3">
-                    <div className="font-mono text-[10px] tracking-[0.08em] text-zinc-400">
+                    <div className="font-mono text-[11px] tracking-[0.08em] text-zinc-400">
                       <span className="text-zinc-700"># </span>{ch.name}
                     </div>
-                    <div className="font-mono text-[10px] text-zinc-600">{channelActivity[ch.id] ?? 0} msg</div>
+                    <div className="font-mono text-[11px] text-zinc-600">{channelActivity[ch.id] ?? 0} msg</div>
                   </div>
                 ))}
               </div>
               <div className="mt-4 border border-zinc-900 p-4">
-                <div className="font-mono text-[10px] tracking-[0.3em] text-zinc-600 mb-3">SYSTEM STATUS</div>
+                <div className="font-mono text-[11px] tracking-[0.3em] text-zinc-600 mb-3">SYSTEM STATUS</div>
                 {[
                   { label: "INVESTIGATION ROOM", status: "LIVE" },
                   { label: "REALTIME SYNC",      status: "ACTIVE" },
@@ -751,8 +751,8 @@ export default function Command() {
                   { label: "APPROVAL GATE",      status: "ACTIVE" },
                 ].map(s => (
                   <div key={s.label} className="flex items-center justify-between py-1.5 border-b border-zinc-900/40 last:border-0">
-                    <span className="font-mono text-[9px] tracking-[0.12em] text-zinc-500">{s.label}</span>
-                    <span className="font-mono text-[9px] text-emerald-600 tracking-[0.2em]">{s.status}</span>
+                    <span className="font-mono text-[10px] tracking-[0.12em] text-zinc-500">{s.label}</span>
+                    <span className="font-mono text-[10px] text-emerald-600 tracking-[0.2em]">{s.status}</span>
                   </div>
                 ))}
               </div>
@@ -762,10 +762,10 @@ export default function Command() {
           {/* ── CHANNEL MANAGEMENT ── */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <div className="font-mono text-[9px] tracking-[0.45em] text-zinc-500">CHANNEL MANAGEMENT</div>
+              <div className="font-mono text-[10px] tracking-[0.45em] text-zinc-500">CHANNEL MANAGEMENT</div>
               <button
                 onClick={() => { setChCreateOpen(v => !v); setChNewName(""); }}
-                className="font-mono text-[8px] tracking-[0.3em] text-emerald-700 hover:text-emerald-500 border border-emerald-900/30 hover:border-emerald-800/40 px-3 py-1.5 transition-colors"
+                className="font-mono text-[9px] tracking-[0.3em] text-emerald-700 hover:text-emerald-500 border border-emerald-900/30 hover:border-emerald-800/40 px-3 py-1.5 transition-colors"
               >
                 + NEW CHANNEL
               </button>
@@ -779,23 +779,23 @@ export default function Command() {
                   onKeyDown={e => { if (e.key === "Enter") createChannel(); if (e.key === "Escape") setChCreateOpen(false); }}
                   placeholder="channel-slug"
                   autoFocus
-                  className="flex-1 bg-black border border-zinc-700 focus:border-zinc-500 font-mono text-[10px] text-zinc-300 px-3 py-2 outline-none placeholder-zinc-800 transition-colors"
+                  className="flex-1 bg-black border border-zinc-700 focus:border-zinc-500 font-mono text-[11px] text-zinc-300 px-3 py-2 outline-none placeholder-zinc-800 transition-colors"
                 />
-                <button onClick={createChannel} className="font-mono text-[9px] tracking-[0.2em] text-emerald-600 hover:text-emerald-400 border border-emerald-900/30 px-3 py-2 transition-colors">CREATE</button>
-                <button onClick={() => setChCreateOpen(false)} className="font-mono text-[9px] text-zinc-600 hover:text-zinc-400 transition-colors">CANCEL</button>
+                <button onClick={createChannel} className="font-mono text-[10px] tracking-[0.2em] text-emerald-600 hover:text-emerald-400 border border-emerald-900/30 px-3 py-2 transition-colors">CREATE</button>
+                <button onClick={() => setChCreateOpen(false)} className="font-mono text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors">CANCEL</button>
               </div>
             )}
 
             <div className="border border-zinc-900">
               <div className="grid grid-cols-[1.5fr_70px_60px_1fr_auto] gap-4 px-5 py-2.5 border-b border-zinc-900 bg-zinc-950">
                 {["NAME", "MSG", "CASES", "DESCRIPTION", "ACTIONS"].map(h => (
-                  <div key={h} className="font-mono text-[9px] tracking-[0.25em] text-zinc-500">{h}</div>
+                  <div key={h} className="font-mono text-[10px] tracking-[0.25em] text-zinc-500">{h}</div>
                 ))}
               </div>
               {loading ? (
-                <div className="px-5 py-6 text-center font-mono text-[9px] tracking-[0.3em] text-zinc-700 animate-pulse">LOADING...</div>
+                <div className="px-5 py-6 text-center font-mono text-[10px] tracking-[0.3em] text-zinc-700 animate-pulse">LOADING...</div>
               ) : channels.length === 0 ? (
-                <div className="px-5 py-6 text-center font-mono text-[9px] tracking-[0.3em] text-zinc-700">NO CHANNELS — create one above or run the migration SQL</div>
+                <div className="px-5 py-6 text-center font-mono text-[10px] tracking-[0.3em] text-zinc-700">NO CHANNELS — create one above or run the migration SQL</div>
               ) : (
                 channels.map(ch => {
                   const isRenaming = chRenaming === ch.id;
@@ -810,38 +810,38 @@ export default function Command() {
                                 onChange={e => setChRenameVal(e.target.value)}
                                 onKeyDown={e => { if (e.key === "Enter") renameChannel(ch.id); if (e.key === "Escape") setChRenaming(null); }}
                                 autoFocus
-                                className="bg-black border border-zinc-700 font-mono text-[10px] text-zinc-300 px-2 py-1 outline-none w-36"
+                                className="bg-black border border-zinc-700 font-mono text-[11px] text-zinc-300 px-2 py-1 outline-none w-36"
                               />
-                              <button onClick={() => renameChannel(ch.id)} className="font-mono text-[8px] text-emerald-600 hover:text-emerald-400 transition-colors">SAVE</button>
-                              <button onClick={() => setChRenaming(null)} className="font-mono text-[8px] text-zinc-600 hover:text-zinc-400 transition-colors">✕</button>
+                              <button onClick={() => renameChannel(ch.id)} className="font-mono text-[9px] text-emerald-600 hover:text-emerald-400 transition-colors">SAVE</button>
+                              <button onClick={() => setChRenaming(null)} className="font-mono text-[9px] text-zinc-600 hover:text-zinc-400 transition-colors">✕</button>
                             </div>
                           ) : (
                             <div className="flex items-center gap-2">
-                              <span className="font-mono text-[10px] tracking-[0.08em] text-zinc-400">
+                              <span className="font-mono text-[11px] tracking-[0.08em] text-zinc-400">
                                 <span className="text-zinc-700"># </span>{ch.name}
                               </span>
-                              {ch.archived && <span className="font-mono text-[8px] tracking-[0.2em] text-zinc-700 border border-zinc-800 px-1">ARCHIVED</span>}
+                              {ch.archived && <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-700 border border-zinc-800 px-1">ARCHIVED</span>}
                             </div>
                           )}
                         </div>
-                        <div className="font-mono text-[10px] text-zinc-600">{channelActivity[ch.id] ?? 0}</div>
-                        <div className="font-mono text-[10px] text-zinc-600">{cases.filter(c => c.channel_id === ch.id).length}</div>
-                        <div className="font-mono text-[10px] text-zinc-700 truncate">{ch.description ?? "—"}</div>
+                        <div className="font-mono text-[11px] text-zinc-600">{channelActivity[ch.id] ?? 0}</div>
+                        <div className="font-mono text-[11px] text-zinc-600">{cases.filter(c => c.channel_id === ch.id).length}</div>
+                        <div className="font-mono text-[11px] text-zinc-700 truncate">{ch.description ?? "—"}</div>
                         <div className="flex items-center gap-2">
                           {!ch.archived && (
                             <button
                               onClick={() => { setChRenaming(ch.id); setChRenameVal(ch.name); }}
-                              className="font-mono text-[9px] tracking-[0.15em] text-zinc-600 hover:text-zinc-400 border border-zinc-800 hover:border-zinc-700 px-2 py-0.5 transition-colors"
+                              className="font-mono text-[10px] tracking-[0.15em] text-zinc-600 hover:text-zinc-400 border border-zinc-800 hover:border-zinc-700 px-2 py-0.5 transition-colors"
                             >
                               RENAME
                             </button>
                           )}
                           {ch.archived ? (
-                            <button onClick={() => restoreChannel(ch.id)} className="font-mono text-[9px] tracking-[0.15em] text-zinc-600 hover:text-emerald-500 border border-zinc-800 px-2 py-0.5 transition-colors">
+                            <button onClick={() => restoreChannel(ch.id)} className="font-mono text-[10px] tracking-[0.15em] text-zinc-600 hover:text-emerald-500 border border-zinc-800 px-2 py-0.5 transition-colors">
                               RESTORE
                             </button>
                           ) : (
-                            <button onClick={() => archiveChannel(ch.id)} className="font-mono text-[9px] tracking-[0.15em] text-zinc-600 hover:text-amber-400 border border-zinc-800 px-2 py-0.5 transition-colors">
+                            <button onClick={() => archiveChannel(ch.id)} className="font-mono text-[10px] tracking-[0.15em] text-zinc-600 hover:text-amber-400 border border-zinc-800 px-2 py-0.5 transition-colors">
                               ARCHIVE
                             </button>
                           )}
@@ -857,10 +857,10 @@ export default function Command() {
           {/* ── CASE MANAGEMENT ── */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <div className="font-mono text-[9px] tracking-[0.45em] text-zinc-500">CASE MANAGEMENT</div>
+              <div className="font-mono text-[10px] tracking-[0.45em] text-zinc-500">CASE MANAGEMENT</div>
               <button
                 onClick={() => { setCaseCreateOpen(v => !v); setNewCaseForm({ ref: "", name: "", stage: "NEW", priority: "NORMAL", channel_id: "", description: "" }); }}
-                className="font-mono text-[8px] tracking-[0.3em] text-emerald-700 hover:text-emerald-500 border border-emerald-900/30 hover:border-emerald-800/40 px-3 py-1.5 transition-colors"
+                className="font-mono text-[9px] tracking-[0.3em] text-emerald-700 hover:text-emerald-500 border border-emerald-900/30 hover:border-emerald-800/40 px-3 py-1.5 transition-colors"
               >
                 + NEW CASE
               </button>
@@ -868,55 +868,55 @@ export default function Command() {
 
             {caseCreateOpen && (
               <div className="mb-4 border border-zinc-800 bg-zinc-950 p-5 space-y-3">
-                <div className="font-mono text-[9px] tracking-[0.35em] text-zinc-600 mb-2">NEW CASE</div>
+                <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-600 mb-2">NEW CASE</div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-mono text-[8px] tracking-[0.3em] text-zinc-700 mb-1">REF</label>
+                    <label className="block font-mono text-[9px] tracking-[0.3em] text-zinc-700 mb-1">REF</label>
                     <input placeholder="F-021" value={newCaseForm.ref}
                       onChange={e => setNewCaseForm(f => ({ ...f, ref: e.target.value }))}
-                      className="w-full bg-black border border-zinc-800 focus:border-zinc-600 font-mono text-[10px] text-zinc-300 px-3 py-2 outline-none placeholder-zinc-800 transition-colors" />
+                      className="w-full bg-black border border-zinc-800 focus:border-zinc-600 font-mono text-[11px] text-zinc-300 px-3 py-2 outline-none placeholder-zinc-800 transition-colors" />
                   </div>
                   <div>
-                    <label className="block font-mono text-[8px] tracking-[0.3em] text-zinc-700 mb-1">NAME</label>
+                    <label className="block font-mono text-[9px] tracking-[0.3em] text-zinc-700 mb-1">NAME</label>
                     <input placeholder="OPERATION NAME" value={newCaseForm.name}
                       onChange={e => setNewCaseForm(f => ({ ...f, name: e.target.value }))}
-                      className="w-full bg-black border border-zinc-800 focus:border-zinc-600 font-mono text-[10px] text-zinc-300 px-3 py-2 outline-none placeholder-zinc-800 transition-colors" />
+                      className="w-full bg-black border border-zinc-800 focus:border-zinc-600 font-mono text-[11px] text-zinc-300 px-3 py-2 outline-none placeholder-zinc-800 transition-colors" />
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="block font-mono text-[8px] tracking-[0.3em] text-zinc-700 mb-1">STAGE</label>
+                    <label className="block font-mono text-[9px] tracking-[0.3em] text-zinc-700 mb-1">STAGE</label>
                     <select value={newCaseForm.stage} onChange={e => setNewCaseForm(f => ({ ...f, stage: e.target.value }))}
-                      className="w-full bg-black border border-zinc-800 font-mono text-[10px] text-zinc-400 px-3 py-2 outline-none">
+                      className="w-full bg-black border border-zinc-800 font-mono text-[11px] text-zinc-400 px-3 py-2 outline-none">
                       {STAGES.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block font-mono text-[8px] tracking-[0.3em] text-zinc-700 mb-1">PRIORITY</label>
+                    <label className="block font-mono text-[9px] tracking-[0.3em] text-zinc-700 mb-1">PRIORITY</label>
                     <select value={newCaseForm.priority} onChange={e => setNewCaseForm(f => ({ ...f, priority: e.target.value }))}
-                      className="w-full bg-black border border-zinc-800 font-mono text-[10px] text-zinc-400 px-3 py-2 outline-none">
+                      className="w-full bg-black border border-zinc-800 font-mono text-[11px] text-zinc-400 px-3 py-2 outline-none">
                       <option value="HIGH">HIGH</option>
                       <option value="NORMAL">NORMAL</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block font-mono text-[8px] tracking-[0.3em] text-zinc-700 mb-1">CHANNEL</label>
+                    <label className="block font-mono text-[9px] tracking-[0.3em] text-zinc-700 mb-1">CHANNEL</label>
                     <select value={newCaseForm.channel_id} onChange={e => setNewCaseForm(f => ({ ...f, channel_id: e.target.value }))}
-                      className="w-full bg-black border border-zinc-800 font-mono text-[10px] text-zinc-400 px-3 py-2 outline-none">
+                      className="w-full bg-black border border-zinc-800 font-mono text-[11px] text-zinc-400 px-3 py-2 outline-none">
                       <option value="">— NONE —</option>
                       {activeChannels.map(ch => <option key={ch.id} value={ch.id}>{ch.name}</option>)}
                     </select>
                   </div>
                 </div>
                 <div>
-                  <label className="block font-mono text-[8px] tracking-[0.3em] text-zinc-700 mb-1">DESCRIPTION</label>
+                  <label className="block font-mono text-[9px] tracking-[0.3em] text-zinc-700 mb-1">DESCRIPTION</label>
                   <input placeholder="Brief case description" value={newCaseForm.description}
                     onChange={e => setNewCaseForm(f => ({ ...f, description: e.target.value }))}
-                    className="w-full bg-black border border-zinc-800 focus:border-zinc-600 font-mono text-[10px] text-zinc-300 px-3 py-2 outline-none placeholder-zinc-800 transition-colors" />
+                    className="w-full bg-black border border-zinc-800 focus:border-zinc-600 font-mono text-[11px] text-zinc-300 px-3 py-2 outline-none placeholder-zinc-800 transition-colors" />
                 </div>
                 <div className="flex items-center gap-4 pt-1">
-                  <button onClick={createCase} className="font-mono text-[9px] tracking-[0.25em] text-emerald-600 hover:text-emerald-400 border border-emerald-900/30 px-4 py-2 transition-colors">CREATE CASE</button>
-                  <button onClick={() => setCaseCreateOpen(false)} className="font-mono text-[9px] text-zinc-600 hover:text-zinc-400 transition-colors">CANCEL</button>
+                  <button onClick={createCase} className="font-mono text-[10px] tracking-[0.25em] text-emerald-600 hover:text-emerald-400 border border-emerald-900/30 px-4 py-2 transition-colors">CREATE CASE</button>
+                  <button onClick={() => setCaseCreateOpen(false)} className="font-mono text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors">CANCEL</button>
                 </div>
               </div>
             )}
@@ -924,40 +924,40 @@ export default function Command() {
             <div className="border border-zinc-900">
               <div className="grid grid-cols-[70px_1fr_110px_70px_90px_1fr_60px] gap-3 px-5 py-2.5 border-b border-zinc-900 bg-zinc-950">
                 {["REF", "NAME", "STAGE", "PRI", "CHANNEL", "DESCRIPTION", "ACT"].map(h => (
-                  <div key={h} className="font-mono text-[9px] tracking-[0.25em] text-zinc-500">{h}</div>
+                  <div key={h} className="font-mono text-[10px] tracking-[0.25em] text-zinc-500">{h}</div>
                 ))}
               </div>
               {loading ? (
-                <div className="px-5 py-6 text-center font-mono text-[9px] tracking-[0.3em] text-zinc-700 animate-pulse">LOADING...</div>
+                <div className="px-5 py-6 text-center font-mono text-[10px] tracking-[0.3em] text-zinc-700 animate-pulse">LOADING...</div>
               ) : cases.length === 0 ? (
-                <div className="px-5 py-6 text-center font-mono text-[9px] tracking-[0.3em] text-zinc-700">
+                <div className="px-5 py-6 text-center font-mono text-[10px] tracking-[0.3em] text-zinc-700">
                   NO CASES — run the migration SQL to seed initial data, or create one above
                 </div>
               ) : (
                 cases.map(c => (
                   <div key={c.id} className="grid grid-cols-[70px_1fr_110px_70px_90px_1fr_60px] gap-3 px-5 py-3 border-b border-zinc-900/30 last:border-0 items-center hover:bg-zinc-950/20 transition-colors">
-                    <div className="font-mono text-[9px] tracking-widest text-zinc-500">{c.ref}</div>
-                    <div className="font-mono text-[10px] tracking-[0.06em] text-zinc-300 truncate">{c.name}</div>
+                    <div className="font-mono text-[10px] tracking-widest text-zinc-500">{c.ref}</div>
+                    <div className="font-mono text-[11px] tracking-[0.06em] text-zinc-300 truncate">{c.name}</div>
                     <div>
                       <select value={c.stage} onChange={e => updateCaseField(c.id, { stage: e.target.value })}
-                        className={`bg-black border border-zinc-800 font-mono text-[9px] px-2 py-0.5 outline-none max-w-full ${stageStyle[c.stage] ?? "text-zinc-400"}`}>
+                        className={`bg-black border border-zinc-800 font-mono text-[10px] px-2 py-0.5 outline-none max-w-full ${stageStyle[c.stage] ?? "text-zinc-400"}`}>
                         {STAGES.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
                     </div>
                     <div>
                       <select value={c.priority} onChange={e => updateCaseField(c.id, { priority: e.target.value })}
-                        className={`bg-black border border-zinc-800 font-mono text-[9px] px-2 py-0.5 outline-none ${c.priority === "HIGH" ? "text-red-400" : "text-zinc-500"}`}>
+                        className={`bg-black border border-zinc-800 font-mono text-[10px] px-2 py-0.5 outline-none ${c.priority === "HIGH" ? "text-red-400" : "text-zinc-500"}`}>
                         <option value="HIGH">HIGH</option>
                         <option value="NORMAL">NORMAL</option>
                       </select>
                     </div>
-                    <div className="font-mono text-[9px] tracking-[0.06em] text-emerald-700 truncate">
+                    <div className="font-mono text-[10px] tracking-[0.06em] text-emerald-700 truncate">
                       {c.channel_id ? `#${channels.find(ch => ch.id === c.channel_id)?.name ?? c.channel_id}` : "—"}
                     </div>
-                    <div className="font-mono text-[9px] text-zinc-700 truncate">{c.description ?? "—"}</div>
+                    <div className="font-mono text-[10px] text-zinc-700 truncate">{c.description ?? "—"}</div>
                     <div>
                       <button onClick={() => deleteCase(c.id, c.ref)}
-                        className="font-mono text-[9px] text-zinc-700 hover:text-red-400 border border-zinc-900 hover:border-red-900/30 px-2 py-0.5 transition-colors">
+                        className="font-mono text-[10px] text-zinc-700 hover:text-red-400 border border-zinc-900 hover:border-red-900/30 px-2 py-0.5 transition-colors">
                         DEL
                       </button>
                     </div>
@@ -969,18 +969,18 @@ export default function Command() {
 
           {/* ── FOOTER ── */}
           <div className="flex items-center justify-between pt-4 border-t border-zinc-900">
-            <div className="font-mono text-[7px] tracking-[0.3em] text-zinc-800">
+            <div className="font-mono text-[8px] tracking-[0.3em] text-zinc-800">
               RSR INTELLIGENCE NETWORK // COMMAND CONSOLE // RESTRICTED ACCESS
             </div>
             <div className="flex items-center gap-6">
               <Link href="/investigation-room">
-                <span className="font-mono text-[7px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 cursor-pointer transition-colors">INVESTIGATION ROOM</span>
+                <span className="font-mono text-[8px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 cursor-pointer transition-colors">INVESTIGATION ROOM</span>
               </Link>
               <Link href="/signal-room">
-                <span className="font-mono text-[7px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 cursor-pointer transition-colors">SIGNAL ROOM</span>
+                <span className="font-mono text-[8px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 cursor-pointer transition-colors">SIGNAL ROOM</span>
               </Link>
               <Link href="/">
-                <span className="font-mono text-[7px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 cursor-pointer transition-colors">HOME</span>
+                <span className="font-mono text-[8px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 cursor-pointer transition-colors">HOME</span>
               </Link>
             </div>
           </div>

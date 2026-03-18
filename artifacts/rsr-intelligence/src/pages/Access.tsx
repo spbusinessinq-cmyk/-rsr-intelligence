@@ -63,12 +63,12 @@ export default function Access() {
             <div className="font-mono text-xs tracking-[0.35em] text-white group-hover:text-emerald-400 transition-colors">
               RSR INTELLIGENCE NETWORK
             </div>
-            <div className="font-mono text-[9px] tracking-[0.25em] text-zinc-700">
+            <div className="font-mono text-[10px] tracking-[0.25em] text-zinc-700">
               INDEPENDENT ANALYSIS SYSTEM
             </div>
           </div>
         </Link>
-        <Link href="/signal-room" className="font-mono text-[9px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 transition-colors">
+        <Link href="/signal-room" className="font-mono text-[10px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 transition-colors">
           SIGNAL ROOM →
         </Link>
       </div>
@@ -79,14 +79,14 @@ export default function Access() {
 
           {/* System header */}
           <div className="mb-10">
-            <div className="font-mono text-[9px] tracking-[0.45em] text-zinc-700 mb-3 flex items-center gap-2">
+            <div className="font-mono text-[10px] tracking-[0.45em] text-zinc-700 mb-3 flex items-center gap-2">
               <span className="w-1 h-1 bg-zinc-800" />
               ACCESS PROTOCOL // RSR INTELLIGENCE NETWORK
             </div>
             <h1 className="text-3xl font-semibold text-white tracking-tight mb-2">
               AUTHENTICATION<br />GATEWAY
             </h1>
-            <p className="font-mono text-[10px] tracking-widest text-zinc-600 leading-relaxed">
+            <p className="font-mono text-[11px] tracking-widest text-zinc-600 leading-relaxed">
               Restricted access. Verified operators only.
               Investigation Room is restricted to authorized team members.
             </p>
@@ -95,10 +95,10 @@ export default function Access() {
           {/* Not configured warning */}
           {!configured && (
             <div className="border border-amber-500/20 bg-amber-500/5 p-4 mb-6">
-              <div className="font-mono text-[9px] tracking-[0.3em] text-amber-500/70 mb-2">
+              <div className="font-mono text-[10px] tracking-[0.3em] text-amber-500/70 mb-2">
                 SYSTEM NOTICE
               </div>
-              <p className="font-mono text-[9px] tracking-widest text-amber-500/50 leading-relaxed">
+              <p className="font-mono text-[10px] tracking-widest text-amber-500/50 leading-relaxed">
                 Supabase connection not configured. Add VITE_SUPABASE_URL and
                 VITE_SUPABASE_ANON_KEY to enable live authentication.
               </p>
@@ -108,15 +108,15 @@ export default function Access() {
           {/* Success state */}
           {success ? (
             <div className="border border-emerald-500/20 bg-emerald-500/5 p-6">
-              <div className="font-mono text-[9px] tracking-[0.4em] text-emerald-500 mb-3">
+              <div className="font-mono text-[10px] tracking-[0.4em] text-emerald-500 mb-3">
                 ACCESS REQUEST SUBMITTED
               </div>
-              <p className="font-mono text-[10px] tracking-widest text-zinc-500 leading-relaxed mb-4">
+              <p className="font-mono text-[11px] tracking-widest text-zinc-500 leading-relaxed mb-4">
                 Check your email to confirm your account, then sign in.
               </p>
               <button
                 onClick={() => { setSuccess(false); setMode("signin"); }}
-                className="font-mono text-[9px] tracking-[0.3em] text-emerald-500 hover:text-emerald-400 transition-colors"
+                className="font-mono text-[10px] tracking-[0.3em] text-emerald-500 hover:text-emerald-400 transition-colors"
               >
                 → PROCEED TO SIGN IN
               </button>
@@ -129,7 +129,7 @@ export default function Access() {
                   <button
                     key={m}
                     onClick={() => { setMode(m); setError(null); }}
-                    className={`flex-1 py-2.5 font-mono text-[9px] tracking-[0.3em] transition-colors ${
+                    className={`flex-1 py-2.5 font-mono text-[10px] tracking-[0.3em] transition-colors ${
                       mode === m
                         ? "bg-zinc-900 text-zinc-300"
                         : "text-zinc-700 hover:text-zinc-500"
@@ -146,7 +146,7 @@ export default function Access() {
                 {mode === "register" && (
                   <>
                     <div>
-                      <label className="block font-mono text-[9px] tracking-[0.35em] text-zinc-600 mb-2">
+                      <label className="block font-mono text-[10px] tracking-[0.35em] text-zinc-600 mb-2">
                         OPERATOR HANDLE
                       </label>
                       <input
@@ -159,7 +159,7 @@ export default function Access() {
                       />
                     </div>
                     <div>
-                      <label className="block font-mono text-[9px] tracking-[0.35em] text-zinc-600 mb-2">
+                      <label className="block font-mono text-[10px] tracking-[0.35em] text-zinc-600 mb-2">
                         REQUESTED ROLE
                       </label>
                       <select
@@ -173,7 +173,7 @@ export default function Access() {
                         <option value="researcher">RESEARCHER — Source research and documentation</option>
                         <option value="lead">LEAD REQUEST — Team lead (subject to approval)</option>
                       </select>
-                      <div className="mt-1.5 font-mono text-[8px] tracking-[0.15em] text-zinc-800 leading-relaxed">
+                      <div className="mt-1.5 font-mono text-[9px] tracking-[0.15em] text-zinc-800 leading-relaxed">
                         Role requests do not override admin approval. Final access is determined by the RSR team.
                       </div>
                     </div>
@@ -181,7 +181,7 @@ export default function Access() {
                 )}
 
                 <div>
-                  <label className="block font-mono text-[9px] tracking-[0.35em] text-zinc-600 mb-2">
+                  <label className="block font-mono text-[10px] tracking-[0.35em] text-zinc-600 mb-2">
                     EMAIL ADDRESS
                   </label>
                   <input
@@ -197,7 +197,7 @@ export default function Access() {
                 </div>
 
                 <div>
-                  <label className="block font-mono text-[9px] tracking-[0.35em] text-zinc-600 mb-2">
+                  <label className="block font-mono text-[10px] tracking-[0.35em] text-zinc-600 mb-2">
                     CREDENTIALS
                   </label>
                   <input
@@ -214,14 +214,14 @@ export default function Access() {
 
                 {error && (
                   <div className="border border-red-500/20 bg-red-500/5 px-4 py-3">
-                    <p className="font-mono text-[9px] tracking-widest text-red-400/70">{error}</p>
+                    <p className="font-mono text-[10px] tracking-widest text-red-400/70">{error}</p>
                   </div>
                 )}
 
                 <button
                   type="submit"
                   disabled={!configured || submitting}
-                  className="w-full border border-emerald-500/30 bg-emerald-500/5 py-3 font-mono text-[10px] tracking-[0.35em] text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500/50 hover:text-emerald-300 transition-colors disabled:opacity-30 disabled:cursor-not-allowed mt-2"
+                  className="w-full border border-emerald-500/30 bg-emerald-500/5 py-3 font-mono text-[11px] tracking-[0.35em] text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500/50 hover:text-emerald-300 transition-colors disabled:opacity-30 disabled:cursor-not-allowed mt-2"
                 >
                   {submitting
                     ? "AUTHENTICATING..."
@@ -235,10 +235,10 @@ export default function Access() {
 
           {/* Footer links */}
           <div className="mt-8 pt-6 border-t border-zinc-900 flex items-center justify-between">
-            <Link href="/briefing" className="font-mono text-[9px] tracking-[0.25em] text-zinc-700 hover:text-zinc-500 transition-colors">
+            <Link href="/briefing" className="font-mono text-[10px] tracking-[0.25em] text-zinc-700 hover:text-zinc-500 transition-colors">
               REQUEST BRIEFING
             </Link>
-            <Link href="/" className="font-mono text-[9px] tracking-[0.25em] text-zinc-700 hover:text-zinc-500 transition-colors">
+            <Link href="/" className="font-mono text-[10px] tracking-[0.25em] text-zinc-700 hover:text-zinc-500 transition-colors">
               ← RETURN HOME
             </Link>
           </div>

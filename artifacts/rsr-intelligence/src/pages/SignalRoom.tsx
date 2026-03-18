@@ -144,7 +144,7 @@ export default function SignalRoom() {
         {/* ── BREAKING STRIP ──────────────────────────────────────────── */}
         <div className="border border-zinc-900 bg-zinc-950 mb-6 overflow-hidden">
           <div className="flex items-center">
-            <div className="shrink-0 font-mono text-[9px] tracking-[0.35em] text-red-400 bg-red-900/20 border-r border-zinc-900 px-4 py-3">
+            <div className="shrink-0 font-mono text-[10px] tracking-[0.35em] text-red-400 bg-red-900/20 border-r border-zinc-900 px-4 py-3">
               BREAKING
             </div>
             <div className="overflow-hidden flex-1">
@@ -152,13 +152,13 @@ export default function SignalRoom() {
                 {(breakingTicker.length > 0 ? breakingTicker : ["MONITORING ACTIVE — FEED LOADING..."]).concat(
                   breakingTicker.length > 0 ? breakingTicker : ["MONITORING ACTIVE — FEED LOADING..."]
                 ).map((item, i) => (
-                  <span key={i} className="font-mono text-[10px] tracking-[0.08em] text-zinc-500 shrink-0">
+                  <span key={i} className="font-mono text-[11px] tracking-[0.08em] text-zinc-500 shrink-0">
                     {item}
                   </span>
                 ))}
               </div>
             </div>
-            <div className="shrink-0 font-mono text-[9px] tracking-[0.3em] text-zinc-700 border-l border-zinc-900 px-4 py-3">
+            <div className="shrink-0 font-mono text-[10px] tracking-[0.3em] text-zinc-700 border-l border-zinc-900 px-4 py-3">
               LIVE FEED
             </div>
           </div>
@@ -166,7 +166,7 @@ export default function SignalRoom() {
 
         {/* ── PAGE HEADER ─────────────────────────────────────────────── */}
         <section className="border-b border-zinc-900 pb-6 mb-6">
-          <div className="font-mono text-[9px] tracking-[0.45em] text-emerald-400 mb-4 flex items-center gap-2">
+          <div className="font-mono text-[10px] tracking-[0.45em] text-emerald-400 mb-4 flex items-center gap-2">
             <span className="w-1 h-1 bg-emerald-400 animate-pulse" />
             RSR INTELLIGENCE NETWORK // SIGNAL ROOM
           </div>
@@ -180,7 +180,7 @@ export default function SignalRoom() {
                 energy, and policy signals — sourced from live monitored open-source feeds.
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-4 font-mono text-[9px] tracking-[0.3em]">
+            <div className="flex flex-wrap items-center gap-4 font-mono text-[10px] tracking-[0.3em]">
               {loading ? (
                 <span className="flex items-center gap-2 text-zinc-700 animate-pulse">
                   <span className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
@@ -212,16 +212,16 @@ export default function SignalRoom() {
         {/* ── MARKET STRIP ────────────────────────────────────────────── */}
         <div className="border border-zinc-900 bg-zinc-950/40 mb-6">
           <div className="border-b border-zinc-900 px-5 py-2.5 flex items-center justify-between">
-            <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-500">MARKET WATCH</div>
-            <div className="font-mono text-[9px] tracking-[0.25em] text-zinc-700">DELAYED INDICATIVE DATA — NOT LIVE</div>
+            <div className="font-mono text-[11px] tracking-[0.4em] text-zinc-500">MARKET WATCH</div>
+            <div className="font-mono text-[10px] tracking-[0.25em] text-zinc-700">DELAYED INDICATIVE DATA — NOT LIVE</div>
           </div>
           <div className="grid grid-cols-3 md:grid-cols-6 divide-x divide-zinc-900">
             {MARKET_WATCH.map(m => (
               <div key={m.label} className="px-4 py-3.5">
-                <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-600 mb-1">{m.label}</div>
+                <div className="font-mono text-[10px] tracking-[0.2em] text-zinc-600 mb-1">{m.label}</div>
                 <div className="font-mono text-sm text-white">{m.value}</div>
                 {m.delta && (
-                  <div className={`font-mono text-[10px] tracking-[0.1em] ${
+                  <div className={`font-mono text-[11px] tracking-[0.1em] ${
                     m.direction === "up" ? "text-emerald-500" :
                     m.direction === "down" ? "text-red-400" : "text-zinc-600"
                   }`}>{m.delta}</div>
@@ -238,7 +238,7 @@ export default function SignalRoom() {
           <div className="lg:col-span-3 flex flex-col gap-0">
 
             {/* Filter bar */}
-            <div className="border border-zinc-900 bg-zinc-950 px-5 py-3 mb-0 flex flex-wrap items-center gap-4 font-mono text-[10px] tracking-[0.25em]">
+            <div className="border border-zinc-900 bg-zinc-950 px-5 py-3 mb-0 flex flex-wrap items-center gap-4 font-mono text-[11px] tracking-[0.25em]">
               <span className="text-zinc-600">SOURCE:</span>
               <span className="text-zinc-400">GDELT OPEN-SOURCE MONITOR — GEOPOLITICAL · DEFENSE · INTELLIGENCE · ENERGY · POLICY</span>
               <span className="ml-auto text-zinc-600">{feedLabel}</span>
@@ -249,23 +249,23 @@ export default function SignalRoom() {
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-4">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-700 animate-pulse" />
-                  <div className="font-mono text-[10px] tracking-[0.3em] text-zinc-700 animate-pulse">
+                  <div className="font-mono text-[11px] tracking-[0.3em] text-zinc-700 animate-pulse">
                     LOADING MONITORED FEED...
                   </div>
                 </div>
               ) : error && articles.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-4">
-                  <div className="font-mono text-[10px] tracking-[0.3em] text-amber-700">{error}</div>
+                  <div className="font-mono text-[11px] tracking-[0.3em] text-amber-700">{error}</div>
                   <button
                     onClick={() => { setLoading(true); fetchNews(); }}
-                    className="font-mono text-[9px] tracking-[0.25em] text-zinc-600 hover:text-zinc-400 border border-zinc-800 px-4 py-2 transition-colors"
+                    className="font-mono text-[10px] tracking-[0.25em] text-zinc-600 hover:text-zinc-400 border border-zinc-800 px-4 py-2 transition-colors"
                   >
                     RETRY
                   </button>
                 </div>
               ) : articles.length === 0 ? (
                 <div className="flex items-center justify-center py-24">
-                  <div className="font-mono text-[10px] tracking-[0.3em] text-zinc-700">NO ITEMS IN CURRENT FEED CYCLE</div>
+                  <div className="font-mono text-[11px] tracking-[0.3em] text-zinc-700">NO ITEMS IN CURRENT FEED CYCLE</div>
                 </div>
               ) : (
                 articles.map((item, i) => (
@@ -286,20 +286,20 @@ export default function SignalRoom() {
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-2.5 flex-wrap">
-                          <span className={`font-mono text-[9px] tracking-[0.25em] border px-2 py-0.5 ${catColor[item.category]}`}>
+                          <span className={`font-mono text-[10px] tracking-[0.25em] border px-2 py-0.5 ${catColor[item.category]}`}>
                             {item.category}
                           </span>
-                          <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-600">
+                          <span className="font-mono text-[10px] tracking-[0.2em] text-zinc-600">
                             {item.domain}
                           </span>
-                          <span className="font-mono text-[9px] tracking-widest text-zinc-700">
+                          <span className="font-mono text-[10px] tracking-widest text-zinc-700">
                             {item.region}
                           </span>
-                          <span className="ml-auto font-mono text-[10px] tracking-widest text-zinc-600">
+                          <span className="ml-auto font-mono text-[11px] tracking-widest text-zinc-600">
                             {formatTime(item.seendate)}
                           </span>
                           {item.priority === "HIGH" && (
-                            <span className="font-mono text-[9px] tracking-widest text-red-400/80 border border-red-900/30 px-2 py-0.5">
+                            <span className="font-mono text-[10px] tracking-widest text-red-400/80 border border-red-900/30 px-2 py-0.5">
                               PRIORITY
                             </span>
                           )}
@@ -310,14 +310,14 @@ export default function SignalRoom() {
                         </div>
 
                         <div className="flex items-center gap-3">
-                          <span className="font-mono text-[9px] tracking-[0.15em] text-zinc-700">
+                          <span className="font-mono text-[10px] tracking-[0.15em] text-zinc-700">
                             MONITORED OPEN-SOURCE SIGNAL
                           </span>
                           <a
                             href={item.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="font-mono text-[9px] tracking-widest text-zinc-600 hover:text-emerald-400 border border-zinc-900 hover:border-emerald-900/40 px-2 py-0.5 transition-colors"
+                            className="font-mono text-[10px] tracking-widest text-zinc-600 hover:text-emerald-400 border border-zinc-900 hover:border-emerald-900/40 px-2 py-0.5 transition-colors"
                           >
                             SOURCE →
                           </a>
@@ -331,11 +331,11 @@ export default function SignalRoom() {
 
             {/* Footer */}
             <div className="border border-zinc-900 border-t-0 bg-zinc-950 px-5 py-3 flex items-center gap-4">
-              <div className="flex-1 font-mono text-[9px] tracking-[0.3em] text-zinc-700">
+              <div className="flex-1 font-mono text-[10px] tracking-[0.3em] text-zinc-700">
                 OPEN-SOURCE MONITORED FEED — GDELT PROJECT — REFRESHES EVERY 10 MINUTES
               </div>
               <Link href="/investigation-room">
-                <span className="font-mono text-[9px] tracking-widest text-zinc-700 hover:text-emerald-500 transition-colors cursor-pointer">
+                <span className="font-mono text-[10px] tracking-widest text-zinc-700 hover:text-emerald-500 transition-colors cursor-pointer">
                   INVESTIGATION ROOM →
                 </span>
               </Link>
@@ -347,11 +347,11 @@ export default function SignalRoom() {
 
             {/* Current watch — top 6 breaking items */}
             <div className="border border-zinc-900 p-4">
-              <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-500 mb-3">CURRENT WATCH</div>
+              <div className="font-mono text-[11px] tracking-[0.35em] text-zinc-500 mb-3">CURRENT WATCH</div>
               {loading ? (
-                <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-800 animate-pulse">LOADING...</div>
+                <div className="font-mono text-[10px] tracking-[0.2em] text-zinc-800 animate-pulse">LOADING...</div>
               ) : topSix.length === 0 ? (
-                <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-800">NO ITEMS</div>
+                <div className="font-mono text-[10px] tracking-[0.2em] text-zinc-800">NO ITEMS</div>
               ) : (
                 <div className="space-y-3">
                   {topSix.map(item => (
@@ -361,17 +361,17 @@ export default function SignalRoom() {
                           href={item.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-mono text-[10px] tracking-[0.06em] text-zinc-300 hover:text-emerald-400 transition-colors leading-snug line-clamp-2"
+                          className="font-mono text-[11px] tracking-[0.06em] text-zinc-300 hover:text-emerald-400 transition-colors leading-snug line-clamp-2"
                         >
                           {item.title}
                         </a>
-                        <span className={`font-mono text-[8px] tracking-[0.2em] border px-1.5 py-0.5 shrink-0 mt-0.5 ${
+                        <span className={`font-mono text-[9px] tracking-[0.2em] border px-1.5 py-0.5 shrink-0 mt-0.5 ${
                           item.priority === "HIGH" ? "text-red-400 border-red-500/20" : "text-zinc-600 border-zinc-800"
                         }`}>
                           {item.priority}
                         </span>
                       </div>
-                      <div className="font-mono text-[8px] tracking-[0.15em] text-zinc-700">
+                      <div className="font-mono text-[9px] tracking-[0.15em] text-zinc-700">
                         {item.domain} · {item.region}
                       </div>
                     </div>
@@ -382,11 +382,11 @@ export default function SignalRoom() {
 
             {/* Regional postures — top 5 regions by item count */}
             <div className="border border-zinc-900 p-4">
-              <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-500 mb-3">TOP DEVELOPMENTS BY REGION</div>
+              <div className="font-mono text-[11px] tracking-[0.35em] text-zinc-500 mb-3">TOP DEVELOPMENTS BY REGION</div>
               {loading ? (
-                <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-800 animate-pulse">LOADING...</div>
+                <div className="font-mono text-[10px] tracking-[0.2em] text-zinc-800 animate-pulse">LOADING...</div>
               ) : topRegions.length === 0 ? (
-                <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-800">NO DATA</div>
+                <div className="font-mono text-[10px] tracking-[0.2em] text-zinc-800">NO DATA</div>
               ) : (
                 <div className="space-y-3">
                   {topRegions.map(([region, items]) => {
@@ -395,10 +395,10 @@ export default function SignalRoom() {
                     return (
                       <div key={region} className="border-b border-zinc-900/50 pb-3 last:border-0 last:pb-0">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="font-mono text-[9px] tracking-[0.12em] text-zinc-400">{region}</span>
+                          <span className="font-mono text-[10px] tracking-[0.12em] text-zinc-400">{region}</span>
                           <div className="flex items-center gap-1.5">
-                            <span className="font-mono text-[8px] text-zinc-700">{items.length}</span>
-                            <span className={`font-mono text-[8px] tracking-[0.15em] ${hasHigh ? "text-red-400" : "text-zinc-600"}`}>
+                            <span className="font-mono text-[9px] text-zinc-700">{items.length}</span>
+                            <span className={`font-mono text-[9px] tracking-[0.15em] ${hasHigh ? "text-red-400" : "text-zinc-600"}`}>
                               {hasHigh ? "ACTIVE" : "MONITORING"}
                             </span>
                           </div>
@@ -408,7 +408,7 @@ export default function SignalRoom() {
                             href={topItem.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="font-mono text-[9px] tracking-[0.04em] text-zinc-600 hover:text-zinc-400 transition-colors leading-snug line-clamp-2 block"
+                            className="font-mono text-[10px] tracking-[0.04em] text-zinc-600 hover:text-zinc-400 transition-colors leading-snug line-clamp-2 block"
                           >
                             {topItem.title}
                           </a>
@@ -419,7 +419,7 @@ export default function SignalRoom() {
                 </div>
               )}
               <div className="mt-3 pt-3 border-t border-zinc-900">
-                <Link href="/world" className="font-mono text-[9px] tracking-[0.2em] text-zinc-600 hover:text-emerald-500 transition-colors">
+                <Link href="/world" className="font-mono text-[10px] tracking-[0.2em] text-zinc-600 hover:text-emerald-500 transition-colors">
                   → WORLD MONITOR
                 </Link>
               </div>
@@ -427,9 +427,9 @@ export default function SignalRoom() {
 
             {/* Topic watch — live category counts */}
             <div className="border border-zinc-900 p-4">
-              <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-500 mb-3">TOPIC WATCH</div>
+              <div className="font-mono text-[11px] tracking-[0.35em] text-zinc-500 mb-3">TOPIC WATCH</div>
               {loading ? (
-                <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-800 animate-pulse">LOADING...</div>
+                <div className="font-mono text-[10px] tracking-[0.2em] text-zinc-800 animate-pulse">LOADING...</div>
               ) : (
                 <div className="space-y-2">
                   {(["GEOPOLITICAL", "DEFENSE", "INTELLIGENCE", "ENERGY", "POLICY"] as const).map(cat => {
@@ -438,10 +438,10 @@ export default function SignalRoom() {
                     const labelCls = active ? catColor[cat].split(" ")[0] : "text-zinc-800";
                     return (
                       <div key={cat} className="flex items-center justify-between">
-                        <span className={`font-mono text-[9px] tracking-[0.12em] ${labelCls}`}>{cat}</span>
+                        <span className={`font-mono text-[10px] tracking-[0.12em] ${labelCls}`}>{cat}</span>
                         <div className="flex items-center gap-2">
                           {active && <span className="w-1 h-1 rounded-full bg-current opacity-50 inline-block" style={{ color: "inherit" }} />}
-                          <span className={`font-mono text-[9px] ${active ? "text-zinc-500" : "text-zinc-800"}`}>
+                          <span className={`font-mono text-[10px] ${active ? "text-zinc-500" : "text-zinc-800"}`}>
                             {active ? `${count} signal${count > 1 ? "s" : ""}` : "—"}
                           </span>
                         </div>
@@ -452,9 +452,9 @@ export default function SignalRoom() {
               )}
               {articles.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-zinc-900 space-y-1">
-                  <div className="font-mono text-[8px] tracking-[0.2em] text-zinc-700 mb-1.5">MONITORED SOURCES</div>
+                  <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-700 mb-1.5">MONITORED SOURCES</div>
                   {[...new Set(articles.map(a => a.domain))].slice(0, 5).map(domain => (
-                    <div key={domain} className="font-mono text-[8px] tracking-[0.06em] text-zinc-700">
+                    <div key={domain} className="font-mono text-[9px] tracking-[0.06em] text-zinc-700">
                       {domain}
                     </div>
                   ))}
@@ -464,7 +464,7 @@ export default function SignalRoom() {
 
             {/* Inner layer navigation */}
             <div className="border border-zinc-900 p-4">
-              <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-500 mb-3">INNER LAYER</div>
+              <div className="font-mono text-[11px] tracking-[0.35em] text-zinc-500 mb-3">INNER LAYER</div>
               <div className="space-y-2.5">
                 {[
                   { label: "INVESTIGATION ROOM", href: "/investigation-room" },
@@ -473,8 +473,8 @@ export default function SignalRoom() {
                   { label: "ACTIVE FILES",        href: "/files" },
                 ].map(l => (
                   <Link key={l.href} href={l.href} className="flex items-center justify-between group">
-                    <span className="font-mono text-[10px] tracking-widest text-zinc-500 group-hover:text-zinc-200 transition-colors">{l.label}</span>
-                    <span className="font-mono text-[9px] text-zinc-800 group-hover:text-emerald-600 transition-colors">→</span>
+                    <span className="font-mono text-[11px] tracking-widest text-zinc-500 group-hover:text-zinc-200 transition-colors">{l.label}</span>
+                    <span className="font-mono text-[10px] text-zinc-800 group-hover:text-emerald-600 transition-colors">→</span>
                   </Link>
                 ))}
               </div>

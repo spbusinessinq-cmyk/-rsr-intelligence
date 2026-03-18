@@ -139,11 +139,11 @@ function VerifyingScreen() {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center">
       <div className="text-center space-y-3">
-        <div className="font-mono text-[9px] tracking-[0.45em] text-zinc-700 animate-pulse">
+        <div className="font-mono text-[10px] tracking-[0.45em] text-zinc-700 animate-pulse">
           VERIFYING CREDENTIALS...
         </div>
         <div className="w-32 h-px bg-zinc-900 mx-auto" />
-        <div className="font-mono text-[8px] tracking-[0.3em] text-zinc-800">
+        <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-800">
           RSR INTELLIGENCE NETWORK
         </div>
       </div>
@@ -166,12 +166,12 @@ function PendingScreen({ profile }: { profile: Profile }) {
           </div>
           <div>
             <div className="font-mono text-xs tracking-[0.25em] text-zinc-300">RSR INTELLIGENCE NETWORK</div>
-            <div className="font-mono text-[8px] tracking-[0.3em] text-zinc-700">INDEPENDENT ANALYSIS SYSTEM</div>
+            <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-700">INDEPENDENT ANALYSIS SYSTEM</div>
           </div>
         </div>
         <button
           onClick={signOut}
-          className="font-mono text-[9px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 transition-colors"
+          className="font-mono text-[10px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 transition-colors"
         >
           SIGN OUT
         </button>
@@ -179,12 +179,12 @@ function PendingScreen({ profile }: { profile: Profile }) {
 
       <div className="flex-1 flex items-center justify-center px-6">
         <div className="max-w-md w-full">
-          <div className="font-mono text-[9px] tracking-[0.45em] text-zinc-700 mb-8">
+          <div className="font-mono text-[10px] tracking-[0.45em] text-zinc-700 mb-8">
             » ACCESS PROTOCOL // RSR INTELLIGENCE NETWORK
           </div>
 
           <div className="border border-amber-500/20 bg-amber-500/5 px-6 py-4 mb-8">
-            <div className="font-mono text-[8px] tracking-[0.4em] text-amber-500/70 mb-1">CLEARANCE STATUS</div>
+            <div className="font-mono text-[9px] tracking-[0.4em] text-amber-500/70 mb-1">CLEARANCE STATUS</div>
             <div className="font-mono text-xs tracking-[0.2em] text-amber-400">PENDING AUTHORIZATION</div>
           </div>
 
@@ -202,13 +202,13 @@ function PendingScreen({ profile }: { profile: Profile }) {
               ["REGISTERED", joined],
             ].map(([label, val]) => (
               <div key={label} className="flex items-center gap-4 py-2 border-b border-zinc-900">
-                <span className="font-mono text-[8px] tracking-[0.35em] text-zinc-600 w-28 shrink-0">{label}</span>
-                <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-400">{val}</span>
+                <span className="font-mono text-[9px] tracking-[0.35em] text-zinc-600 w-28 shrink-0">{label}</span>
+                <span className="font-mono text-[10px] tracking-[0.2em] text-zinc-400">{val}</span>
               </div>
             ))}
           </div>
 
-          <p className="font-mono text-[9px] tracking-[0.15em] text-zinc-600 leading-relaxed mb-8">
+          <p className="font-mono text-[10px] tracking-[0.15em] text-zinc-600 leading-relaxed mb-8">
             Your registration has been received. Investigation Room access requires
             manual authorization by the RSR analysis team. You will be cleared
             once your identity has been verified.
@@ -216,12 +216,12 @@ function PendingScreen({ profile }: { profile: Profile }) {
 
           <div className="flex items-center gap-6">
             <Link href="/signal-room">
-              <span className="font-mono text-[9px] tracking-[0.3em] text-emerald-500 hover:text-emerald-400 transition-colors cursor-pointer">
+              <span className="font-mono text-[10px] tracking-[0.3em] text-emerald-500 hover:text-emerald-400 transition-colors cursor-pointer">
                 → SIGNAL ROOM
               </span>
             </Link>
             <Link href="/">
-              <span className="font-mono text-[9px] tracking-[0.3em] text-zinc-600 hover:text-zinc-400 transition-colors cursor-pointer">
+              <span className="font-mono text-[10px] tracking-[0.3em] text-zinc-600 hover:text-zinc-400 transition-colors cursor-pointer">
                 ← RETURN HOME
               </span>
             </Link>
@@ -244,12 +244,12 @@ function DeniedScreen({ profile }: { profile: Profile }) {
           </div>
           <div>
             <div className="font-mono text-xs tracking-[0.25em] text-zinc-300">RSR INTELLIGENCE NETWORK</div>
-            <div className="font-mono text-[8px] tracking-[0.3em] text-zinc-700">INDEPENDENT ANALYSIS SYSTEM</div>
+            <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-700">INDEPENDENT ANALYSIS SYSTEM</div>
           </div>
         </div>
         <button
           onClick={signOut}
-          className="font-mono text-[9px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 transition-colors"
+          className="font-mono text-[10px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 transition-colors"
         >
           SIGN OUT
         </button>
@@ -257,12 +257,12 @@ function DeniedScreen({ profile }: { profile: Profile }) {
 
       <div className="flex-1 flex items-center justify-center px-6">
         <div className="max-w-md w-full">
-          <div className="font-mono text-[9px] tracking-[0.45em] text-zinc-700 mb-8">
+          <div className="font-mono text-[10px] tracking-[0.45em] text-zinc-700 mb-8">
             » ACCESS PROTOCOL // RSR INTELLIGENCE NETWORK
           </div>
 
           <div className="border border-red-500/20 bg-red-500/5 px-6 py-4 mb-8">
-            <div className="font-mono text-[8px] tracking-[0.4em] text-red-500/70 mb-1">CLEARANCE STATUS</div>
+            <div className="font-mono text-[9px] tracking-[0.4em] text-red-500/70 mb-1">CLEARANCE STATUS</div>
             <div className="font-mono text-xs tracking-[0.2em] text-red-400">AUTHORIZATION DENIED</div>
           </div>
 
@@ -278,25 +278,25 @@ function DeniedScreen({ profile }: { profile: Profile }) {
               ["STATUS", "AUTHORIZATION DENIED"],
             ].map(([label, val]) => (
               <div key={label} className="flex items-center gap-4 py-2 border-b border-zinc-900">
-                <span className="font-mono text-[8px] tracking-[0.35em] text-zinc-600 w-28 shrink-0">{label}</span>
-                <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-400">{val}</span>
+                <span className="font-mono text-[9px] tracking-[0.35em] text-zinc-600 w-28 shrink-0">{label}</span>
+                <span className="font-mono text-[10px] tracking-[0.2em] text-zinc-400">{val}</span>
               </div>
             ))}
           </div>
 
-          <p className="font-mono text-[9px] tracking-[0.15em] text-zinc-600 leading-relaxed mb-8">
+          <p className="font-mono text-[10px] tracking-[0.15em] text-zinc-600 leading-relaxed mb-8">
             Your access request has been denied by the RSR analysis team.
             Contact team leadership via the Signal Room if you believe this is an error.
           </p>
 
           <div className="flex items-center gap-6">
             <Link href="/signal-room">
-              <span className="font-mono text-[9px] tracking-[0.3em] text-emerald-500 hover:text-emerald-400 transition-colors cursor-pointer">
+              <span className="font-mono text-[10px] tracking-[0.3em] text-emerald-500 hover:text-emerald-400 transition-colors cursor-pointer">
                 → SIGNAL ROOM
               </span>
             </Link>
             <Link href="/">
-              <span className="font-mono text-[9px] tracking-[0.3em] text-zinc-600 hover:text-zinc-400 transition-colors cursor-pointer">
+              <span className="font-mono text-[10px] tracking-[0.3em] text-zinc-600 hover:text-zinc-400 transition-colors cursor-pointer">
                 ← RETURN HOME
               </span>
             </Link>
@@ -318,16 +318,16 @@ function SuspendedScreen({ profile }: { profile: Profile }) {
           </div>
           <div>
             <div className="font-mono text-xs tracking-[0.25em] text-zinc-300">RSR INTELLIGENCE NETWORK</div>
-            <div className="font-mono text-[8px] tracking-[0.3em] text-zinc-700">INDEPENDENT ANALYSIS SYSTEM</div>
+            <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-700">INDEPENDENT ANALYSIS SYSTEM</div>
           </div>
         </div>
-        <button onClick={signOut} className="font-mono text-[9px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 transition-colors">SIGN OUT</button>
+        <button onClick={signOut} className="font-mono text-[10px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 transition-colors">SIGN OUT</button>
       </div>
       <div className="flex-1 flex items-center justify-center px-6">
         <div className="max-w-md w-full">
-          <div className="font-mono text-[9px] tracking-[0.45em] text-zinc-700 mb-8">» ACCESS PROTOCOL // RSR INTELLIGENCE NETWORK</div>
+          <div className="font-mono text-[10px] tracking-[0.45em] text-zinc-700 mb-8">» ACCESS PROTOCOL // RSR INTELLIGENCE NETWORK</div>
           <div className="border border-amber-500/20 bg-amber-500/5 px-6 py-4 mb-8">
-            <div className="font-mono text-[8px] tracking-[0.4em] text-amber-500/70 mb-1">ACCOUNT STATUS</div>
+            <div className="font-mono text-[9px] tracking-[0.4em] text-amber-500/70 mb-1">ACCOUNT STATUS</div>
             <div className="font-mono text-xs tracking-[0.2em] text-amber-400">ACCOUNT SUSPENDED</div>
           </div>
           <h1 className="font-mono text-3xl font-bold tracking-[0.12em] text-white mb-2">ACCOUNT<br />SUSPENDED</h1>
@@ -335,16 +335,16 @@ function SuspendedScreen({ profile }: { profile: Profile }) {
           <div className="space-y-1 mb-8">
             {[["OPERATOR", profile.handle], ["STATUS", "SUSPENDED"]].map(([l, v]) => (
               <div key={l} className="flex items-center gap-4 py-2 border-b border-zinc-900">
-                <span className="font-mono text-[8px] tracking-[0.35em] text-zinc-600 w-28 shrink-0">{l}</span>
-                <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-400">{v}</span>
+                <span className="font-mono text-[9px] tracking-[0.35em] text-zinc-600 w-28 shrink-0">{l}</span>
+                <span className="font-mono text-[10px] tracking-[0.2em] text-zinc-400">{v}</span>
               </div>
             ))}
           </div>
-          <p className="font-mono text-[9px] tracking-[0.15em] text-zinc-600 leading-relaxed mb-8">
+          <p className="font-mono text-[10px] tracking-[0.15em] text-zinc-600 leading-relaxed mb-8">
             Your account has been temporarily suspended. Contact the RSR team lead to resolve your access status.
           </p>
           <Link href="/signal-room">
-            <span className="font-mono text-[9px] tracking-[0.3em] text-emerald-500 hover:text-emerald-400 transition-colors cursor-pointer">→ SIGNAL ROOM</span>
+            <span className="font-mono text-[10px] tracking-[0.3em] text-emerald-500 hover:text-emerald-400 transition-colors cursor-pointer">→ SIGNAL ROOM</span>
           </Link>
         </div>
       </div>
@@ -363,16 +363,16 @@ function BannedScreen({ profile }: { profile: Profile }) {
           </div>
           <div>
             <div className="font-mono text-xs tracking-[0.25em] text-zinc-300">RSR INTELLIGENCE NETWORK</div>
-            <div className="font-mono text-[8px] tracking-[0.3em] text-zinc-700">INDEPENDENT ANALYSIS SYSTEM</div>
+            <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-700">INDEPENDENT ANALYSIS SYSTEM</div>
           </div>
         </div>
-        <button onClick={signOut} className="font-mono text-[9px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 transition-colors">SIGN OUT</button>
+        <button onClick={signOut} className="font-mono text-[10px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 transition-colors">SIGN OUT</button>
       </div>
       <div className="flex-1 flex items-center justify-center px-6">
         <div className="max-w-md w-full">
-          <div className="font-mono text-[9px] tracking-[0.45em] text-zinc-700 mb-8">» ACCESS PROTOCOL // RSR INTELLIGENCE NETWORK</div>
+          <div className="font-mono text-[10px] tracking-[0.45em] text-zinc-700 mb-8">» ACCESS PROTOCOL // RSR INTELLIGENCE NETWORK</div>
           <div className="border border-red-500/20 bg-red-500/5 px-6 py-4 mb-8">
-            <div className="font-mono text-[8px] tracking-[0.4em] text-red-500/70 mb-1">ACCOUNT STATUS</div>
+            <div className="font-mono text-[9px] tracking-[0.4em] text-red-500/70 mb-1">ACCOUNT STATUS</div>
             <div className="font-mono text-xs tracking-[0.2em] text-red-400">ACCESS PERMANENTLY REVOKED</div>
           </div>
           <h1 className="font-mono text-3xl font-bold tracking-[0.12em] text-white mb-2">ACCESS<br />REVOKED</h1>
@@ -380,16 +380,16 @@ function BannedScreen({ profile }: { profile: Profile }) {
           <div className="space-y-1 mb-8">
             {[["OPERATOR", profile.handle], ["STATUS", "BANNED"]].map(([l, v]) => (
               <div key={l} className="flex items-center gap-4 py-2 border-b border-zinc-900">
-                <span className="font-mono text-[8px] tracking-[0.35em] text-zinc-600 w-28 shrink-0">{l}</span>
-                <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-400">{v}</span>
+                <span className="font-mono text-[9px] tracking-[0.35em] text-zinc-600 w-28 shrink-0">{l}</span>
+                <span className="font-mono text-[10px] tracking-[0.2em] text-zinc-400">{v}</span>
               </div>
             ))}
           </div>
-          <p className="font-mono text-[9px] tracking-[0.15em] text-zinc-600 leading-relaxed mb-8">
+          <p className="font-mono text-[10px] tracking-[0.15em] text-zinc-600 leading-relaxed mb-8">
             This account has been permanently removed from the RSR network. This action is final.
           </p>
           <Link href="/">
-            <span className="font-mono text-[9px] tracking-[0.3em] text-zinc-600 hover:text-zinc-400 transition-colors cursor-pointer">← RETURN HOME</span>
+            <span className="font-mono text-[10px] tracking-[0.3em] text-zinc-600 hover:text-zinc-400 transition-colors cursor-pointer">← RETURN HOME</span>
           </Link>
         </div>
       </div>

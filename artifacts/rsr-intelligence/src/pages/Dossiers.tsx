@@ -21,7 +21,7 @@ export default function Dossiers() {
 
         {/* Heading */}
         <section className="border-b border-zinc-900 pb-6">
-          <div className="font-mono text-[10px] tracking-[0.4em] text-emerald-400 mb-4 flex items-center gap-2">
+          <div className="font-mono text-[11px] tracking-[0.4em] text-emerald-400 mb-4 flex items-center gap-2">
             <span className="w-1 h-1 bg-emerald-400" />
             TARGETS & NETWORKS
           </div>
@@ -29,7 +29,7 @@ export default function Dossiers() {
             <h1 className="text-3xl md:text-5xl font-semibold text-white tracking-tight">
               ENTITY DOSSIERS
             </h1>
-            <div className="font-mono text-[10px] tracking-widest text-zinc-600 shrink-0">
+            <div className="font-mono text-[11px] tracking-widest text-zinc-600 shrink-0">
               {dossiers.length} ENTITIES
             </div>
           </div>
@@ -37,7 +37,7 @@ export default function Dossiers() {
 
         {/* Search bar */}
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 font-mono text-[10px] tracking-widest text-zinc-700 pointer-events-none">
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 font-mono text-[11px] tracking-widest text-zinc-700 pointer-events-none">
             SEARCH:
           </span>
           <input
@@ -56,7 +56,7 @@ export default function Dossiers() {
               className="group border border-zinc-900 bg-black/60 p-5 hover:border-zinc-700 transition-all flex flex-col relative block"
             >
               {/* Demo record label */}
-              <span className="absolute top-3 right-3 font-mono text-[8px] tracking-widest text-zinc-800 opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="absolute top-3 right-3 font-mono text-[9px] tracking-widest text-zinc-800 opacity-0 group-hover:opacity-100 transition-opacity">
                 DEMO RECORD
               </span>
 
@@ -64,11 +64,11 @@ export default function Dossiers() {
               <div className="flex justify-between items-start mb-5 pb-4 border-b border-zinc-900">
                 <div>
                   <div className="flex items-center gap-2.5 mb-2">
-                    <span className="font-mono text-[9px] tracking-widest text-zinc-600">{entity.id}</span>
-                    <span className="font-mono text-[9px] tracking-widest px-1.5 py-0.5 border border-zinc-800 bg-zinc-950 text-zinc-500 uppercase">
+                    <span className="font-mono text-[10px] tracking-widest text-zinc-600">{entity.id}</span>
+                    <span className="font-mono text-[10px] tracking-widest px-1.5 py-0.5 border border-zinc-800 bg-zinc-950 text-zinc-500 uppercase">
                       {entity.type}
                     </span>
-                    <span className="font-mono text-[9px] tracking-widest text-zinc-700 uppercase">
+                    <span className="font-mono text-[10px] tracking-widest text-zinc-700 uppercase">
                       {entity.classification}
                     </span>
                   </div>
@@ -80,7 +80,7 @@ export default function Dossiers() {
                   </div>
                 </div>
 
-                <span className={`font-mono text-[9px] tracking-widest px-2 py-1 border uppercase shrink-0 ${statusStyle(entity.status)}`}>
+                <span className={`font-mono text-[10px] tracking-widest px-2 py-1 border uppercase shrink-0 ${statusStyle(entity.status)}`}>
                   {entity.status}
                 </span>
               </div>
@@ -88,18 +88,18 @@ export default function Dossiers() {
               {/* Meta grid */}
               <div className="grid grid-cols-2 gap-x-6 gap-y-3 mb-5">
                 <div>
-                  <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-700 mb-1">REGION</div>
-                  <div className="font-mono text-[10px] tracking-widest text-zinc-400 uppercase">{entity.region}</div>
+                  <div className="font-mono text-[10px] tracking-[0.2em] text-zinc-700 mb-1">REGION</div>
+                  <div className="font-mono text-[11px] tracking-widest text-zinc-400 uppercase">{entity.region}</div>
                 </div>
                 <div>
-                  <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-700 mb-1">NETWORK</div>
-                  <div className="font-mono text-[10px] tracking-widest text-zinc-400 uppercase">{entity.network}</div>
+                  <div className="font-mono text-[10px] tracking-[0.2em] text-zinc-700 mb-1">NETWORK</div>
+                  <div className="font-mono text-[11px] tracking-widest text-zinc-400 uppercase">{entity.network}</div>
                 </div>
               </div>
 
               {/* Notes */}
               <div className="flex-1">
-                <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-700 mb-2">ANALYST NOTES</div>
+                <div className="font-mono text-[10px] tracking-[0.2em] text-zinc-700 mb-2">ANALYST NOTES</div>
                 <p className="text-sm text-zinc-500 leading-relaxed group-hover:text-zinc-400 transition-colors line-clamp-3">
                   {entity.notes}
                 </p>
@@ -107,7 +107,7 @@ export default function Dossiers() {
 
               {/* Expand hint */}
               <div className="mt-4 pt-3 border-t border-zinc-900 flex justify-end">
-                <span className="font-mono text-[10px] tracking-[0.2em] text-zinc-700 group-hover:text-emerald-500 transition-colors">
+                <span className="font-mono text-[11px] tracking-[0.2em] text-zinc-700 group-hover:text-emerald-500 transition-colors">
                   OPEN RECORD →
                 </span>
               </div>
@@ -117,7 +117,7 @@ export default function Dossiers() {
 
         {/* Relationship mapping teaser */}
         <div className="border border-dashed border-zinc-900 p-6 text-center">
-          <div className="font-mono text-[10px] tracking-[0.3em] text-zinc-600 mb-2">
+          <div className="font-mono text-[11px] tracking-[0.3em] text-zinc-600 mb-2">
             RELATIONSHIP MAPPING — COMING NEXT CYCLE
           </div>
           <p className="text-xs text-zinc-700 max-w-md mx-auto leading-relaxed">

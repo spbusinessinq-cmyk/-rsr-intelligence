@@ -33,9 +33,9 @@ export default function DossierDetail({ params }: Props) {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center py-32 gap-4">
-          <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-700">DOSSIER NOT FOUND</div>
-          <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-800">{params.id}</div>
-          <Link href="/dossiers" className="font-mono text-[10px] tracking-[0.3em] text-emerald-600 hover:text-emerald-400 transition-colors mt-4">
+          <div className="font-mono text-[11px] tracking-[0.4em] text-zinc-700">DOSSIER NOT FOUND</div>
+          <div className="font-mono text-[10px] tracking-[0.3em] text-zinc-800">{params.id}</div>
+          <Link href="/dossiers" className="font-mono text-[11px] tracking-[0.3em] text-emerald-600 hover:text-emerald-400 transition-colors mt-4">
             ← RETURN TO DOSSIERS
           </Link>
         </div>
@@ -48,7 +48,7 @@ export default function DossierDetail({ params }: Props) {
       <div className="flex flex-col gap-8">
 
         {/* ── BREADCRUMB ────────────────────────────────────────────────── */}
-        <div className="flex items-center gap-2 font-mono text-[10px] tracking-[0.3em] text-zinc-700">
+        <div className="flex items-center gap-2 font-mono text-[11px] tracking-[0.3em] text-zinc-700">
           <Link href="/dossiers" className="hover:text-zinc-400 transition-colors">DOSSIERS</Link>
           <span>/</span>
           <span className="text-zinc-500">{entity.id}</span>
@@ -57,21 +57,21 @@ export default function DossierDetail({ params }: Props) {
         {/* ── HEADER ────────────────────────────────────────────────────── */}
         <section className="border-b border-zinc-900 pb-8">
           <div className="flex flex-wrap items-center gap-3 mb-6">
-            <span className="font-mono text-[10px] tracking-widest px-2.5 py-1 border border-zinc-800 bg-zinc-900/50 text-zinc-400">
+            <span className="font-mono text-[11px] tracking-widest px-2.5 py-1 border border-zinc-800 bg-zinc-900/50 text-zinc-400">
               {entity.id}
             </span>
-            <span className="font-mono text-[10px] tracking-widest px-2.5 py-1 border border-zinc-800 bg-zinc-950 text-zinc-500 uppercase">
+            <span className="font-mono text-[11px] tracking-widest px-2.5 py-1 border border-zinc-800 bg-zinc-950 text-zinc-500 uppercase">
               {entity.type}
             </span>
-            <span className={`font-mono text-[10px] tracking-widest px-2.5 py-1 border flex items-center gap-2 ${statusStyle(entity.status)}`}>
+            <span className={`font-mono text-[11px] tracking-widest px-2.5 py-1 border flex items-center gap-2 ${statusStyle(entity.status)}`}>
               <StatusDot status={entity.status} />
               {entity.status}
             </span>
-            <span className="font-mono text-[10px] tracking-widest text-zinc-700 uppercase">
+            <span className="font-mono text-[11px] tracking-widest text-zinc-700 uppercase">
               {entity.classification}
             </span>
             {detail?.lastUpdated && (
-              <span className="font-mono text-[9px] tracking-widest text-zinc-700">
+              <span className="font-mono text-[10px] tracking-widest text-zinc-700">
                 UPDATED {detail.lastUpdated}
               </span>
             )}
@@ -79,7 +79,7 @@ export default function DossierDetail({ params }: Props) {
 
           <div className="grid lg:grid-cols-3 gap-8 items-start">
             <div className="lg:col-span-2">
-              <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-700 mb-2 uppercase">
+              <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-700 mb-2 uppercase">
                 {entity.network} · {entity.region}
               </div>
               <h1 className="text-3xl md:text-5xl font-semibold text-white tracking-tight mb-4">
@@ -87,7 +87,7 @@ export default function DossierDetail({ params }: Props) {
               </h1>
               {detail?.posture && (
                 <div className="flex items-center gap-2">
-                  <span className={`font-mono text-[10px] tracking-[0.3em] ${postureColor(detail.posture)}`}>
+                  <span className={`font-mono text-[11px] tracking-[0.3em] ${postureColor(detail.posture)}`}>
                     POSTURE: {detail.posture}
                   </span>
                 </div>
@@ -105,8 +105,8 @@ export default function DossierDetail({ params }: Props) {
                 ...(detail ? [{ label: "POSTURE", value: detail.posture }] : []),
               ].map((row, i, arr) => (
                 <div key={row.label} className={`flex justify-between items-center px-4 py-3 ${i < arr.length - 1 ? "border-b border-zinc-900" : ""}`}>
-                  <span className="text-[9px] tracking-widest text-zinc-700">{row.label}</span>
-                  <span className={`text-[10px] tracking-widest ${
+                  <span className="text-[10px] tracking-widest text-zinc-700">{row.label}</span>
+                  <span className={`text-[11px] tracking-widest ${
                     row.label === "POSTURE" ? postureColor(row.value) :
                     row.label === "STATUS" && row.value === "ACTIVE" ? "text-emerald-400" :
                     "text-zinc-400"
@@ -125,7 +125,7 @@ export default function DossierDetail({ params }: Props) {
 
             {/* Analyst notes */}
             <section>
-              <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-600 mb-4 flex items-center gap-2">
+              <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-600 mb-4 flex items-center gap-2">
                 <span className="w-1 h-1 bg-zinc-700" />
                 ANALYST NOTES
               </div>
@@ -142,7 +142,7 @@ export default function DossierDetail({ params }: Props) {
             {/* Activity summary */}
             {detail?.activitySummary && (
               <section>
-                <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-600 mb-4 flex items-center gap-2">
+                <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-600 mb-4 flex items-center gap-2">
                   <span className="w-1 h-1 bg-emerald-600" />
                   CURRENT ACTIVITY
                 </div>
@@ -155,7 +155,7 @@ export default function DossierDetail({ params }: Props) {
             {/* Connected entities */}
             {detail?.relatedEntities && detail.relatedEntities.length > 0 && (
               <section>
-                <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-600 mb-4 flex items-center gap-2">
+                <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-600 mb-4 flex items-center gap-2">
                   <span className="w-1 h-1 bg-zinc-700" />
                   CONNECTED ENTITIES
                 </div>
@@ -169,12 +169,12 @@ export default function DossierDetail({ params }: Props) {
                         className="group flex items-center justify-between border border-zinc-900 bg-zinc-950/40 px-4 py-3 hover:border-zinc-700 transition-colors"
                       >
                         <div>
-                          <div className="font-mono text-[9px] tracking-widest text-zinc-700 mb-1">{id}</div>
-                          <div className="font-mono text-[10px] tracking-[0.15em] text-zinc-400 group-hover:text-emerald-300 transition-colors">
+                          <div className="font-mono text-[10px] tracking-widest text-zinc-700 mb-1">{id}</div>
+                          <div className="font-mono text-[11px] tracking-[0.15em] text-zinc-400 group-hover:text-emerald-300 transition-colors">
                             {related?.name ?? id}
                           </div>
                         </div>
-                        <span className="font-mono text-[8px] tracking-widest text-zinc-800 group-hover:text-emerald-600 transition-colors ml-4">→</span>
+                        <span className="font-mono text-[9px] tracking-widest text-zinc-800 group-hover:text-emerald-600 transition-colors ml-4">→</span>
                       </Link>
                     );
                   })}
@@ -189,7 +189,7 @@ export default function DossierDetail({ params }: Props) {
             {/* Linked systems */}
             {detail?.linkedSystems && detail.linkedSystems.length > 0 && (
               <div className="border border-zinc-900 p-5">
-                <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-700 mb-4">SYSTEMS TRACKING</div>
+                <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-700 mb-4">SYSTEMS TRACKING</div>
                 <div className="space-y-2">
                   {detail.linkedSystems.map(sys => (
                     <Link
@@ -197,10 +197,10 @@ export default function DossierDetail({ params }: Props) {
                       href={`/systems/${sys.toLowerCase().replace(/ /g, "-")}`}
                       className="flex items-center gap-2 group"
                     >
-                      <span className="font-mono text-[10px] tracking-[0.2em] text-zinc-500 group-hover:text-emerald-400 transition-colors">
+                      <span className="font-mono text-[11px] tracking-[0.2em] text-zinc-500 group-hover:text-emerald-400 transition-colors">
                         {sys}
                       </span>
-                      <span className="font-mono text-[8px] text-zinc-800 group-hover:text-zinc-600 transition-colors">→</span>
+                      <span className="font-mono text-[9px] text-zinc-800 group-hover:text-zinc-600 transition-colors">→</span>
                     </Link>
                   ))}
                 </div>
@@ -210,7 +210,7 @@ export default function DossierDetail({ params }: Props) {
             {/* Linked files */}
             {detail?.linkedFiles && detail.linkedFiles.length > 0 && (
               <div className="border border-zinc-900 p-5">
-                <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-700 mb-4">LINKED FILES</div>
+                <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-700 mb-4">LINKED FILES</div>
                 <div className="space-y-2">
                   {detail.linkedFiles.map(id => (
                     <Link
@@ -218,8 +218,8 @@ export default function DossierDetail({ params }: Props) {
                       href={`/files/${id}`}
                       className="flex items-center justify-between group border border-zinc-900 bg-zinc-950/40 px-3 py-2 hover:border-zinc-700 transition-colors"
                     >
-                      <span className="font-mono text-[10px] tracking-widest text-zinc-500 group-hover:text-zinc-300 transition-colors">{id}</span>
-                      <span className="font-mono text-[8px] tracking-widest text-zinc-700 group-hover:text-emerald-500 transition-colors">FILE →</span>
+                      <span className="font-mono text-[11px] tracking-widest text-zinc-500 group-hover:text-zinc-300 transition-colors">{id}</span>
+                      <span className="font-mono text-[9px] tracking-widest text-zinc-700 group-hover:text-emerald-500 transition-colors">FILE →</span>
                     </Link>
                   ))}
                 </div>
@@ -233,19 +233,19 @@ export default function DossierDetail({ params }: Props) {
         <div className="border-t border-zinc-900 pt-8 flex flex-wrap gap-3">
           <Link
             href="/dossiers"
-            className="border border-zinc-800 px-5 py-2.5 text-zinc-500 font-mono text-[10px] tracking-[0.3em] hover:border-zinc-600 hover:text-zinc-300 transition-all"
+            className="border border-zinc-800 px-5 py-2.5 text-zinc-500 font-mono text-[11px] tracking-[0.3em] hover:border-zinc-600 hover:text-zinc-300 transition-all"
           >
             ← ALL DOSSIERS
           </Link>
           <Link
             href="/files"
-            className="border border-zinc-800 px-5 py-2.5 text-zinc-500 font-mono text-[10px] tracking-[0.3em] hover:border-zinc-600 hover:text-zinc-300 transition-all"
+            className="border border-zinc-800 px-5 py-2.5 text-zinc-500 font-mono text-[11px] tracking-[0.3em] hover:border-zinc-600 hover:text-zinc-300 transition-all"
           >
             INTELLIGENCE FILES →
           </Link>
           <Link
             href="/investigation-room"
-            className="border border-zinc-800 px-5 py-2.5 text-zinc-500 font-mono text-[10px] tracking-[0.3em] hover:border-zinc-600 hover:text-zinc-300 transition-all ml-auto"
+            className="border border-zinc-800 px-5 py-2.5 text-zinc-500 font-mono text-[11px] tracking-[0.3em] hover:border-zinc-600 hover:text-zinc-300 transition-all ml-auto"
           >
             INVESTIGATION ROOM →
           </Link>

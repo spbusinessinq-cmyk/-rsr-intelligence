@@ -65,7 +65,7 @@ function LiveSignalFeed() {
     return (
       <div className="space-y-2">
         <div className="border border-zinc-900 bg-black/60 px-4 py-4 text-center">
-          <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-700">FEED LOADING — CHECK SIGNAL ROOM</div>
+          <div className="font-mono text-[10px] tracking-[0.3em] text-zinc-700">FEED LOADING — CHECK SIGNAL ROOM</div>
         </div>
       </div>
     );
@@ -94,7 +94,7 @@ function LiveSignalFeed() {
               >
                 {item.title}
               </a>
-              <div className="mt-1.5 flex items-center gap-2 font-mono text-[9px] tracking-widest text-zinc-700">
+              <div className="mt-1.5 flex items-center gap-2 font-mono text-[10px] tracking-widest text-zinc-700">
                 <span className="text-zinc-800">{item.category}</span>
                 <span>·</span>
                 <span>{item.domain}</span>
@@ -120,7 +120,7 @@ export default function Home() {
         <section className="pt-4 pb-2 flex gap-8 lg:gap-16 items-center">
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-5 mb-10 font-mono text-[9px] tracking-[0.4em] text-zinc-700">
+            <div className="flex items-center gap-5 mb-10 font-mono text-[10px] tracking-[0.4em] text-zinc-700">
               <span className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="text-zinc-600">NETWORK LIVE</span>
@@ -175,12 +175,12 @@ export default function Home() {
         <section>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-700 mb-1.5">OVERVIEW</div>
-              <h2 className="font-mono text-[10px] tracking-[0.4em] text-zinc-400">CORE SYSTEMS</h2>
+              <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-700 mb-1.5">OVERVIEW</div>
+              <h2 className="font-mono text-[11px] tracking-[0.4em] text-zinc-400">CORE SYSTEMS</h2>
             </div>
             <Link
               href="/systems"
-              className="font-mono text-[10px] tracking-[0.25em] text-emerald-600 hover:text-emerald-400 transition-colors"
+              className="font-mono text-[11px] tracking-[0.25em] text-emerald-600 hover:text-emerald-400 transition-colors"
             >
               VIEW ALL SYSTEMS →
             </Link>
@@ -192,7 +192,7 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="mt-4 text-right font-mono text-[9px] tracking-widest text-zinc-800">
+          <div className="mt-4 text-right font-mono text-[10px] tracking-widest text-zinc-800">
             {systems.length - 3} ADDITIONAL MODULES IN SYSTEM LAYER
           </div>
         </section>
@@ -202,11 +202,11 @@ export default function Home() {
 
           <div className="lg:col-span-2">
             <div className="flex items-center justify-between border-b border-zinc-900 pb-3 mb-5">
-              <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-500 flex items-center gap-2">
+              <div className="font-mono text-[11px] tracking-[0.4em] text-zinc-500 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-emerald-500/60 rounded-full animate-pulse" />
                 LIVE SIGNAL FEED
               </div>
-              <Link href="/signal-room" className="font-mono text-[9px] tracking-[0.2em] text-zinc-700 hover:text-zinc-400 transition-colors">
+              <Link href="/signal-room" className="font-mono text-[10px] tracking-[0.2em] text-zinc-700 hover:text-zinc-400 transition-colors">
                 SIGNAL ROOM →
               </Link>
             </div>
@@ -214,7 +214,7 @@ export default function Home() {
           </div>
 
           <div>
-            <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-500 border-b border-zinc-900 pb-3 mb-5">
+            <div className="font-mono text-[11px] tracking-[0.4em] text-zinc-500 border-b border-zinc-900 pb-3 mb-5">
               NETWORK STATUS
             </div>
             <div className="border border-zinc-900 bg-black font-mono">
@@ -228,34 +228,34 @@ export default function Home() {
                   key={row.label}
                   className={`flex justify-between items-center px-5 py-4 ${i < arr.length - 1 ? "border-b border-zinc-900" : ""}`}
                 >
-                  <span className="text-[10px] tracking-widest text-zinc-600">{row.label}</span>
-                  <span className={`text-[10px] tracking-widest ${row.color}`}>{row.value}</span>
+                  <span className="text-[11px] tracking-widest text-zinc-600">{row.label}</span>
+                  <span className={`text-[11px] tracking-widest ${row.color}`}>{row.value}</span>
                 </div>
               ))}
             </div>
 
             {/* Access node */}
             <div className="mt-5 border border-zinc-900 bg-zinc-950/50 p-5">
-              <div className="font-mono text-[9px] tracking-[0.35em] text-zinc-700 mb-1">ACCESS NODE</div>
+              <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-700 mb-1">ACCESS NODE</div>
               <p className="text-xs text-zinc-700 leading-relaxed mb-4 mt-2">
                 Partner, media, and institutional inquiries. Analyst access to Signal Room and Investigation Room.
               </p>
               <div className="flex flex-col gap-2">
                 <Link
                   href="/briefing"
-                  className="w-full border border-emerald-500/25 bg-emerald-500/5 py-2.5 text-emerald-500/80 font-mono text-[9px] tracking-[0.3em] hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/40 transition-colors text-left px-4 block"
+                  className="w-full border border-emerald-500/25 bg-emerald-500/5 py-2.5 text-emerald-500/80 font-mono text-[10px] tracking-[0.3em] hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/40 transition-colors text-left px-4 block"
                 >
                   REQUEST BRIEFING →
                 </Link>
                 <Link
                   href="/signal-room"
-                  className="w-full border border-zinc-800 py-2.5 text-zinc-500 font-mono text-[9px] tracking-[0.3em] hover:border-zinc-600 hover:text-zinc-300 transition-colors text-left px-4 block"
+                  className="w-full border border-zinc-800 py-2.5 text-zinc-500 font-mono text-[10px] tracking-[0.3em] hover:border-zinc-600 hover:text-zinc-300 transition-colors text-left px-4 block"
                 >
                   ENTER SIGNAL ROOM →
                 </Link>
                 <Link
                   href="/investigation-room"
-                  className="w-full border border-zinc-900 py-2.5 text-zinc-700 font-mono text-[9px] tracking-[0.3em] hover:border-zinc-700 hover:text-zinc-400 transition-colors text-left px-4 block"
+                  className="w-full border border-zinc-900 py-2.5 text-zinc-700 font-mono text-[10px] tracking-[0.3em] hover:border-zinc-700 hover:text-zinc-400 transition-colors text-left px-4 block"
                 >
                   INVESTIGATION ROOM →
                 </Link>
@@ -268,10 +268,10 @@ export default function Home() {
         <div className="border border-zinc-900/60 px-5 py-4 flex items-start gap-5">
           <div className="w-1 h-1 bg-zinc-800 mt-1.5 shrink-0" />
           <div>
-            <div className="font-mono text-[8px] tracking-[0.35em] text-zinc-700 mb-1.5">
+            <div className="font-mono text-[9px] tracking-[0.35em] text-zinc-700 mb-1.5">
               SYSTEM NOTICE — DEMONSTRATION ENVIRONMENT
             </div>
-            <p className="font-mono text-[8px] tracking-[0.06em] text-zinc-800 leading-relaxed max-w-2xl">
+            <p className="font-mono text-[9px] tracking-[0.06em] text-zinc-800 leading-relaxed max-w-2xl">
               Select signals, cases, and system outputs displayed on this page are simulated or partially mocked
               for demonstration purposes. Real-time intelligence integration is active in controlled modules only.
             </p>

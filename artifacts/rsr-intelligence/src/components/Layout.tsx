@@ -37,7 +37,7 @@ export default function Layout({ children }: LayoutProps) {
               <div className="font-mono text-[11px] tracking-[0.45em] text-emerald-400 leading-none">
                 RSR INTELLIGENCE NETWORK
               </div>
-              <div className="font-mono text-[9px] tracking-[0.35em] text-zinc-700 uppercase">
+              <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-700 uppercase">
                 INDEPENDENT ANALYSIS SYSTEM
               </div>
             </div>
@@ -46,7 +46,7 @@ export default function Layout({ children }: LayoutProps) {
           {/* Right side: clock + nav */}
           <div className="flex items-center gap-3">
             <UTCClock />
-            <nav className="flex gap-1 font-mono text-[10px] tracking-[0.3em]">
+            <nav className="flex gap-1 font-mono text-[11px] tracking-[0.3em]">
               {navLinks.map((link) => {
                 const isActive =
                   link.path === "/"
@@ -73,7 +73,7 @@ export default function Layout({ children }: LayoutProps) {
 
         <main className="flex-1 py-10">{children}</main>
 
-        <footer className="border-t border-zinc-900 pt-4 pb-2 flex justify-between items-center font-mono text-[9px] tracking-[0.35em] text-zinc-800">
+        <footer className="border-t border-zinc-900 pt-4 pb-2 flex justify-between items-center font-mono text-[10px] tracking-[0.35em] text-zinc-800">
           <div>RSR // INTELLIGENCE NETWORK</div>
           <div className="flex items-center gap-5">
             <span className="flex items-center gap-2">

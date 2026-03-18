@@ -1,0 +1,79 @@
+FINAL TYPOGRAPHY CONSISTENCY PASS — READABILITY BOOST
+
+Do NOT redesign the site.
+Do NOT change layout.
+Do NOT change spacing structure.
+Do NOT change colors or aesthetic.
+
+MAIN GOAL
+Improve readability by slightly increasing all small text sizes across the app while preserving the terminal/intelligence aesthetic.
+
+This is a global consistency pass.
+
+==================================================
+TARGET
+==================================================
+
+All micro / small text including:
+
+- section headers (FILES, SYSTEMS, DOSSIERS, etc.)
+- metadata labels (CATEGORY, REGION, STATUS, etc.)
+- sidebar labels
+- analyst roster text
+- command console table text
+- timestamps
+- small buttons and tags
+- filter labels
+
+==================================================
+RULES
+==================================================
+
+- Increase small text by ONE STEP only
+- Do NOT jump sizes drastically
+- Maintain hierarchy (small stays small, just more readable)
+
+Example:
+- text-[8px] → text-[9px]
+- text-[9px] → text-[10px]
+- text-[10px] → text-[11px]
+
+==================================================
+CONSISTENCY
+==================================================
+
+- Standardize sizes across ALL pages:
+  - Investigation Room
+  - Command Console
+  - Files
+  - Systems
+  - Dossiers
+  - World
+
+- Same type of text = same size everywhere
+
+==================================================
+DO NOT TOUCH
+==================================================
+
+- main titles (Operation Clearwater, BLACK DOG, etc.)
+- major headers
+- layout spacing
+- card structure
+
+==================================================
+COMMAND CONSOLE
+==================================================
+
+- slightly increase table readability
+- ensure operator rows, labels, and actions are easy to read
+- maintain compact feel but remove “squinting” requirement
+
+==================================================
+FINAL CHECK
+==================================================
+
+- no text feels tiny or hard to read
+- UI still feels sharp and high-end
+- nothing looks bloated
+- hierarchy remains intact

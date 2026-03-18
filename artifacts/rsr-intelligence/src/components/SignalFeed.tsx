@@ -32,7 +32,7 @@ export default function SignalFeed({ items }: SignalFeedProps) {
               <div className="text-[11px] text-zinc-300 font-mono tracking-[0.08em] uppercase leading-relaxed group-hover:text-zinc-100 transition-colors">
                 {item.text}
               </div>
-              <div className="mt-1.5 flex items-center gap-2 font-mono text-[9px] tracking-widest text-zinc-700">
+              <div className="mt-1.5 flex items-center gap-2 font-mono text-[10px] tracking-widest text-zinc-700">
                 <span>{item.system}</span>
                 <span>·</span>
                 <span>{formatRelative(item.timestamp)}</span>

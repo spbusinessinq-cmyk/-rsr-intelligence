@@ -32,9 +32,9 @@ export default function FileDetail({ params }: Props) {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center py-32 gap-4">
-          <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-700">RECORD NOT FOUND</div>
-          <div className="font-mono text-[9px] tracking-[0.3em] text-zinc-800">{params.id}</div>
-          <Link href="/files" className="font-mono text-[10px] tracking-[0.3em] text-emerald-600 hover:text-emerald-400 transition-colors mt-4">
+          <div className="font-mono text-[11px] tracking-[0.4em] text-zinc-700">RECORD NOT FOUND</div>
+          <div className="font-mono text-[10px] tracking-[0.3em] text-zinc-800">{params.id}</div>
+          <Link href="/files" className="font-mono text-[11px] tracking-[0.3em] text-emerald-600 hover:text-emerald-400 transition-colors mt-4">
             ← RETURN TO FILES
           </Link>
         </div>
@@ -47,7 +47,7 @@ export default function FileDetail({ params }: Props) {
       <div className="flex flex-col gap-8">
 
         {/* ── BREADCRUMB ────────────────────────────────────────────────── */}
-        <div className="flex items-center gap-2 font-mono text-[10px] tracking-[0.3em] text-zinc-700">
+        <div className="flex items-center gap-2 font-mono text-[11px] tracking-[0.3em] text-zinc-700">
           <Link href="/files" className="hover:text-zinc-400 transition-colors">FILES</Link>
           <span>/</span>
           <span className="text-zinc-500">{file.id}</span>
@@ -56,24 +56,24 @@ export default function FileDetail({ params }: Props) {
         {/* ── HEADER BLOCK ──────────────────────────────────────────────── */}
         <section className="border-b border-zinc-900 pb-8">
           <div className="flex flex-wrap items-center gap-3 mb-6">
-            <span className="font-mono text-[10px] tracking-widest px-2.5 py-1 border border-zinc-800 bg-zinc-900/50 text-zinc-400">
+            <span className="font-mono text-[11px] tracking-widest px-2.5 py-1 border border-zinc-800 bg-zinc-900/50 text-zinc-400">
               {file.id}
             </span>
-            <span className={`font-mono text-[10px] tracking-widest px-2.5 py-1 border flex items-center gap-2 ${statusStyle(file.status)}`}>
+            <span className={`font-mono text-[11px] tracking-widest px-2.5 py-1 border flex items-center gap-2 ${statusStyle(file.status)}`}>
               <StatusDot status={file.status} />
               {file.status}
             </span>
-            <span className={`font-mono text-[10px] tracking-widest ${classColor(file.classification)}`}>
+            <span className={`font-mono text-[11px] tracking-widest ${classColor(file.classification)}`}>
               {file.classification}
             </span>
-            <span className="font-mono text-[9px] tracking-widest text-zinc-700">
+            <span className="font-mono text-[10px] tracking-widest text-zinc-700">
               UPDATED {file.updated}
             </span>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-8 items-start">
             <div className="lg:col-span-2">
-              <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-700 mb-2 uppercase">
+              <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-700 mb-2 uppercase">
                 {file.category} · {file.region}
               </div>
               <h1 className="text-3xl md:text-5xl font-semibold text-white tracking-tight mb-6">
@@ -81,7 +81,7 @@ export default function FileDetail({ params }: Props) {
               </h1>
               <div className="flex flex-wrap gap-2">
                 {file.tags.map(tag => (
-                  <span key={tag} className="font-mono text-[9px] tracking-widest text-zinc-600 bg-zinc-950 px-2 py-1 uppercase border border-zinc-900">
+                  <span key={tag} className="font-mono text-[10px] tracking-widest text-zinc-600 bg-zinc-950 px-2 py-1 uppercase border border-zinc-900">
                     #{tag}
                   </span>
                 ))}
@@ -98,8 +98,8 @@ export default function FileDetail({ params }: Props) {
                 { label: "PRIORITY",       value: file.priority },
               ].map((row, i, arr) => (
                 <div key={row.label} className={`flex justify-between items-center px-4 py-3 ${i < arr.length - 1 ? "border-b border-zinc-900" : ""}`}>
-                  <span className="text-[9px] tracking-widest text-zinc-700">{row.label}</span>
-                  <span className={`text-[10px] tracking-widest ${row.colored ? classColor(file.classification) : "text-zinc-400"}`}>
+                  <span className="text-[10px] tracking-widest text-zinc-700">{row.label}</span>
+                  <span className={`text-[11px] tracking-widest ${row.colored ? classColor(file.classification) : "text-zinc-400"}`}>
                     {row.value}
                   </span>
                 </div>
@@ -116,7 +116,7 @@ export default function FileDetail({ params }: Props) {
 
             {/* Summary */}
             <section>
-              <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-600 mb-4 flex items-center gap-2">
+              <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-600 mb-4 flex items-center gap-2">
                 <span className="w-1 h-1 bg-zinc-700" />
                 RECORD SUMMARY
               </div>
@@ -126,14 +126,14 @@ export default function FileDetail({ params }: Props) {
             {/* Key findings */}
             {detail?.findings && (
               <section>
-                <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-600 mb-5 flex items-center gap-2">
+                <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-600 mb-5 flex items-center gap-2">
                   <span className="w-1 h-1 bg-emerald-600" />
                   KEY FINDINGS
                 </div>
                 <div className="space-y-3">
                   {detail.findings.map((finding, i) => (
                     <div key={i} className="flex gap-4 border-l-2 border-zinc-900 pl-5 py-1">
-                      <span className="font-mono text-[9px] tracking-widest text-zinc-700 shrink-0 mt-0.5">
+                      <span className="font-mono text-[10px] tracking-widest text-zinc-700 shrink-0 mt-0.5">
                         {String(i + 1).padStart(2, "0")}
                       </span>
                       <p className="text-sm text-zinc-400 leading-relaxed">{finding}</p>
@@ -146,7 +146,7 @@ export default function FileDetail({ params }: Props) {
             {/* Key observation */}
             {detail?.keyObservation && (
               <section>
-                <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-600 mb-4 flex items-center gap-2">
+                <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-600 mb-4 flex items-center gap-2">
                   <span className="w-1 h-1 bg-emerald-500/60" />
                   ANALYST OBSERVATION
                 </div>
@@ -163,7 +163,7 @@ export default function FileDetail({ params }: Props) {
             {/* Related systems */}
             {detail?.relatedSystems && detail.relatedSystems.length > 0 && (
               <div className="border border-zinc-900 p-5">
-                <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-700 mb-4">SYSTEMS INVOLVED</div>
+                <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-700 mb-4">SYSTEMS INVOLVED</div>
                 <div className="space-y-2">
                   {detail.relatedSystems.map(sys => (
                     <Link
@@ -171,10 +171,10 @@ export default function FileDetail({ params }: Props) {
                       href={`/systems/${sys.toLowerCase().replace(" ", "-")}`}
                       className="flex items-center gap-2 group"
                     >
-                      <span className="font-mono text-[10px] tracking-[0.2em] text-zinc-500 group-hover:text-emerald-400 transition-colors">
+                      <span className="font-mono text-[11px] tracking-[0.2em] text-zinc-500 group-hover:text-emerald-400 transition-colors">
                         {sys}
                       </span>
-                      <span className="font-mono text-[8px] text-zinc-800 group-hover:text-zinc-600 transition-colors">→</span>
+                      <span className="font-mono text-[9px] text-zinc-800 group-hover:text-zinc-600 transition-colors">→</span>
                     </Link>
                   ))}
                 </div>
@@ -184,7 +184,7 @@ export default function FileDetail({ params }: Props) {
             {/* Linked dossiers */}
             {detail?.linkedDossiers && detail.linkedDossiers.length > 0 && (
               <div className="border border-zinc-900 p-5">
-                <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-700 mb-4">LINKED ENTITIES</div>
+                <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-700 mb-4">LINKED ENTITIES</div>
                 <div className="space-y-2">
                   {detail.linkedDossiers.map(id => (
                     <Link
@@ -192,8 +192,8 @@ export default function FileDetail({ params }: Props) {
                       href={`/dossiers/${id}`}
                       className="flex items-center justify-between group border border-zinc-900 bg-zinc-950/40 px-3 py-2 hover:border-zinc-700 transition-colors"
                     >
-                      <span className="font-mono text-[10px] tracking-widest text-zinc-500 group-hover:text-zinc-300 transition-colors">{id}</span>
-                      <span className="font-mono text-[8px] tracking-widest text-zinc-700 group-hover:text-emerald-500 transition-colors">DOSSIER →</span>
+                      <span className="font-mono text-[11px] tracking-widest text-zinc-500 group-hover:text-zinc-300 transition-colors">{id}</span>
+                      <span className="font-mono text-[9px] tracking-widest text-zinc-700 group-hover:text-emerald-500 transition-colors">DOSSIER →</span>
                     </Link>
                   ))}
                 </div>
@@ -203,7 +203,7 @@ export default function FileDetail({ params }: Props) {
             {/* Related files */}
             {detail?.linkedFiles && detail.linkedFiles.length > 0 && (
               <div className="border border-zinc-900 p-5">
-                <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-700 mb-4">RELATED FILES</div>
+                <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-700 mb-4">RELATED FILES</div>
                 <div className="space-y-2">
                   {detail.linkedFiles.map(id => (
                     <Link
@@ -211,8 +211,8 @@ export default function FileDetail({ params }: Props) {
                       href={`/files/${id}`}
                       className="flex items-center justify-between group border border-zinc-900 bg-zinc-950/40 px-3 py-2 hover:border-zinc-700 transition-colors"
                     >
-                      <span className="font-mono text-[10px] tracking-widest text-zinc-500 group-hover:text-zinc-300 transition-colors">{id}</span>
-                      <span className="font-mono text-[8px] tracking-widest text-zinc-700 group-hover:text-emerald-500 transition-colors">FILE →</span>
+                      <span className="font-mono text-[11px] tracking-widest text-zinc-500 group-hover:text-zinc-300 transition-colors">{id}</span>
+                      <span className="font-mono text-[9px] tracking-widest text-zinc-700 group-hover:text-emerald-500 transition-colors">FILE →</span>
                     </Link>
                   ))}
                 </div>
@@ -226,19 +226,19 @@ export default function FileDetail({ params }: Props) {
         <div className="border-t border-zinc-900 pt-8 flex flex-wrap gap-3">
           <Link
             href="/files"
-            className="border border-zinc-800 px-5 py-2.5 text-zinc-500 font-mono text-[10px] tracking-[0.3em] hover:border-zinc-600 hover:text-zinc-300 transition-all"
+            className="border border-zinc-800 px-5 py-2.5 text-zinc-500 font-mono text-[11px] tracking-[0.3em] hover:border-zinc-600 hover:text-zinc-300 transition-all"
           >
             ← ALL FILES
           </Link>
           <Link
             href="/dossiers"
-            className="border border-zinc-800 px-5 py-2.5 text-zinc-500 font-mono text-[10px] tracking-[0.3em] hover:border-zinc-600 hover:text-zinc-300 transition-all"
+            className="border border-zinc-800 px-5 py-2.5 text-zinc-500 font-mono text-[11px] tracking-[0.3em] hover:border-zinc-600 hover:text-zinc-300 transition-all"
           >
             ENTITY DOSSIERS →
           </Link>
           <Link
             href="/investigation-room"
-            className="border border-zinc-800 px-5 py-2.5 text-zinc-500 font-mono text-[10px] tracking-[0.3em] hover:border-zinc-600 hover:text-zinc-300 transition-all ml-auto"
+            className="border border-zinc-800 px-5 py-2.5 text-zinc-500 font-mono text-[11px] tracking-[0.3em] hover:border-zinc-600 hover:text-zinc-300 transition-all ml-auto"
           >
             INVESTIGATION ROOM →
           </Link>

@@ -49,9 +49,9 @@ export default function SystemCard({ name, role, status, items, description, lar
             <span className={`w-1.5 h-1.5 rounded-full ${statusDot(status)}`} />
             {name}
           </div>
-          <div className="text-[9px] text-zinc-600 font-mono tracking-[0.3em] uppercase pl-3.5">{role}</div>
+          <div className="text-[10px] text-zinc-600 font-mono tracking-[0.3em] uppercase pl-3.5">{role}</div>
         </div>
-        <div className={`text-[9px] font-mono tracking-widest px-2 py-1 bg-zinc-950 border border-zinc-900 ${statusColor(status)}`}>
+        <div className={`text-[10px] font-mono tracking-widest px-2 py-1 bg-zinc-950 border border-zinc-900 ${statusColor(status)}`}>
           {status}
         </div>
       </div>
@@ -64,10 +64,10 @@ export default function SystemCard({ name, role, status, items, description, lar
       {/* Footer */}
       <div className="mt-6 border-t border-zinc-900 pt-4 flex justify-between items-end relative z-10">
         <div className="flex flex-col">
-          <span className="text-[9px] font-mono tracking-[0.3em] text-zinc-700 mb-1">ACTIVE ITEMS</span>
+          <span className="text-[10px] font-mono tracking-[0.3em] text-zinc-700 mb-1">ACTIVE ITEMS</span>
           <span className="text-[11px] font-mono tracking-widest text-emerald-400/70">{formattedItems}</span>
         </div>
-        <span className="text-[10px] font-mono tracking-[0.2em] text-zinc-600 group-hover:text-emerald-400 transition-colors flex items-center gap-1.5">
+        <span className="text-[11px] font-mono tracking-[0.2em] text-zinc-600 group-hover:text-emerald-400 transition-colors flex items-center gap-1.5">
           ENTER SYSTEM
           <span className="group-hover:translate-x-0.5 transition-transform inline-block">→</span>
         </span>
