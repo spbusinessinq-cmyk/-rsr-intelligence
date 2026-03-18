@@ -80,15 +80,12 @@ export default function SignalRoom() {
   const [cachedAt, setCachedAt] = useState<string | null>(null);
   const [isCached, setIsCached] = useState(false);
 
-  async function fetchNews(retryOnFetching = true) {
+  async function fetchNews(attempt = 0) {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_BASE_URL ?? ""}/api/news`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = (await res.json()) as NewsResponse;
-      if (data.fetching && retryOnFetching) {
-        setTimeout(() => fetchNews(false), 20000);
-        return;
-      }
+
       if (data.error && data.articles.length === 0) {
         setError("GDELT feed unavailable — retrying next cycle");
       } else {
@@ -97,13 +94,24 @@ export default function SignalRoom() {
           setArticles(data.articles);
           setCachedAt(data.cachedAt);
           setIsCached(data.cached);
-        } else if (retryOnFetching) {
-          setTimeout(() => fetchNews(false), 20000);
-          return;
         }
+      }
+
+      // If server is still building cache (partial or no data), retry with backoff
+      if (data.fetching && attempt < 6) {
+        const delay = attempt < 2 ? 8000 : attempt < 4 ? 12000 : 20000;
+        setTimeout(() => fetchNews(attempt + 1), delay);
+        return;
+      }
+
+      // If genuinely empty with no error, retry a couple times
+      if (data.articles.length === 0 && !data.error && attempt < 3) {
+        setTimeout(() => fetchNews(attempt + 1), 15000);
+        return;
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "FEED UNAVAILABLE");
+      if (attempt < 3) setTimeout(() => fetchNews(attempt + 1), 20000);
     } finally {
       setLoading(false);
     }

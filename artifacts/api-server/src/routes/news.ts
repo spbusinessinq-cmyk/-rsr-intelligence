@@ -31,11 +31,11 @@ let fetching = false;
 const CACHE_TTL = 10 * 60 * 1000;
 
 const QUERIES: Array<{ q: string; category: NewsItem["category"]; priority: NewsItem["priority"] }> = [
-  { q: "war conflict military strike ukraine russia israel iran nato",          category: "GEOPOLITICAL", priority: "HIGH" },
-  { q: "intelligence surveillance espionage nuclear weapons sanctions coup",    category: "INTELLIGENCE", priority: "HIGH" },
-  { q: "military defense weapons procurement army navy air force contractor",   category: "DEFENSE",      priority: "HIGH" },
-  { q: "energy oil gas crisis pipeline geopolitics electricity grid",           category: "ENERGY",       priority: "NORMAL" },
-  { q: "government policy legislation sanctions regulation congress parliament", category: "POLICY",       priority: "NORMAL" },
+  { q: "war conflict military strike ukraine russia israel iran nato sourcelang:english",          category: "GEOPOLITICAL", priority: "HIGH" },
+  { q: "intelligence surveillance espionage nuclear weapons sanctions coup sourcelang:english",    category: "INTELLIGENCE", priority: "HIGH" },
+  { q: "military defense weapons procurement army navy air force contractor sourcelang:english",   category: "DEFENSE",      priority: "HIGH" },
+  { q: "energy oil gas crisis pipeline geopolitics electricity grid sourcelang:english",           category: "ENERGY",       priority: "NORMAL" },
+  { q: "government policy legislation sanctions regulation congress parliament sourcelang:english", category: "POLICY",       priority: "NORMAL" },
 ];
 
 function inferRegion(article: GdeltArticle): string {
@@ -64,101 +64,98 @@ function parseSeen(seendate: string): string {
   }
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function fetchGdelt(query: string): Promise<GdeltArticle[]> {
   const url =
     `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(query)}`
-    + `&mode=artlist&maxrecords=15&format=json&timespan=48H`;
+    + `&mode=artlist&maxrecords=20&format=json&timespan=72H`;
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(12000) });
     if (!res.ok) return [];
     const text = await res.text();
     if (!text.startsWith("{") && !text.startsWith("[")) return [];
     const data = JSON.parse(text) as GdeltResponse;
-    return (data.articles ?? []).filter(a => {
-      const lang = (a.language ?? "").toLowerCase();
-      return lang === "" || lang === "english";
-    });
+    return data.articles ?? [];
   } catch {
     return [];
   }
 }
 
-async function fetchAllNews(): Promise<NewsItem[]> {
-  const results = await Promise.allSettled(
-    QUERIES.map(q => fetchGdelt(q.q).then(articles => ({ articles, meta: q })))
-  );
-
-  const all: NewsItem[] = [];
-  const seen = new Set<string>();
-
-  for (const result of results) {
-    if (result.status !== "fulfilled") continue;
-    const { articles, meta } = result.value;
-    for (const [j, a] of articles.entries()) {
-      if (!seen.has(a.url)) {
-        seen.add(a.url);
-        all.push({
-          id: `gdelt-${meta.category.toLowerCase()}-${j}-${Date.now()}`,
-          title: a.title,
-          domain: a.domain,
-          url: a.url,
-          seendate: parseSeen(a.seendate),
-          category: meta.category,
-          priority: meta.priority,
-          region: inferRegion(a),
-        });
-      }
-    }
-  }
-
-  return all.sort((a, b) => {
-    if (a.priority === "HIGH" && b.priority !== "HIGH") return -1;
-    if (a.priority !== "HIGH" && b.priority === "HIGH") return 1;
-    return new Date(b.seendate).getTime() - new Date(a.seendate).getTime();
-  });
-}
-
 async function refreshCache() {
   if (fetching) return;
   fetching = true;
+  const all: NewsItem[]     = [];
+  const seenUrl             = new Set<string>();
+  const seenTitle           = new Set<string>();
   try {
-    const articles = await fetchAllNews();
-    if (articles.length > 0) {
-      cache = { data: articles, timestamp: Date.now() };
+    for (let i = 0; i < QUERIES.length; i++) {
+      if (i > 0) await sleep(5500);
+      const q = QUERIES[i];
+      try {
+        const articles = await fetchGdelt(q.q);
+        for (const [j, a] of articles.entries()) {
+          const titleKey = a.title?.trim().toLowerCase().slice(0, 80);
+          if (!seenUrl.has(a.url) && (!titleKey || !seenTitle.has(titleKey))) {
+            seenUrl.add(a.url);
+            if (titleKey) seenTitle.add(titleKey);
+            all.push({
+              id: `gdelt-${q.category.toLowerCase()}-${j}-${Date.now()}`,
+              title: a.title,
+              domain: a.domain,
+              url: a.url,
+              seendate: parseSeen(a.seendate),
+              category: q.category,
+              priority: q.priority,
+              region: inferRegion(a),
+            });
+          }
+        }
+      } catch { /* continue on individual query failure */ }
+      // Update cache after every query so partial results are served immediately
+      if (all.length > 0) {
+        const sorted = [...all].sort((a, b) => {
+          if (a.priority === "HIGH" && b.priority !== "HIGH") return -1;
+          if (a.priority !== "HIGH" && b.priority === "HIGH") return 1;
+          return new Date(b.seendate).getTime() - new Date(a.seendate).getTime();
+        });
+        cache = { data: sorted, timestamp: Date.now() };
+      }
     }
   } finally {
     fetching = false;
   }
 }
 
-setTimeout(() => refreshCache(), 2000);
+setTimeout(() => refreshCache(), 1000);
 
 router.get("/news", async (_req, res) => {
   try {
+    // Serve valid cached data immediately (full or partial)
     if (cache && Date.now() - cache.timestamp < CACHE_TTL) {
       return res.json({
-        articles: cache.data,
-        cached: true,
-        cachedAt: new Date(cache.timestamp).toISOString(),
+        articles:    cache.data,
+        cached:      true,
+        fetching,                           // still building more categories?
+        cachedAt:    new Date(cache.timestamp).toISOString(),
         nextRefresh: new Date(cache.timestamp + CACHE_TTL).toISOString(),
       });
     }
 
-    if (fetching) {
-      return res.json({
-        articles: [],
-        cached: false,
-        fetching: true,
-        cachedAt: new Date().toISOString(),
-        nextRefresh: new Date(Date.now() + 30000).toISOString(),
-      });
+    // No cache yet — kick off background refresh and wait up to 14 s for first query
+    if (!fetching) refreshCache();
+    for (let i = 0; i < 14; i++) {
+      await sleep(1000);
+      if (cache && cache.data.length > 0) break;
     }
 
-    await refreshCache();
     res.json({
-      articles: cache?.data ?? [],
-      cached: false,
-      cachedAt: new Date().toISOString(),
+      articles:    cache?.data ?? [],
+      cached:      false,
+      fetching,
+      cachedAt:    new Date().toISOString(),
       nextRefresh: new Date(Date.now() + CACHE_TTL).toISOString(),
     });
   } catch (err) {

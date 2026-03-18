@@ -1,0 +1,97 @@
+Final Signal Room expansion pass — fix low headline count and restore full live feed output.
+
+Do NOT redesign the site.
+Do NOT change the visual identity.
+Do NOT change the layout of Signal Room.
+
+MAIN GOAL
+The Signal Room is still only showing 3–4 headlines even after backend improvements.
+
+This means the feed is still being artificially limited somewhere.
+
+Fix this so the feed shows a full, live, multi-category intelligence stream.
+
+==================================================
+1. REMOVE HARD CAPS
+==================================================
+
+Audit all layers and remove any artificial limits.
+
+Check:
+- .slice()
+- maxItems / maxRecords caps
+- frontend array limits
+- backend truncation
+- cache truncation
+
+Requirement:
+- do NOT cap the feed to a tiny number like 3–5 items
+- allow a full list (at least 20–50 items available for render)
+
+==================================================
+2. FIX DEDUPLICATION LOGIC
+==================================================
+
+Current issue:
+Dedupe logic is likely removing too many articles.
+
+Fix:
+- dedupe only exact duplicates (same URL or identical title)
+- do NOT collapse entire topics into one item
+- allow multiple stories from same region/topic if valid
+
+==================================================
+3. CATEGORY MERGE LOGIC
+==================================================
+
+Ensure all categories are contributing to the final feed:
+
+- GEOPOLITICAL
+- DEFENSE
+- INTELLIGENCE
+- ENERGY
+- POLICY
+
+Requirement:
+- merge results from all categories into a single feed
+- do NOT overwrite previous category results
+- do NOT only show last query results
+
+==================================================
+4. FRONTEND RENDER FIX
+==================================================
+
+Ensure frontend is rendering the full dataset:
+
+Check:
+- map() not limited
+- no hidden slicing
+- scroll container allows full list
+- no accidental pagination limit
+
+==================================================
+5. SORTING
+==================================================
+
+Sort properly:
+
+- newest first (timestamp)
+- maintain live feel
+- no random order
+
+==================================================
+6. VERIFICATION
+==================================================
+
+Before finishing:
+
+- confirm more than 3–4 headlines appear
+- confirm multiple categories are visible
+- confirm at least 10–20 items render when data exists
+- confirm feed updates live
+- confirm no duplicates spam
+
+SUCCESS CRITERIA
+
+The Signal Room must feel like a live intelligence stream,
+not a static 3-headline panel.

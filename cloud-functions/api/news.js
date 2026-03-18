@@ -1,14 +1,14 @@
 // cloud-functions/api/news.js
 // EdgeOne Node Function — route: /api/news
-// Fetches live geopolitical news from GDELT in parallel,
-// returns the same JSON contract as the Express api-server.
+// IMPORTANT: GDELT rate-limits to 1 request per 5 seconds.
+// Queries MUST be sequential with a 5.5 s delay between each.
+// 4 queries × 5.5 s = ~22 s total — safely within EdgeOne's 30 s budget.
 
 const QUERIES = [
-  { q: "war conflict military strike ukraine russia israel iran nato",          category: "GEOPOLITICAL", priority: "HIGH" },
-  { q: "intelligence surveillance espionage nuclear weapons sanctions coup",    category: "INTELLIGENCE", priority: "HIGH" },
-  { q: "military defense weapons procurement army navy air force contractor",   category: "DEFENSE",      priority: "HIGH" },
-  { q: "energy oil gas crisis pipeline geopolitics electricity grid",           category: "ENERGY",       priority: "NORMAL" },
-  { q: "government policy legislation sanctions regulation congress parliament", category: "POLICY",       priority: "NORMAL" },
+  { q: "war conflict military strike ukraine russia israel iran nato sourcelang:english",          category: "GEOPOLITICAL", priority: "HIGH" },
+  { q: "intelligence surveillance espionage nuclear weapons sanctions coup sourcelang:english",    category: "INTELLIGENCE", priority: "HIGH" },
+  { q: "military defense weapons procurement army navy air force contractor sourcelang:english",   category: "DEFENSE",      priority: "HIGH" },
+  { q: "energy oil gas crisis pipeline geopolitics electricity grid sourcelang:english",           category: "ENERGY",       priority: "NORMAL" },
 ];
 
 function inferRegion(article) {
@@ -37,20 +37,21 @@ function parseSeen(seendate) {
   }
 }
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function fetchGdelt(query) {
   const url =
     `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(query)}` +
-    `&mode=artlist&maxrecords=15&format=json&timespan=48H`;
+    `&mode=artlist&maxrecords=20&format=json&timespan=72H`;
   try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(12000) });
+    const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
     if (!res.ok) return [];
     const text = await res.text();
     if (!text.startsWith("{") && !text.startsWith("[")) return [];
     const data = JSON.parse(text);
-    return (data.articles ?? []).filter(a => {
-      const lang = (a.language ?? "").toLowerCase();
-      return lang === "" || lang === "english";
-    });
+    return data.articles ?? [];
   } catch {
     return [];
   }
@@ -58,19 +59,20 @@ async function fetchGdelt(query) {
 
 export const onRequestGet = async () => {
   try {
-    const results = await Promise.allSettled(
-      QUERIES.map(q => fetchGdelt(q.q).then(articles => ({ articles, meta: q })))
-    );
+    const all      = [];
+    const seenUrl   = new Set();
+    const seenTitle = new Set();
 
-    const all  = [];
-    const seen = new Set();
+    for (let i = 0; i < QUERIES.length; i++) {
+      if (i > 0) await sleep(5500);    // GDELT rate limit: 1 req / 5 s
+      const meta     = QUERIES[i];
+      const articles = await fetchGdelt(meta.q);
 
-    for (const result of results) {
-      if (result.status !== "fulfilled") continue;
-      const { articles, meta } = result.value;
       for (const [j, a] of articles.entries()) {
-        if (!seen.has(a.url)) {
-          seen.add(a.url);
+        const titleKey = a.title?.trim().toLowerCase().slice(0, 80);
+        if (!seenUrl.has(a.url) && (!titleKey || !seenTitle.has(titleKey))) {
+          seenUrl.add(a.url);
+          if (titleKey) seenTitle.add(titleKey);
           all.push({
             id:       `gdelt-${meta.category.toLowerCase()}-${j}-${Date.now()}`,
             title:    a.title,
