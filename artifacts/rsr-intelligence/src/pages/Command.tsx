@@ -120,7 +120,7 @@ function ActionBtn({
   }[color];
   return (
     <button disabled={disabled} onClick={onClick}
-      className={`font-mono text-[10px] tracking-[0.2em] border px-3 py-1 transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${cls}`}>
+      className={`font-mono text-[10px] tracking-[0.2em] border px-3 py-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${cls}`}>
       {loading ? "..." : label}
     </button>
   );
@@ -526,7 +526,7 @@ export default function Command() {
                         <div className="flex items-center gap-2 min-w-0">
                           <button
                             onClick={() => setExpandedOp(isExpanded ? null : op.id)}
-                            className={`shrink-0 font-mono text-[8px] tracking-[0.15em] border px-2 py-0.5 transition-colors whitespace-nowrap ${
+                            className={`shrink-0 font-mono text-[9px] tracking-[0.15em] border px-2.5 py-1 transition-colors whitespace-nowrap ${
                               isExpanded
                                 ? "text-emerald-600 border-emerald-900/50 bg-emerald-950/20"
                                 : "text-zinc-600 border-zinc-800 hover:text-zinc-300 hover:border-zinc-600"
@@ -697,7 +697,7 @@ export default function Command() {
                         <button
                           onClick={() => deleteMessage(msg.id)}
                           title="Delete"
-                          className="font-mono text-[9px] text-zinc-800 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                          className="font-mono text-[9px] text-zinc-600 hover:text-red-400 transition-colors opacity-30 group-hover:opacity-100"
                         >
                           ✕
                         </button>
@@ -932,7 +932,7 @@ export default function Command() {
                       </select>
                     </div>
                     <div className="font-mono text-[9px] tracking-[0.06em] text-emerald-700 truncate">
-                      {c.channel_id ? `#${c.channel_id}` : "—"}
+                      {c.channel_id ? `#${channels.find(ch => ch.id === c.channel_id)?.name ?? c.channel_id}` : "—"}
                     </div>
                     <div className="font-mono text-[9px] text-zinc-700 truncate">{c.description ?? "—"}</div>
                     <div>

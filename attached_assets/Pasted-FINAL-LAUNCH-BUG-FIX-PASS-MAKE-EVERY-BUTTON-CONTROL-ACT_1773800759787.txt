@@ -1,0 +1,214 @@
+FINAL LAUNCH BUG-FIX PASS — MAKE EVERY BUTTON / CONTROL ACTUALLY WORK
+
+Do NOT redesign the site.
+Do NOT change the layout architecture.
+Do NOT weaken the homepage.
+Do NOT change the established visual identity.
+
+This is a strict bug-fix and launch-lock pass.
+No new concepts. No cosmetic detours.
+The goal is to make every visible button/control do exactly what it says it does.
+
+MAIN GOAL
+Fix all broken or partial controls in the current platform, especially in:
+- Investigation Room
+- Command Console
+- Active Cases
+- Channel controls
+- Identity editing
+- Analyst roster
+- Feed controls if present
+
+PRESERVE
+- black base
+- restrained emerald accents
+- thin borders
+- premium command-interface feel
+- monospace micro-labels
+- serious intelligence-network tone
+
+CRITICAL RULES
+- Do not describe functionality that is not actually working
+- Do not leave dead buttons in the UI
+- Do not hide broken controls behind hover states
+- If a control exists, it must work end-to-end
+- If something cannot be made functional cleanly in this pass, remove or disable it honestly instead of leaving it fake
+
+==================================================
+1. BUTTON / CONTROL RELIABILITY AUDIT
+==================================================
+
+Audit every visible control in the current app and make sure it works.
+
+This includes:
+- create channel
+- rename channel
+- archive/remove channel
+- create case
+- delete case
+- attach case
+- edit identity
+- approve / deny
+- role/account controls
+- message send
+- message delete
+- message edit/pin if present
+- feed action controls if present
+- any hover icons in Investigation Room
+
+If any button is visible but not actually functional, fix it or remove/disable it clearly.
+
+==================================================
+2. INVESTIGATION ROOM — CHANNEL CONTROLS MUST WORK
+==================================================
+
+The controls in the left channel list must fully work.
+
+Requirements:
+- create channel works
+- rename channel works and persists to DB
+- archive/remove channel works and updates immediately
+- list refreshes immediately after changes
+- buttons are large enough to actually use
+- hover icons are not mystery controls
+
+If rename/archive still fails, fix the DB write path and re-fetch/realtime update path.
+
+==================================================
+3. ACTIVE CASES — CREATE / DELETE / UPDATE MUST WORK
+==================================================
+
+The Active Cases panel and related case controls must be fully operational.
+
+Requirements:
+- create case works
+- delete case works
+- status changes save reliably
+- cases update immediately in the sidebar and room context
+- no static/mock leftover cases unless explicitly intended as fallback
+- if no cases exist, show honest empty state
+
+If a room is an investigation room, cases should behave like real DB-backed objects.
+
+==================================================
+4. ANALYST ROSTER — REAL DATA + NAME UPDATE
+==================================================
+
+The Analyst Roster must be driven by real user/profile data, not stale/mock values.
+
+Requirements:
+- saved handle changes appear in roster
+- roster updates after identity save
+- roster should not continue showing old/static names
+- roles remain accurate
+
+If realtime subscription is needed here, add it.
+If re-fetch is needed after save, add it.
+
+==================================================
+5. IDENTITY EDITING — SAVE MUST REFLECT EVERYWHERE
+==================================================
+
+Identity editing must work reliably.
+
+Requirements:
+- edit own handle/title
+- edit other user handle/title (admin)
+- save to profiles table
+- persist on refresh
+- reflect in:
+  - Command Console
+  - Investigation Room messages
+  - Analyst Roster
+  - any user references
+
+Add explicit success/error state:
+- visible success message
+- visible failure message
+- no silent failure
+
+==================================================
+6. FEED / MESSAGE ACTIONS — ONLY KEEP REAL ONES
+==================================================
+
+If edit/pin/three-dot/feed controls are visible anywhere, they must actually work.
+
+If they are not fully implemented:
+- either finish them
+- or remove/hide them for launch
+
+Do not leave dead feed/message controls in the UI.
+
+==================================================
+7. BUTTON SIZE / USABILITY
+==================================================
+
+Buttons are still too small in some places.
+
+Increase usability slightly for:
+- channel controls
+- case controls
+- identity controls
+- command console action buttons
+- details/collapse buttons
+
+Keep the same aesthetic, just make them more usable.
+
+==================================================
+8. INVESTIGATION ROOM READABILITY
+==================================================
+
+Increase Investigation Room readability slightly again where still too small:
+- messages
+- timestamps
+- role labels
+- channel labels
+- active cases
+- analyst roster
+- composer text
+
+Use a consistent shared readable scale.
+Do not do random one-off tweaks.
+
+==================================================
+9. SCROLLBAR FIX
+==================================================
+
+Keep scrollbar styling consistent and dark across:
+- full pages
+- sidebars
+- internal scroll panels
+
+No white scrollbars.
+
+==================================================
+10. FINAL VERIFICATION — ACTUALLY TEST IT
+==================================================
+
+Before finishing, explicitly test and confirm these work:
+- create channel
+- rename channel
+- archive channel
+- create case
+- delete case
+- change case status
+- edit own handle
+- edit another user handle
+- analyst roster updates after save
+- message send
+- command console actions
+- no dead hover controls remain
+- no visible button lies about functionality
+
+Do not just say “implemented.”
+Verify the interactions work end-to-end.
+
+==================================================
+11. IF SOMETHING CANNOT BE MADE LAUNCH-READY
+==================================================
+
+If any visible control cannot be made reliable in this pass:
+- remove it from the launch UI
+- do not leave fake or broken controls visible
+
+Launch-ready means functional, not theoretical.

@@ -614,19 +614,34 @@ function SageTerminal({ onExpand }: { onExpand: () => void }) {
 function AnalystRoster({ configured, user }: { configured: boolean; user: unknown }) {
   const [analysts, setAnalysts] = useState(STATIC_ANALYSTS);
 
-  useEffect(() => {
+  const loadRoster = useCallback(async () => {
     if (!configured || !user) return;
-    supabase.from("profiles")
+    const { data } = await supabase
+      .from("profiles")
       .select("handle, role, approval_status")
       .eq("approval_status", "approved")
-      .then(({ data }) => {
-        if (data && data.length > 0) {
-          setAnalysts(data.map((p: { handle: string; role: string }) => ({
-            handle: p.handle, role: p.role ?? "member", status: "ACTIVE",
-          })));
-        }
-      });
+      .order("role", { ascending: false });
+    if (data && data.length > 0) {
+      setAnalysts(data.map((p: { handle: string; role: string }) => ({
+        handle: p.handle,
+        role:   p.role ?? "member",
+        status: "ACTIVE",
+      })));
+    }
   }, [configured, user]);
+
+  useEffect(() => { loadRoster(); }, [loadRoster]);
+
+  /* Live-refresh roster when any profile row changes (handle edits, role changes) */
+  useEffect(() => {
+    if (!configured || !user) return;
+    const sub = supabase
+      .channel("roster-profiles")
+      .on("postgres_changes", { event: "*", schema: "public", table: "profiles" },
+        () => { loadRoster(); })
+      .subscribe();
+    return () => { supabase.removeChannel(sub); };
+  }, [configured, user, loadRoster]);
 
   const roleCls: Record<string, string> = {
     admin:   "text-emerald-500",
@@ -1352,16 +1367,16 @@ export default function InvestigationRoom() {
 
                       {/* Admin inline controls for selected case */}
                       {isSelected && isAdmin && (
-                        <div className="mt-1 mb-2 pl-1">
-                          <div className="flex flex-wrap gap-1 mb-1.5">
+                        <div className="mt-1.5 mb-2 pl-1 space-y-1.5">
+                          <div className="flex flex-wrap gap-1">
                             {STAGES.map(s => (
                               <button
                                 key={s}
                                 onClick={() => updateCaseStage(c.id, s)}
-                                className={`font-mono text-[7px] tracking-[0.1em] border px-1.5 py-0.5 transition-colors ${
+                                className={`font-mono text-[9px] tracking-[0.08em] border px-2 py-0.5 transition-colors ${
                                   c.stage === s
                                     ? `${stageStyle[s]} border-current/20`
-                                    : "text-zinc-700 border-zinc-800 hover:text-zinc-400"
+                                    : "text-zinc-600 border-zinc-800 hover:text-zinc-300 hover:border-zinc-700"
                                 }`}
                               >
                                 {s}
@@ -1371,17 +1386,19 @@ export default function InvestigationRoom() {
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => updateCasePriority(c.id, c.priority === "HIGH" ? "NORMAL" : "HIGH")}
-                              className={`font-mono text-[7px] tracking-[0.1em] border px-1.5 py-0.5 transition-colors ${
-                                c.priority === "HIGH" ? "text-red-400 border-red-500/20" : "text-zinc-600 border-zinc-800 hover:text-zinc-400"
+                              className={`font-mono text-[9px] tracking-[0.08em] border px-2 py-0.5 transition-colors ${
+                                c.priority === "HIGH"
+                                  ? "text-red-400 border-red-500/25 bg-red-950/10"
+                                  : "text-zinc-500 border-zinc-800 hover:text-zinc-300 hover:border-zinc-700"
                               }`}
                             >
                               {c.priority}
                             </button>
                             <button
                               onClick={() => deleteCase(c.id)}
-                              className="font-mono text-[7px] tracking-[0.1em] text-zinc-700 hover:text-red-400 transition-colors ml-auto"
+                              className="font-mono text-[9px] tracking-[0.08em] text-zinc-600 hover:text-red-400 border border-zinc-900 hover:border-red-900/40 px-2 py-0.5 transition-colors ml-auto"
                             >
-                              DEL CASE
+                              DELETE
                             </button>
                           </div>
                         </div>

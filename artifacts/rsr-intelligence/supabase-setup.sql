@@ -87,10 +87,11 @@ CREATE POLICY "Authenticated can insert channels"
   ON room_channels FOR INSERT TO authenticated
   WITH CHECK (true);
 
--- 7. ENABLE REALTIME on room_messages
--- In Supabase Dashboard: Database → Replication → enable supabase_realtime for room_messages
+-- 7. ENABLE REALTIME on room_messages and profiles
+-- In Supabase Dashboard: Database → Replication → enable supabase_realtime for these tables
 -- Or run:
 ALTER PUBLICATION supabase_realtime ADD TABLE room_messages;
+ALTER PUBLICATION supabase_realtime ADD TABLE profiles;
 
 
 -- ============================================================
