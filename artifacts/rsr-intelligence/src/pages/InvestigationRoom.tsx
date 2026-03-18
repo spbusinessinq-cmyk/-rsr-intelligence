@@ -704,8 +704,24 @@ export default function InvestigationRoom() {
   const [newCaseForm, setNewCaseForm] = useState({ ref: "", name: "", stage: "NEW", priority: "NORMAL", channel_id: "" });
   const [attachCaseOpen, setAttachCaseOpen] = useState(false);
   const [attachCaseId,   setAttachCaseId]   = useState("");
+  const [newCaseError,   setNewCaseError]   = useState<string | null>(null);
+  const [caseOpError,    setCaseOpError]    = useState<string | null>(null);
+  const [chError,        setChError]        = useState<string | null>(null);
 
   const activeChannelData = channels.find(c => c.id === activeChannel);
+
+  /* ── Auto-clear transient errors ── */
+  useEffect(() => {
+    if (!caseOpError) return;
+    const t = setTimeout(() => setCaseOpError(null), 6000);
+    return () => clearTimeout(t);
+  }, [caseOpError]);
+
+  useEffect(() => {
+    if (!chError) return;
+    const t = setTimeout(() => setChError(null), 6000);
+    return () => clearTimeout(t);
+  }, [chError]);
 
   /* ── Load channels from DB ── */
   const loadChannels = useCallback(async () => {
@@ -715,7 +731,7 @@ export default function InvestigationRoom() {
       .select("*")
       .eq("archived", false)
       .order("created_at", { ascending: true });
-    if (data && data.length > 0) setChannels(data as Channel[]);
+    setChannels(data && data.length > 0 ? (data as Channel[]) : DEFAULT_CHANNELS);
   }, [configured]);
 
   /* ── Load cases from DB ── */
@@ -737,20 +753,23 @@ export default function InvestigationRoom() {
   async function createChannel() {
     const slug = channelNewName.trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
     if (!slug) return;
-    await supabase.from("room_channels").insert({ id: slug, slug, name: slug, description: null });
+    const { error } = await supabase.from("room_channels").insert({ id: slug, slug, name: slug, description: null });
+    if (error) { setChError("CREATE FAILED: " + error.message); return; }
     setChannelCreateOpen(false); setChannelNewName("");
     await loadChannels();
   }
 
   async function archiveChannel(id: string) {
-    await supabase.from("room_channels").update({ archived: true }).eq("id", id);
-    if (activeChannel === id) setActiveChannel("general");
+    const { error } = await supabase.from("room_channels").update({ archived: true }).eq("id", id);
+    if (error) { setChError("ARCHIVE FAILED: " + error.message); return; }
+    if (activeChannel === id) setActiveChannel(channels.find(c => c.id !== id && !c.archived)?.id ?? "general");
     await loadChannels();
   }
 
   async function renameChannel(id: string) {
     if (!renameVal.trim()) return;
-    await supabase.from("room_channels").update({ name: renameVal.trim() }).eq("id", id);
+    const { error } = await supabase.from("room_channels").update({ name: renameVal.trim() }).eq("id", id);
+    if (error) { setChError("RENAME FAILED: " + error.message); return; }
     setRenamingCh(null);
     await loadChannels();
   }
@@ -760,39 +779,45 @@ export default function InvestigationRoom() {
     const ref  = newCaseForm.ref.trim().toUpperCase();
     const name = newCaseForm.name.trim().toUpperCase();
     if (!ref || !name) return;
-    await supabase.from("investigation_cases").insert({
+    setNewCaseError(null);
+    const { error } = await supabase.from("investigation_cases").insert({
       ref, name,
       stage:      newCaseForm.stage,
       priority:   newCaseForm.priority,
       channel_id: newCaseForm.channel_id || null,
       created_by: authUser?.id ?? null,
     });
+    if (error) { setNewCaseError(error.message); return; }
     setNewCaseOpen(false);
     setNewCaseForm({ ref: "", name: "", stage: "NEW", priority: "NORMAL", channel_id: "" });
     await loadCases();
   }
 
   async function updateCaseStage(id: string, stage: string) {
-    await supabase.from("investigation_cases").update({ stage, updated_at: new Date().toISOString() }).eq("id", id);
-    await loadCases();
+    const { error } = await supabase.from("investigation_cases").update({ stage, updated_at: new Date().toISOString() }).eq("id", id);
+    if (!error) await loadCases();
+    else setCaseOpError("STAGE UPDATE FAILED: " + error.message);
   }
 
   async function updateCasePriority(id: string, priority: string) {
-    await supabase.from("investigation_cases").update({ priority, updated_at: new Date().toISOString() }).eq("id", id);
-    await loadCases();
+    const { error } = await supabase.from("investigation_cases").update({ priority, updated_at: new Date().toISOString() }).eq("id", id);
+    if (!error) await loadCases();
+    else setCaseOpError("PRIORITY UPDATE FAILED: " + error.message);
   }
 
   async function deleteCase(id: string) {
-    await supabase.from("investigation_cases").delete().eq("id", id);
+    const { error } = await supabase.from("investigation_cases").delete().eq("id", id);
+    if (error) { setCaseOpError("DELETE FAILED: " + error.message); return; }
     setSelectedCaseRef(null);
     await loadCases();
   }
 
   async function attachCaseToChannel() {
     if (!attachCaseId) return;
-    await supabase.from("investigation_cases")
+    const { error } = await supabase.from("investigation_cases")
       .update({ channel_id: activeChannel, updated_at: new Date().toISOString() })
       .eq("id", attachCaseId);
+    if (error) { setCaseOpError("ATTACH FAILED: " + error.message); return; }
     setAttachCaseOpen(false);
     setAttachCaseId("");
     await loadCases();
@@ -970,6 +995,14 @@ export default function InvestigationRoom() {
                 <button onClick={createChannel} className="font-mono text-[9px] tracking-[0.2em] text-emerald-600 hover:text-emerald-400 transition-colors">CREATE</button>
                 <button onClick={() => setChannelCreateOpen(false)} className="font-mono text-[9px] text-zinc-600 hover:text-zinc-400 transition-colors">CANCEL</button>
               </div>
+            </div>
+          )}
+
+          {/* Channel error */}
+          {chError && (
+            <div className="mx-4 mt-2 border border-red-900/40 bg-red-950/10 px-2 py-1.5 flex items-start justify-between gap-2">
+              <div className="font-mono text-[9px] tracking-[0.1em] text-red-400 leading-relaxed">{chError}</div>
+              <button onClick={() => setChError(null)} className="font-mono text-[9px] text-red-700 hover:text-red-400 shrink-0 mt-0.5">✕</button>
             </div>
           )}
 
@@ -1328,10 +1361,22 @@ export default function InvestigationRoom() {
                   <option value="">— NO CHANNEL —</option>
                   {channels.map(ch => <option key={ch.id} value={ch.id}>{ch.name}</option>)}
                 </select>
+                {newCaseError && (
+                  <div className="border border-red-900/40 bg-red-950/10 px-2 py-1.5">
+                    <div className="font-mono text-[9px] tracking-[0.15em] text-red-400 leading-relaxed">{newCaseError}</div>
+                  </div>
+                )}
                 <div className="flex gap-2 pt-1">
-                  <button onClick={createCase} className="font-mono text-[9px] tracking-[0.2em] text-emerald-600 hover:text-emerald-400 transition-colors">CREATE</button>
-                  <button onClick={() => setNewCaseOpen(false)} className="font-mono text-[9px] text-zinc-600 hover:text-zinc-400 transition-colors">CANCEL</button>
+                  <button onClick={createCase} className="font-mono text-[9px] tracking-[0.2em] text-emerald-600 hover:text-emerald-400 border border-emerald-900/30 px-2 py-0.5 transition-colors">CREATE</button>
+                  <button onClick={() => { setNewCaseOpen(false); setNewCaseError(null); }} className="font-mono text-[9px] text-zinc-600 hover:text-zinc-400 transition-colors">CANCEL</button>
                 </div>
+              </div>
+            )}
+
+            {caseOpError && (
+              <div className="mb-2 border border-red-900/40 bg-red-950/10 px-2 py-1.5 flex items-start justify-between gap-2">
+                <div className="font-mono text-[9px] tracking-[0.1em] text-red-400 leading-relaxed">{caseOpError}</div>
+                <button onClick={() => setCaseOpError(null)} className="font-mono text-[9px] text-red-700 hover:text-red-400 shrink-0 mt-0.5">✕</button>
               </div>
             )}
 

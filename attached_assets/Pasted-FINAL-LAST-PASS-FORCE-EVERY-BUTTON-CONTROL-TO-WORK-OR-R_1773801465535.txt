@@ -1,0 +1,230 @@
+FINAL LAST PASS — FORCE EVERY BUTTON / CONTROL TO WORK OR REMOVE IT
+
+Do NOT redesign the site.
+Do NOT change the layout architecture.
+Do NOT weaken the homepage.
+Do NOT change the established visual identity.
+
+This is the final launch-lock bug-fix pass.
+No new concepts. No feature expansion. No cosmetic detours.
+Only make existing visible controls fully functional and consistent.
+
+MAIN GOAL
+Make every visible button/control in the current platform do exactly what it says it does, especially in:
+- Investigation Room
+- Command Console
+- Active Cases
+- Channel controls
+- Identity editing
+- Analyst roster
+- Message controls
+- Case controls
+
+PRESERVE
+- black base
+- restrained emerald accents
+- thin borders
+- premium command-interface feel
+- monospace micro-labels
+- serious intelligence-network tone
+
+CRITICAL RULES
+- Do not claim a control works unless it is verified working end-to-end
+- If a button exists, it must work
+- If a control cannot be made reliable in this pass, remove or disable it honestly
+- No dead hover controls
+- No partial save behavior
+- No stale UI after save
+- Keep everything minimal and launch-ready
+
+==================================================
+1. STRICT BUTTON / CONTROL AUDIT
+==================================================
+
+Audit every visible button/control in the app and make sure it works.
+
+This includes:
+- create channel
+- rename channel
+- archive/remove channel
+- create case
+- delete case
+- change case status
+- attach case
+- edit identity
+- approve / deny
+- role/account controls
+- message send
+- message delete
+- message edit
+- message pin
+- any hover icons in Investigation Room
+- any message-row icons in the feed
+- command console details/collapse
+- new case buttons in both room and sidebar
+
+If any visible control is not fully functional, fix it or remove it.
+
+==================================================
+2. INVESTIGATION ROOM — CHANNEL CONTROLS MUST WORK
+==================================================
+
+The controls in the left channel list must fully work.
+
+Requirements:
+- create channel works
+- rename channel works and persists to DB
+- archive/remove channel works and updates immediately
+- channel list refreshes immediately after changes
+- channel buttons/icons are large enough to actually use
+- no mystery hover-only controls
+
+If rename/archive still fails, fix the DB write path and the refresh/realtime path.
+
+==================================================
+3. ACTIVE CASES — CREATE / DELETE / UPDATE MUST WORK
+==================================================
+
+The Active Cases panel and related case controls must be fully operational.
+
+Requirements:
+- create case works from the right sidebar
+- create case works from the workspace/new case button
+- delete case works from the right sidebar
+- status changes save reliably
+- case appears immediately after creation
+- case disappears immediately after deletion
+- sidebar and room context update immediately
+- no static/mock leftover cases if DB has real cases
+- if no cases exist, show a clean empty state
+
+==================================================
+4. ANALYST ROSTER — REAL DATA, LIVE UPDATE
+==================================================
+
+The Analyst Roster must be driven by real profile data only.
+
+Requirements:
+- saved handle changes appear in roster
+- roster updates after identity save
+- roster does not show stale/mock names if real users exist
+- roles remain accurate
+- my full updated name must display correctly, not be truncated into an old/stale value if avoidable
+
+If truncation is necessary for layout, do it cleanly, but the saved identity must still be the true source of truth.
+
+==================================================
+5. IDENTITY EDITING — SAVE MUST REFLECT EVERYWHERE
+==================================================
+
+Identity editing must work reliably.
+
+Requirements:
+- edit own handle/title
+- edit other user handle/title (admin)
+- save to profiles table
+- persist on refresh
+- reflect in:
+  - Command Console
+  - Investigation Room messages
+  - Analyst Roster
+  - any user references
+
+Add explicit success/error state:
+- visible success message
+- visible failure message
+- no silent failure
+
+CRITICAL:
+If a name saves, it must be reflected in chat/message display too, not just in one panel.
+
+==================================================
+6. MESSAGE / FEED ACTIONS — ONLY KEEP REAL ONES
+==================================================
+
+If edit/pin/delete/three-dot/message-row controls are visible anywhere, they must actually work.
+
+If they are not fully implemented:
+- either finish them
+- or remove/hide them for launch
+
+Do not leave fake message/feed controls in the UI.
+
+==================================================
+7. BUTTON SIZE / CLICKABILITY
+==================================================
+
+Buttons are still too small in some places.
+
+Increase usability slightly for:
+- channel controls
+- case controls
+- identity controls
+- command console action buttons
+- details/collapse buttons
+- message-row action icons
+
+Keep the same aesthetic, just make them more usable.
+
+==================================================
+8. INVESTIGATION ROOM READABILITY
+==================================================
+
+Increase Investigation Room readability slightly again where still too small:
+- messages
+- timestamps
+- role labels
+- channel labels
+- active cases
+- analyst roster
+- composer text
+
+Use a consistent shared readable scale.
+No random one-off tweaks.
+
+==================================================
+9. SCROLLBAR FIX
+==================================================
+
+Keep scrollbar styling consistent and dark across:
+- full pages
+- sidebars
+- internal scroll panels
+
+No white scrollbars anywhere.
+
+==================================================
+10. FINAL VERIFICATION — ACTUALLY TEST EACH CONTROL
+==================================================
+
+Before finishing, explicitly test and confirm these work end-to-end:
+- create channel
+- rename channel
+- archive channel
+- create case from sidebar
+- create case from workspace/new case action
+- delete case
+- change case status
+- edit own handle
+- edit another user handle
+- analyst roster updates after save
+- message send
+- message delete
+- message edit if visible
+- message pin if visible
+- command console actions
+- no dead hover controls remain
+- no visible button lies about functionality
+
+Do not just say “implemented.”
+Verify the actual interaction works.
+
+==================================================
+11. REMOVE OR DISABLE ANYTHING THAT ISN’T LAUNCH-READY
+==================================================
+
+If any visible control cannot be made reliable in this pass:
+- remove it from the launch UI
+- or disable it with an honest inactive state
+
+Launch-ready means functional, not theoretical.
