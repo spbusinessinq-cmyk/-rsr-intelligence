@@ -12,7 +12,6 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 export type InboxNavTarget = {
   page: "investigation-room";
   channel?: string;
-  message?: string;
 } | null;
 
 interface InboxNavContextValue {

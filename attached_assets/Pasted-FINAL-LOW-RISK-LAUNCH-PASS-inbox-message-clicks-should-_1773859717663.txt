@@ -1,0 +1,67 @@
+FINAL LOW-RISK LAUNCH PASS — inbox message clicks should open Investigation Room only
+
+Do NOT redesign the site.
+Do NOT change the visual identity.
+Do NOT weaken the homepage.
+Do NOT break working chat, auth, inbox delete, command console, or navigation.
+
+MAIN GOAL
+Stop the unstable deep-link behavior from inbox notifications.
+
+For launch, I want the safest behavior:
+- clicking a chat/message notification should open Investigation Room
+- it does NOT need to deep-link to the exact message
+- it does NOT need to risk 404s or routing instability
+
+==================================================
+1. INBOX CLICK BEHAVIOR — SIMPLIFY
+==================================================
+
+For notifications related to chat/messages:
+- close the inbox
+- navigate user into Investigation Room only
+- do not attempt exact message routing
+- do not attempt fragile deep-linking
+- do not allow any path that can 404
+
+If channel selection is stable, open the correct channel.
+If not, simply open Investigation Room default state.
+
+==================================================
+2. DO NOT OVERENGINEER
+==================================================
+
+Remove or bypass the fragile message-target routing logic for launch.
+Stability is more important than exact deep-linking right now.
+
+==================================================
+3. KEEP THESE WORKING
+==================================================
+
+Do NOT break:
+- inbox panel
+- inbox delete
+- unread/read state
+- chat
+- command console
+- back buttons
+- auth
+
+==================================================
+4. FINAL VERIFICATION
+==================================================
+
+Before finishing, explicitly verify:
+- clicking a notification from inbox never 404s
+- clicking a chat/message notification opens Investigation Room
+- inbox still works
+- delete still works
+- no existing working systems are broken
+
+SUCCESS CRITERIA
+
+This pass is complete only if:
+- inbox clicks are stable
+- users land in Investigation Room
+- no 404 occurs
+- the rest of the app remains intact

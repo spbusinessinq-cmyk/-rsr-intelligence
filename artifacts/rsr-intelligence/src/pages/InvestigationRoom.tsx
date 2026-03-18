@@ -725,11 +725,11 @@ export default function InvestigationRoom() {
     if (mid) setTargetMsgId(mid);
   }, [searchStr]);
 
-  /* ── Inbox state-navigation: consume navTarget, update channel/message ── */
+  /* ── Inbox state-navigation: consume navTarget, switch channel ── */
   useEffect(() => {
     if (!navTarget || navTarget.page !== "investigation-room") return;
     if (navTarget.channel) setActiveChannel(navTarget.channel);
-    if (navTarget.message) setTargetMsgId(navTarget.message);
+    // Message deep-link intentionally omitted for launch stability
     clearInboxNav(); // consume + clear so App.tsx falls back to normal routing
   }, [navTarget, clearInboxNav]);
 

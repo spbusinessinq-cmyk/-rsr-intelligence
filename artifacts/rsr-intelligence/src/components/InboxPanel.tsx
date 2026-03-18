@@ -139,9 +139,10 @@ export function InboxPanel({ userId, onUnreadChange, onClose }: InboxPanelProps)
     onClose();
 
     // Navigate purely through React state — no window.location, no setLocation
+    // We only switch channel (stable). Message deep-link is intentionally omitted for launch.
     const inv = parseInvestigationLink(n.link);
     if (inv !== null) {
-      navigateViaInbox({ page: "investigation-room", ...inv });
+      navigateViaInbox({ page: "investigation-room", channel: inv.channel });
     }
     // Non-investigation links: just close the panel (no navigation attempted)
   }
