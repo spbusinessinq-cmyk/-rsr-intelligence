@@ -6,6 +6,7 @@ import { supabase, isConfigured } from "./supabase";
 export interface Profile {
   id: string;
   handle: string;
+  title?: string;
   role: string;
   approval_status: string;
   account_status?: string;

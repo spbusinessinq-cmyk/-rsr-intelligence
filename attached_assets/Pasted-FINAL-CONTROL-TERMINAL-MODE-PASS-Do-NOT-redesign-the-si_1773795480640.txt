@@ -1,0 +1,170 @@
+FINAL CONTROL + TERMINAL MODE PASS
+
+Do NOT redesign the site.
+Do NOT change layout structure.
+Do NOT weaken the existing aesthetic.
+
+This pass completes:
+- identity control
+- channel control fixes
+- message system upgrades
+- terminal-style visual refinement
+- final admin authority
+
+Keep everything minimal, controlled, intelligence-grade.
+
+==================================================
+1. IDENTITY EDITING — MUST WORK
+==================================================
+
+Fix and implement full identity editing in Command Console.
+
+Each user row must support:
+- EDIT action
+
+Edit modal:
+- handle (required)
+- title (optional)
+
+On save:
+- update profiles table
+- reflect immediately across UI
+
+CRITICAL:
+All UI must display:
+profiles.handle (not email)
+
+If handle is missing:
+fallback to email prefix.
+
+==================================================
+2. CHANNEL MANAGEMENT — FIX BROKEN ACTIONS
+==================================================
+
+Channel rename and archive must work reliably.
+
+Fix:
+- rename action must update DB and refresh UI
+- archive must toggle archived state properly
+
+Ensure:
+- no UI-only behavior
+- DB is source of truth
+
+Add:
+- create channel (inline or modal)
+- optional restore archived channel
+
+==================================================
+3. MESSAGE SYSTEM — UPGRADE
+==================================================
+
+Expand message controls (admin):
+
+Add:
+- EDIT message
+- PIN message
+
+Behavior:
+- edit updates message content in DB
+- pin marks message and displays at top of channel
+
+Keep delete functionality.
+
+UI:
+- controls appear on hover
+- minimal buttons (no clutter)
+
+==================================================
+4. TERMINAL MODE VISUAL REFINEMENT
+==================================================
+
+Shift key text elements toward terminal-style green.
+
+Apply to:
+- Investigation Room messages
+- Sage Terminal responses
+- key system outputs
+
+Style:
+- slightly green-tinted text (not neon)
+- maintain readability
+- do NOT overdo glow effects
+
+Goal:
+subtle “fallout / terminal” feel while staying professional.
+
+==================================================
+5. SAGE TERMINAL — VISUAL + INPUT REFINEMENT
+==================================================
+
+Improve Sage terminal experience.
+
+Adjust:
+- input text slightly green-tinted
+- response text slightly green-tinted
+- cursor/typing feel more terminal-like
+
+Do NOT change layout.
+
+Keep:
+- clean spacing
+- minimal UI
+
+==================================================
+6. COMMAND CONSOLE — DATA LOADING FIX
+==================================================
+
+Fix loading issues:
+
+Ensure:
+- operators load reliably
+- channel list loads
+- cases load
+
+Remove any stuck "loading..." states.
+
+Ensure data fetch:
+- runs on mount
+- handles empty states cleanly
+
+==================================================
+7. MESSAGE + CHANNEL CONSISTENCY
+==================================================
+
+Ensure:
+- message list updates instantly on:
+  - delete
+  - edit
+  - new message
+
+- channel list updates instantly on:
+  - rename
+  - create
+  - archive
+
+Use realtime or forced refresh.
+
+==================================================
+8. FINAL CLEANUP
+==================================================
+
+- remove any leftover mock text
+- remove broken buttons
+- ensure all admin controls are functional
+- ensure no console errors
+- ensure no UI nesting issues
+
+==================================================
+9. LAUNCH READY STATE
+==================================================
+
+After this pass:
+- admin can control identity
+- admin can control rooms
+- admin can control messages
+- system feels cohesive and real
+- terminal tone is consistent
+
+Do NOT introduce new features beyond this.
+Focus on stability and completion.

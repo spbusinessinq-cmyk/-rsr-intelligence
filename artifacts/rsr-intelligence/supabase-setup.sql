@@ -174,6 +174,28 @@ CREATE POLICY "Admins can update channels"
   USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'admin');
 
 -- ============================================================
+-- MIGRATION: Message pinning + editing + operator title
+-- ============================================================
+
+ALTER TABLE room_messages ADD COLUMN IF NOT EXISTS pinned BOOLEAN DEFAULT FALSE;
+ALTER TABLE room_messages ADD COLUMN IF NOT EXISTS edited_at TIMESTAMPTZ;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS title TEXT;
+
+-- Allow users/admins to update messages (edit body, toggle pin)
+DROP POLICY IF EXISTS "Users and admins can update messages" ON room_messages;
+CREATE POLICY "Users and admins can update messages"
+  ON room_messages FOR UPDATE TO authenticated
+  USING (
+    auth.uid() = user_id OR
+    (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
+  );
+
+-- Ensure all authenticated users can read channels
+DROP POLICY IF EXISTS "Authenticated can read channels" ON room_channels;
+CREATE POLICY "Authenticated can read channels"
+  ON room_channels FOR SELECT TO authenticated USING (true);
+
+-- ============================================================
 -- MIGRATION: Admin message delete
 -- ============================================================
 

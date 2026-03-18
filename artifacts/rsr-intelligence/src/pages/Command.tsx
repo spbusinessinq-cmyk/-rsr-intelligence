@@ -12,6 +12,7 @@ interface MessageRow {
   body: string;
   created_at: string;
   role?: string;
+  pinned?: boolean;
 }
 
 interface Channel {
@@ -32,13 +33,15 @@ interface Case {
   description: string | null;
 }
 
-type ApprovalStatus = "pending" | "approved" | "denied";
-type Role = "admin" | "lead" | "analyst" | "member";
-type AccountStatus = "active" | "suspended" | "banned";
-
 const STAGES = ["NEW", "BUILDING", "REVIEW", "MONITORING", "READY"];
 
-/* ── Formatters ─────────────────────────────────────────────────────── */
+/* ── Helpers ────────────────────────────────────────────────────────── */
+
+function displayHandle(op: Profile): string {
+  if (op.handle && op.handle.trim()) return op.handle;
+  if (op.email) return op.email.split("@")[0].toUpperCase().replace(/[^A-Z0-9-]/g, "-").slice(0, 24);
+  return "UNKNOWN";
+}
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -55,46 +58,47 @@ function formatTime(iso: string) {
 /* ── Badges ─────────────────────────────────────────────────────────── */
 
 function ClearanceBadge({ status }: { status: string }) {
-  const map: Record<string, string> = {
+  const cls: Record<string, string> = {
     approved: "text-emerald-400 border-emerald-500/30 bg-emerald-500/5",
     pending:  "text-amber-400 border-amber-500/30 bg-amber-500/5",
     denied:   "text-red-400 border-red-500/30 bg-red-500/5",
   };
   return (
-    <span className={`font-mono text-[7px] tracking-[0.3em] border px-1.5 py-0.5 ${map[status] ?? "text-zinc-500 border-zinc-700"}`}>
-      {status?.toUpperCase() ?? "—"}
+    <span className={`font-mono text-[7px] tracking-[0.3em] border px-1.5 py-0.5 ${cls[status] ?? "text-zinc-500 border-zinc-700"}`}>
+      {(status ?? "—").toUpperCase()}
     </span>
   );
 }
 
 function AccountBadge({ status }: { status?: string }) {
   if (!status || status === "active") return null;
-  const map: Record<string, string> = {
+  const cls: Record<string, string> = {
     suspended: "text-amber-400 border-amber-500/30 bg-amber-500/5",
     banned:    "text-red-400 border-red-900/30 bg-red-900/5",
   };
   return (
-    <span className={`font-mono text-[9px] tracking-[0.25em] border px-2 py-0.5 ${map[status] ?? "text-zinc-500 border-zinc-700"}`}>
+    <span className={`font-mono text-[9px] tracking-[0.25em] border px-2 py-0.5 ${cls[status] ?? "text-zinc-500 border-zinc-700"}`}>
       {status.toUpperCase()}
     </span>
   );
 }
 
 function RoleBadge({ role }: { role: string }) {
-  const map: Record<string, string> = {
+  const cls: Record<string, string> = {
     admin:   "text-emerald-300 border-emerald-400/30 bg-emerald-500/5",
     lead:    "text-blue-300 border-blue-400/20 bg-blue-500/5",
     analyst: "text-zinc-300 border-zinc-600",
     member:  "text-zinc-600 border-zinc-800",
   };
   return (
-    <span className={`font-mono text-[9px] tracking-[0.25em] border px-2 py-0.5 ${map[role] ?? "text-zinc-500 border-zinc-700"}`}>
-      {role?.toUpperCase() ?? "—"}
+    <span className={`font-mono text-[9px] tracking-[0.25em] border px-2 py-0.5 ${cls[role] ?? "text-zinc-500 border-zinc-700"}`}>
+      {(role ?? "—").toUpperCase()}
     </span>
   );
 }
 
-const ROLES: Role[] = ["member", "analyst", "lead", "admin"];
+const ROLES = ["member", "analyst", "lead", "admin"] as const;
+const ACCT_STATUSES = ["active", "suspended", "banned"] as const;
 
 /* ── ActionBtn ──────────────────────────────────────────────────────── */
 
@@ -122,25 +126,88 @@ function ActionBtn({
   );
 }
 
-/* ── OpActivity ─────────────────────────────────────────────────────── */
+/* ── Identity Edit Modal ─────────────────────────────────────────────── */
 
-function OpActivity({ handle, messages }: { handle: string; messages: MessageRow[] }) {
-  const opMsgs = messages.filter(m => m.handle === handle).slice(0, 3);
-  if (opMsgs.length === 0) return (
-    <div className="mt-3 font-mono text-[9px] tracking-[0.2em] text-zinc-700">NO RECENT TRANSMISSIONS</div>
-  );
+function IdentityModal({
+  op,
+  onSave,
+  onClose,
+}: {
+  op: Profile;
+  onSave: (id: string, handle: string, title: string) => Promise<void>;
+  onClose: () => void;
+}) {
+  const [handle, setHandle] = useState(displayHandle(op));
+  const [title,  setTitle]  = useState(op.title ?? "");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) { if (e.key === "Escape") onClose(); }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  async function submit() {
+    if (!handle.trim()) return;
+    setSaving(true);
+    await onSave(op.id, handle.trim().toUpperCase().replace(/[^A-Z0-9-]/g, "-").slice(0, 32), title.trim());
+    setSaving(false);
+  }
+
   return (
-    <div className="mt-3 space-y-1.5">
-      <div className="font-mono text-[9px] tracking-[0.25em] text-zinc-600 mb-2">RECENT TRANSMISSIONS:</div>
-      {opMsgs.map(m => (
-        <div key={m.id} className="flex gap-3 items-start">
-          <span className="font-mono text-[9px] text-zinc-600 shrink-0">{formatTime(m.created_at)}</span>
-          <span className="font-mono text-[9px] text-emerald-800 shrink-0">#{m.channel_id}</span>
-          <span className="font-mono text-[10px] text-zinc-500 leading-relaxed truncate">
-            {m.body.slice(0, 90)}{m.body.length > 90 ? "…" : ""}
-          </span>
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.85)" }}>
+      <div className="bg-black border border-zinc-800 w-full max-w-md mx-6 p-6 space-y-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="font-mono text-[9px] tracking-[0.4em] text-zinc-500">EDIT IDENTITY</div>
+          <button onClick={onClose} className="font-mono text-[9px] text-zinc-700 hover:text-zinc-400 transition-colors">✕</button>
         </div>
-      ))}
+
+        <div className="border border-zinc-900 bg-zinc-950/50 px-4 py-2.5 flex items-center gap-3">
+          <div className="font-mono text-[8px] tracking-[0.3em] text-zinc-600">OPERATOR</div>
+          <div className="font-mono text-[10px] text-zinc-400">{displayHandle(op)}</div>
+          {op.email && <div className="font-mono text-[9px] text-zinc-700 truncate ml-auto">{op.email}</div>}
+        </div>
+
+        <div>
+          <label className="block font-mono text-[8px] tracking-[0.35em] text-zinc-600 mb-2">
+            HANDLE <span className="text-zinc-800">— required, uppercase, alphanumeric + hyphens</span>
+          </label>
+          <input
+            value={handle}
+            onChange={e => setHandle(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && submit()}
+            autoFocus
+            className="w-full bg-black border border-zinc-700 focus:border-zinc-500 font-mono text-xs tracking-[0.12em] text-zinc-300 px-3 py-2.5 outline-none transition-colors placeholder-zinc-800"
+          />
+        </div>
+
+        <div>
+          <label className="block font-mono text-[8px] tracking-[0.35em] text-zinc-600 mb-2">
+            TITLE <span className="text-zinc-800">— optional</span>
+          </label>
+          <input
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && submit()}
+            placeholder="e.g. Senior Analyst, Lead Investigator"
+            className="w-full bg-black border border-zinc-700 focus:border-zinc-500 font-mono text-xs tracking-[0.06em] text-zinc-300 px-3 py-2.5 outline-none transition-colors placeholder-zinc-800"
+          />
+        </div>
+
+        <div className="flex items-center gap-4 pt-2 border-t border-zinc-900">
+          <button
+            onClick={submit}
+            disabled={!handle.trim() || saving}
+            className="font-mono text-[9px] tracking-[0.25em] text-emerald-600 hover:text-emerald-400 border border-emerald-900/30 hover:border-emerald-800/40 px-5 py-2 transition-colors disabled:opacity-30"
+          >
+            {saving ? "SAVING..." : "SAVE IDENTITY"}
+          </button>
+          <button onClick={onClose} className="font-mono text-[9px] text-zinc-600 hover:text-zinc-400 transition-colors">
+            CANCEL
+          </button>
+          <span className="ml-auto font-mono text-[8px] text-zinc-800">{op.id.slice(0, 8)}…</span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -149,101 +216,114 @@ function OpActivity({ handle, messages }: { handle: string; messages: MessageRow
 
 export default function Command() {
   const { profile: myProfile, signOut } = useAuth();
-  const [operators, setOperators] = useState<Profile[]>([]);
-  const [messages, setMessages] = useState<MessageRow[]>([]);
-  const [channels, setChannels] = useState<Channel[]>([]);
-  const [cases, setCases] = useState<Case[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
-  const [toastType, setToastType] = useState<"ok" | "err">("ok");
-  const [expandedOp, setExpandedOp] = useState<string | null>(null);
+
+  const [operators,      setOperators]      = useState<Profile[]>([]);
+  const [messages,       setMessages]       = useState<MessageRow[]>([]);
+  const [channels,       setChannels]       = useState<Channel[]>([]);
+  const [cases,          setCases]          = useState<Case[]>([]);
+  const [loading,        setLoading]        = useState(true);
+  const [actionLoading,  setActionLoading]  = useState<string | null>(null);
+  const [toast,          setToast]          = useState<string | null>(null);
+  const [toastType,      setToastType]      = useState<"ok" | "err">("ok");
+  const [expandedOp,     setExpandedOp]     = useState<string | null>(null);
+
+  /* ── Identity edit ── */
+  const [editingOp, setEditingOp] = useState<Profile | null>(null);
 
   /* ── Channel admin state ── */
   const [chCreateOpen, setChCreateOpen] = useState(false);
-  const [chNewName, setChNewName] = useState("");
-  const [chRenaming, setChRenaming] = useState<string | null>(null);
-  const [chRenameVal, setChRenameVal] = useState("");
+  const [chNewName,    setChNewName]    = useState("");
+  const [chRenaming,   setChRenaming]   = useState<string | null>(null);
+  const [chRenameVal,  setChRenameVal]  = useState("");
 
   /* ── Case admin state ── */
   const [caseCreateOpen, setCaseCreateOpen] = useState(false);
-  const [newCaseForm, setNewCaseForm] = useState({ ref: "", name: "", stage: "NEW", priority: "NORMAL", channel_id: "", description: "" });
+  const [newCaseForm, setNewCaseForm] = useState({
+    ref: "", name: "", stage: "NEW", priority: "NORMAL", channel_id: "", description: "",
+  });
 
+  /* ── Toast helper ── */
   function showToast(msg: string, type: "ok" | "err" = "ok") {
-    setToast(msg);
-    setToastType(type);
-    setTimeout(() => setToast(null), 3000);
+    setToast(msg); setToastType(type);
+    setTimeout(() => setToast(null), 3500);
   }
 
+  /* ── Fetch all data ── */
   const fetchData = useCallback(async () => {
-    const [{ data: ops }, { data: msgs }, { data: chs }, { data: cs }] = await Promise.all([
+    const [opRes, msgRes, chRes, csRes] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
-      supabase.from("room_messages").select("id, channel_id, handle, body, created_at, role").order("created_at", { ascending: false }).limit(30),
+      supabase.from("room_messages").select("id, channel_id, handle, body, created_at, role, pinned").order("created_at", { ascending: false }).limit(40),
       supabase.from("room_channels").select("*").order("created_at", { ascending: true }),
       supabase.from("investigation_cases").select("*").order("created_at", { ascending: true }),
     ]);
-    if (ops) setOperators(ops as Profile[]);
-    if (msgs) setMessages(msgs as MessageRow[]);
-    if (chs) setChannels(chs as Channel[]);
-    if (cs) setCases(cs as Case[]);
+    if (opRes.data)  setOperators(opRes.data as Profile[]);
+    if (msgRes.data) setMessages(msgRes.data as MessageRow[]);
+    if (chRes.data)  setChannels(chRes.data as Channel[]);
+    if (csRes.data)  setCases(csRes.data as Case[]);
     setLoading(false);
   }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  /* ── Profile update helper ── */
   async function updateProfile(id: string, update: Record<string, string>, label: string) {
     const key = id + JSON.stringify(update);
     setActionLoading(key);
     const { error } = await supabase.from("profiles").update(update).eq("id", id);
-    if (error) { showToast("FAILED: " + error.message, "err"); } else { showToast(label, "ok"); await fetchData(); }
+    if (error) { showToast("FAILED: " + error.message, "err"); }
+    else        { showToast(label, "ok"); await fetchData(); }
     setActionLoading(null);
   }
 
-  /* ── Channel management ── */
+  /* ── Identity save ── */
+  async function saveIdentity(id: string, handle: string, title: string) {
+    const { error } = await supabase.from("profiles").update({
+      handle,
+      title: title || null,
+    }).eq("id", id);
+    if (error) { showToast("FAILED: " + error.message, "err"); }
+    else        { showToast("IDENTITY UPDATED → " + handle, "ok"); setEditingOp(null); await fetchData(); }
+  }
+
+  /* ── Channel ops ── */
   async function createChannel() {
     const slug = chNewName.trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
     if (!slug) return;
     const { error } = await supabase.from("room_channels").insert({ id: slug, slug, name: slug, description: null });
     if (error) { showToast("FAILED: " + error.message, "err"); return; }
     showToast("CHANNEL CREATED: #" + slug, "ok");
-    setChCreateOpen(false);
-    setChNewName("");
-    await fetchData();
+    setChCreateOpen(false); setChNewName(""); await fetchData();
   }
 
   async function archiveChannel(id: string) {
     const { error } = await supabase.from("room_channels").update({ archived: true }).eq("id", id);
     if (error) { showToast("FAILED: " + error.message, "err"); return; }
-    showToast("ARCHIVED: #" + id, "ok");
-    await fetchData();
+    showToast("ARCHIVED: #" + id, "ok"); await fetchData();
   }
 
   async function restoreChannel(id: string) {
     const { error } = await supabase.from("room_channels").update({ archived: false }).eq("id", id);
     if (error) { showToast("FAILED: " + error.message, "err"); return; }
-    showToast("RESTORED: #" + id, "ok");
-    await fetchData();
+    showToast("RESTORED: #" + id, "ok"); await fetchData();
   }
 
   async function renameChannel(id: string) {
     if (!chRenameVal.trim()) return;
     const { error } = await supabase.from("room_channels").update({ name: chRenameVal.trim() }).eq("id", id);
     if (error) { showToast("FAILED: " + error.message, "err"); return; }
-    showToast("RENAMED", "ok");
-    setChRenaming(null);
-    await fetchData();
+    showToast("RENAMED", "ok"); setChRenaming(null); await fetchData();
   }
 
-  /* ── Case management ── */
+  /* ── Case ops ── */
   async function createCase() {
-    const ref = newCaseForm.ref.trim().toUpperCase();
+    const ref  = newCaseForm.ref.trim().toUpperCase();
     const name = newCaseForm.name.trim().toUpperCase();
     if (!ref || !name) return;
     const { error } = await supabase.from("investigation_cases").insert({
       ref, name,
-      stage: newCaseForm.stage,
-      priority: newCaseForm.priority,
-      channel_id: newCaseForm.channel_id || null,
+      stage:       newCaseForm.stage,
+      priority:    newCaseForm.priority,
+      channel_id:  newCaseForm.channel_id || null,
       description: newCaseForm.description || null,
     });
     if (error) { showToast("FAILED: " + error.message, "err"); return; }
@@ -262,8 +342,7 @@ export default function Command() {
   async function deleteCase(id: string, ref: string) {
     const { error } = await supabase.from("investigation_cases").delete().eq("id", id);
     if (error) { showToast("FAILED: " + error.message, "err"); return; }
-    showToast("CASE DELETED: " + ref, "ok");
-    await fetchData();
+    showToast("CASE DELETED: " + ref, "ok"); await fetchData();
   }
 
   /* ── Message delete ── */
@@ -274,14 +353,14 @@ export default function Command() {
     setMessages(prev => prev.filter(m => m.id !== id));
   }
 
-  /* ── Stats ── */
+  /* ── Derived stats ── */
   const stats = {
-    total: operators.length,
-    pending: operators.filter(o => (o.approval_status ?? "pending") === "pending").length,
-    approved: operators.filter(o => o.approval_status === "approved").length,
-    denied: operators.filter(o => o.approval_status === "denied").length,
-    suspended: operators.filter(o => (o as any).account_status === "suspended").length,
-    banned: operators.filter(o => (o as any).account_status === "banned").length,
+    total:     operators.length,
+    pending:   operators.filter(o => (o.approval_status ?? "pending") === "pending").length,
+    approved:  operators.filter(o => o.approval_status === "approved").length,
+    denied:    operators.filter(o => o.approval_status === "denied").length,
+    suspended: operators.filter(o => o.account_status === "suspended").length,
+    banned:    operators.filter(o => o.account_status === "banned").length,
     byRole: {
       admin:   operators.filter(o => o.role === "admin").length,
       lead:    operators.filter(o => o.role === "lead").length,
@@ -291,11 +370,10 @@ export default function Command() {
   };
 
   const channelActivity = messages.reduce<Record<string, number>>((acc, m) => {
-    acc[m.channel_id] = (acc[m.channel_id] ?? 0) + 1;
-    return acc;
+    acc[m.channel_id] = (acc[m.channel_id] ?? 0) + 1; return acc;
   }, {});
 
-  const activeChannels = channels.filter(c => !c.archived);
+  const activeChannels   = channels.filter(c => !c.archived);
   const archivedChannels = channels.filter(c => c.archived);
 
   const stageStyle: Record<string, string> = {
@@ -310,12 +388,12 @@ export default function Command() {
       <div className="border-b border-zinc-900 px-8 py-4 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-6">
           <Link href="/">
-            <div className="flex items-center gap-4 cursor-pointer">
+            <div className="flex items-center gap-4 cursor-pointer group">
               <div className="w-6 h-6 rounded-full border border-zinc-800 flex items-center justify-center">
                 <div className="w-2 h-2 rounded-full bg-emerald-500" />
               </div>
               <div>
-                <div className="font-mono text-xs tracking-[0.25em] text-zinc-300">RSR INTELLIGENCE NETWORK</div>
+                <div className="font-mono text-xs tracking-[0.25em] text-zinc-300 group-hover:text-zinc-100 transition-colors">RSR INTELLIGENCE NETWORK</div>
                 <div className="font-mono text-[8px] tracking-[0.3em] text-zinc-700">INDEPENDENT ANALYSIS SYSTEM</div>
               </div>
             </div>
@@ -326,13 +404,11 @@ export default function Command() {
         <div className="flex items-center gap-6">
           {myProfile && (
             <div className="font-mono text-[8px] tracking-[0.3em] text-zinc-600">
-              {myProfile.handle} <span className="text-emerald-600">// ADMIN</span>
+              {displayHandle(myProfile)} <span className="text-emerald-600">// ADMIN</span>
             </div>
           )}
           <Link href="/investigation-room">
-            <span className="font-mono text-[8px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 cursor-pointer transition-colors">
-              INVESTIGATION ROOM
-            </span>
+            <span className="font-mono text-[8px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 cursor-pointer transition-colors">INVESTIGATION ROOM</span>
           </Link>
           <button onClick={signOut} className="font-mono text-[9px] tracking-[0.3em] text-zinc-700 hover:text-zinc-400 transition-colors">
             SIGN OUT
@@ -347,6 +423,11 @@ export default function Command() {
         </div>
       )}
 
+      {/* Identity edit modal */}
+      {editingOp && (
+        <IdentityModal op={editingOp} onSave={saveIdentity} onClose={() => setEditingOp(null)} />
+      )}
+
       <div className="flex-1 overflow-auto">
         <div className="max-w-7xl mx-auto px-8 py-10 space-y-10">
 
@@ -359,11 +440,11 @@ export default function Command() {
             <div className="font-mono text-[8px] tracking-[0.4em] text-zinc-700 mb-2">CLEARANCE STATUS</div>
             <div className="grid grid-cols-5 gap-px border border-zinc-900 bg-zinc-900">
               {[
-                { label: "TOTAL",     value: stats.total,    color: "text-white" },
-                { label: "PENDING",   value: stats.pending,  color: stats.pending > 0 ? "text-amber-400" : "text-white", alert: stats.pending > 0 },
-                { label: "APPROVED",  value: stats.approved, color: "text-emerald-400" },
-                { label: "DENIED",    value: stats.denied,   color: stats.denied > 0 ? "text-red-400" : "text-zinc-600" },
-                { label: "SUSPENDED / BANNED", value: stats.suspended + stats.banned, color: (stats.suspended + stats.banned) > 0 ? "text-red-400" : "text-zinc-600" },
+                { label: "TOTAL",              value: stats.total,                            color: "text-white" },
+                { label: "PENDING",            value: stats.pending,                          color: stats.pending > 0 ? "text-amber-400" : "text-white", alert: stats.pending > 0 },
+                { label: "APPROVED",           value: stats.approved,                         color: "text-emerald-400" },
+                { label: "DENIED",             value: stats.denied,                           color: stats.denied > 0 ? "text-red-400" : "text-zinc-600" },
+                { label: "SUSPENDED / BANNED", value: stats.suspended + stats.banned,         color: (stats.suspended + stats.banned) > 0 ? "text-red-400" : "text-zinc-600" },
               ].map(s => (
                 <div key={s.label} className="bg-black px-5 py-4">
                   <div className={`font-mono text-2xl font-bold ${s.color}`}>{loading ? "—" : s.value}</div>
@@ -398,43 +479,58 @@ export default function Command() {
               <div className="font-mono text-[8px] tracking-[0.3em] text-zinc-700">{stats.total} TOTAL</div>
             </div>
             <div className="border border-zinc-900">
-              <div className="grid grid-cols-[1.2fr_1.5fr_auto_auto_auto_auto_auto] gap-3 px-5 py-3 border-b border-zinc-900 bg-zinc-950">
-                {["HANDLE", "EMAIL", "ROLE", "CLEARANCE", "ACCOUNT", "JOINED", "ACTIONS"].map(h => (
+              <div className="grid grid-cols-[1.4fr_auto_auto_auto_auto_auto] gap-4 px-5 py-3 border-b border-zinc-900 bg-zinc-950">
+                {["OPERATOR", "ROLE", "CLEARANCE", "ACCOUNT", "JOINED", "ACTIONS"].map(h => (
                   <div key={h} className="font-mono text-[9px] tracking-[0.25em] text-zinc-500">{h}</div>
                 ))}
               </div>
+
               {loading ? (
                 <div className="px-5 py-8 text-center font-mono text-[9px] tracking-[0.3em] text-zinc-700 animate-pulse">LOADING OPERATORS...</div>
               ) : operators.length === 0 ? (
                 <div className="px-5 py-8 text-center font-mono text-[9px] tracking-[0.3em] text-zinc-700">NO OPERATORS REGISTERED</div>
               ) : (
                 operators.map(op => {
-                  const isSelf = op.id === myProfile?.id;
-                  const acctStatus = (op as any).account_status ?? "active";
+                  const isSelf     = op.id === myProfile?.id;
+                  const acctStatus = op.account_status ?? "active";
                   const isExpanded = expandedOp === op.id;
+                  const handle     = displayHandle(op);
                   return (
                     <div key={op.id} className={`border-b border-zinc-900/60 ${isSelf ? "bg-emerald-500/5" : acctStatus === "banned" ? "bg-red-950/10" : acctStatus === "suspended" ? "bg-amber-950/10" : ""}`}>
-                      <div className="grid grid-cols-[1.2fr_1.5fr_auto_auto_auto_auto_auto] gap-3 px-5 py-3 items-center hover:bg-zinc-950/30 transition-colors">
-                        <div className="font-mono text-[10px] tracking-[0.12em] text-zinc-200 flex items-center gap-2">
-                          <button onClick={() => setExpandedOp(isExpanded ? null : op.id)} className="text-zinc-600 hover:text-zinc-400 transition-colors">
+                      <div className="grid grid-cols-[1.4fr_auto_auto_auto_auto_auto] gap-4 px-5 py-3 items-center hover:bg-zinc-950/30 transition-colors">
+
+                        {/* Handle + title */}
+                        <div className="flex items-center gap-2 min-w-0">
+                          <button onClick={() => setExpandedOp(isExpanded ? null : op.id)} className="text-zinc-600 hover:text-zinc-400 transition-colors shrink-0 font-mono text-[10px]">
                             {isExpanded ? "▾" : "▸"}
                           </button>
-                          {op.handle}
-                          {isSelf && <span className="text-[8px] text-emerald-600 tracking-[0.2em]">YOU</span>}
+                          <div className="min-w-0">
+                            <div className="font-mono text-[10px] tracking-[0.12em] text-zinc-200 truncate flex items-center gap-2">
+                              {handle}
+                              {isSelf && <span className="text-[8px] text-emerald-600 tracking-[0.2em] shrink-0">YOU</span>}
+                            </div>
+                            {op.title && (
+                              <div className="font-mono text-[8px] tracking-[0.08em] text-zinc-600 truncate">{op.title}</div>
+                            )}
+                            {op.email && (
+                              <div className="font-mono text-[8px] tracking-[0.04em] text-zinc-700 truncate">{op.email}</div>
+                            )}
+                          </div>
                         </div>
-                        <div className="font-mono text-[10px] tracking-[0.04em] text-zinc-500 truncate">{op.email ?? "—"}</div>
+
                         <div><RoleBadge role={op.role} /></div>
                         <div><ClearanceBadge status={op.approval_status ?? "pending"} /></div>
                         <div>
-                          {acctStatus === "active" ? (
-                            <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-600">ACTIVE</span>
-                          ) : (
-                            <AccountBadge status={acctStatus} />
-                          )}
+                          {acctStatus === "active"
+                            ? <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-600">ACTIVE</span>
+                            : <AccountBadge status={acctStatus} />
+                          }
                         </div>
                         <div className="font-mono text-[9px] tracking-[0.04em] text-zinc-600 whitespace-nowrap">
                           {op.created_at ? formatDate(op.created_at) : "—"}
                         </div>
+
+                        {/* Actions */}
                         <div className="flex items-center gap-1.5 flex-wrap">
                           {!isSelf && (
                             <>
@@ -442,48 +538,63 @@ export default function Command() {
                                 <ActionBtn label="APPROVE" color="emerald"
                                   loading={actionLoading === op.id + '{"approval_status":"approved"}'}
                                   disabled={!!actionLoading}
-                                  onClick={() => updateProfile(op.id, { approval_status: "approved" }, "APPROVED → " + op.handle)} />
+                                  onClick={() => updateProfile(op.id, { approval_status: "approved" }, "APPROVED → " + handle)} />
                               )}
                               {(op.approval_status ?? "pending") !== "denied" && (
                                 <ActionBtn label="DENY" color="red"
                                   loading={actionLoading === op.id + '{"approval_status":"denied"}'}
                                   disabled={!!actionLoading}
-                                  onClick={() => updateProfile(op.id, { approval_status: "denied" }, "DENIED → " + op.handle)} />
+                                  onClick={() => updateProfile(op.id, { approval_status: "denied" }, "DENIED → " + handle)} />
                               )}
                             </>
                           )}
                           {isSelf && <span className="font-mono text-[9px] text-zinc-800 tracking-[0.2em]">—</span>}
                         </div>
                       </div>
-                      {isExpanded && !isSelf && (
-                        <div className="px-10 pb-4 pt-1 border-t border-zinc-900/40 bg-zinc-950/30">
-                          <div className="flex flex-wrap gap-3 items-center">
-                            <div className="flex items-center gap-2">
-                              <span className="font-mono text-[9px] tracking-[0.25em] text-zinc-600">ROLE:</span>
-                              {ROLES.map(r => (
-                                <ActionBtn key={r} label={r.toUpperCase()}
-                                  color={r === op.role ? "active" : "zinc"}
-                                  loading={actionLoading === op.id + `{"role":"${r}"}`}
-                                  disabled={!!actionLoading || r === op.role}
-                                  onClick={() => updateProfile(op.id, { role: r }, `ROLE → ${r.toUpperCase()} (${op.handle})`)} />
-                              ))}
-                            </div>
-                            <div className="w-px h-4 bg-zinc-800 mx-1" />
-                            <div className="flex items-center gap-2">
-                              <span className="font-mono text-[9px] tracking-[0.25em] text-zinc-600">ACCOUNT:</span>
-                              {(["active", "suspended", "banned"] as AccountStatus[]).map(s => (
-                                <ActionBtn key={s} label={s.toUpperCase()}
-                                  color={s === acctStatus ? "active" : s === "banned" ? "red" : s === "suspended" ? "amber" : "zinc"}
-                                  loading={actionLoading === op.id + `{"account_status":"${s}"}`}
-                                  disabled={!!actionLoading || s === acctStatus}
-                                  onClick={() => updateProfile(op.id, { account_status: s }, `ACCOUNT → ${s.toUpperCase()} (${op.handle})`)} />
-                              ))}
-                            </div>
-                            <div className="ml-auto">
-                              <span className="font-mono text-[9px] tracking-[0.15em] text-zinc-700">ID: {op.id.slice(0, 8)}...</span>
-                            </div>
+
+                      {/* Expanded controls */}
+                      {isExpanded && (
+                        <div className="px-10 pb-5 pt-2 border-t border-zinc-900/40 bg-zinc-950/30 space-y-4">
+                          {/* Identity edit */}
+                          <div className="flex items-center gap-3">
+                            <span className="font-mono text-[9px] tracking-[0.25em] text-zinc-600">IDENTITY:</span>
+                            <button
+                              onClick={() => setEditingOp(op)}
+                              className="font-mono text-[9px] tracking-[0.2em] text-zinc-400 hover:text-emerald-400 border border-zinc-700 hover:border-emerald-800/50 px-3 py-0.5 transition-colors"
+                            >
+                              EDIT HANDLE / TITLE
+                            </button>
                           </div>
-                          <OpActivity handle={op.handle} messages={messages} />
+
+                          {!isSelf && (
+                            <>
+                              {/* Role controls */}
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-mono text-[9px] tracking-[0.25em] text-zinc-600 shrink-0">ROLE:</span>
+                                {ROLES.map(r => (
+                                  <ActionBtn key={r} label={r.toUpperCase()}
+                                    color={r === op.role ? "active" : "zinc"}
+                                    loading={actionLoading === op.id + `{"role":"${r}"}`}
+                                    disabled={!!actionLoading || r === op.role}
+                                    onClick={() => updateProfile(op.id, { role: r }, `ROLE → ${r.toUpperCase()} (${handle})`)} />
+                                ))}
+                              </div>
+
+                              {/* Account status controls */}
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-mono text-[9px] tracking-[0.25em] text-zinc-600 shrink-0">ACCOUNT:</span>
+                                {ACCT_STATUSES.map(s => (
+                                  <ActionBtn key={s} label={s.toUpperCase()}
+                                    color={s === acctStatus ? "active" : s === "banned" ? "red" : s === "suspended" ? "amber" : "zinc"}
+                                    loading={actionLoading === op.id + `{"account_status":"${s}"}`}
+                                    disabled={!!actionLoading || s === acctStatus}
+                                    onClick={() => updateProfile(op.id, { account_status: s }, `ACCOUNT → ${s.toUpperCase()} (${handle})`)} />
+                                ))}
+                              </div>
+                            </>
+                          )}
+
+                          <div className="font-mono text-[8px] text-zinc-800">ID: {op.id}</div>
                         </div>
                       )}
                     </div>
@@ -503,21 +614,22 @@ export default function Command() {
                 </Link>
               </div>
               <div className="border border-zinc-900">
-                <div className="grid grid-cols-[60px_90px_1fr_80px_30px] gap-3 px-5 py-2.5 border-b border-zinc-900 bg-zinc-950">
+                <div className="grid grid-cols-[50px_80px_1fr_80px_24px] gap-3 px-5 py-2.5 border-b border-zinc-900 bg-zinc-950">
                   {["TIME", "CHANNEL", "MESSAGE", "HANDLE", ""].map(h => (
                     <div key={h} className="font-mono text-[9px] tracking-[0.25em] text-zinc-500">{h}</div>
                   ))}
                 </div>
                 {loading ? (
-                  <div className="px-5 py-6 text-center font-mono text-[10px] tracking-[0.3em] text-zinc-700 animate-pulse">LOADING...</div>
+                  <div className="px-5 py-6 text-center font-mono text-[9px] tracking-[0.3em] text-zinc-700 animate-pulse">LOADING...</div>
                 ) : messages.length === 0 ? (
-                  <div className="px-5 py-6 text-center font-mono text-[10px] tracking-[0.3em] text-zinc-700">NO TRANSMISSIONS</div>
+                  <div className="px-5 py-6 text-center font-mono text-[9px] tracking-[0.3em] text-zinc-700">NO TRANSMISSIONS</div>
                 ) : (
                   messages.map(msg => (
-                    <div key={msg.id} className="group grid grid-cols-[60px_90px_1fr_80px_30px] gap-3 px-5 py-2.5 border-b border-zinc-900/30 items-start hover:bg-zinc-950/20">
+                    <div key={msg.id} className="group grid grid-cols-[50px_80px_1fr_80px_24px] gap-3 px-5 py-2.5 border-b border-zinc-900/30 items-start hover:bg-zinc-950/20">
                       <div className="font-mono text-[9px] text-zinc-600 pt-0.5">{formatTime(msg.created_at)}</div>
                       <div className="font-mono text-[9px] tracking-[0.1em] text-emerald-700 pt-0.5 truncate">#{msg.channel_id}</div>
                       <div className="font-mono text-[10px] text-zinc-400 leading-relaxed truncate">
+                        {msg.pinned && <span className="text-emerald-800 mr-1">⊕</span>}
                         {msg.body.length > 80 ? msg.body.slice(0, 80) + "…" : msg.body}
                       </div>
                       <div className="font-mono text-[9px] text-zinc-500 pt-0.5 truncate">{msg.handle}</div>
@@ -539,14 +651,14 @@ export default function Command() {
             <div>
               <div className="font-mono text-[9px] tracking-[0.45em] text-zinc-500 mb-3">CHANNEL ACTIVITY</div>
               <div className="border border-zinc-900 divide-y divide-zinc-900">
-                {activeChannels.map(ch => (
+                {activeChannels.length === 0 && !loading ? (
+                  <div className="px-5 py-4 font-mono text-[9px] text-zinc-700">No active channels</div>
+                ) : activeChannels.map(ch => (
                   <div key={ch.id} className="flex items-center justify-between px-5 py-3">
                     <div className="font-mono text-[10px] tracking-[0.08em] text-zinc-400">
                       <span className="text-zinc-700"># </span>{ch.name}
                     </div>
-                    <div className="font-mono text-[10px] text-zinc-600">
-                      {channelActivity[ch.id] ?? 0} msg
-                    </div>
+                    <div className="font-mono text-[10px] text-zinc-600">{channelActivity[ch.id] ?? 0} msg</div>
                   </div>
                 ))}
               </div>
@@ -595,23 +707,21 @@ export default function Command() {
             )}
 
             <div className="border border-zinc-900">
-              <div className="grid grid-cols-[1fr_80px_80px_1fr_auto] gap-3 px-5 py-2.5 border-b border-zinc-900 bg-zinc-950">
-                {["NAME", "MESSAGES", "CASES", "DESCRIPTION", "ACTIONS"].map(h => (
+              <div className="grid grid-cols-[1.5fr_70px_60px_1fr_auto] gap-4 px-5 py-2.5 border-b border-zinc-900 bg-zinc-950">
+                {["NAME", "MSG", "CASES", "DESCRIPTION", "ACTIONS"].map(h => (
                   <div key={h} className="font-mono text-[9px] tracking-[0.25em] text-zinc-500">{h}</div>
                 ))}
               </div>
               {loading ? (
                 <div className="px-5 py-6 text-center font-mono text-[9px] tracking-[0.3em] text-zinc-700 animate-pulse">LOADING...</div>
               ) : channels.length === 0 ? (
-                <div className="px-5 py-6 text-center font-mono text-[9px] tracking-[0.3em] text-zinc-700">NO CHANNELS</div>
+                <div className="px-5 py-6 text-center font-mono text-[9px] tracking-[0.3em] text-zinc-700">NO CHANNELS — create one above or run the migration SQL</div>
               ) : (
                 channels.map(ch => {
                   const isRenaming = chRenaming === ch.id;
-                  const msgCount = channelActivity[ch.id] ?? 0;
-                  const caseCount = cases.filter(c => c.channel_id === ch.id).length;
                   return (
-                    <div key={ch.id} className={`border-b border-zinc-900/40 ${ch.archived ? "opacity-40" : ""}`}>
-                      <div className="grid grid-cols-[1fr_80px_80px_1fr_auto] gap-3 px-5 py-3 items-center hover:bg-zinc-950/20 transition-colors">
+                    <div key={ch.id} className={`border-b border-zinc-900/40 last:border-0 ${ch.archived ? "opacity-40" : ""}`}>
+                      <div className="grid grid-cols-[1.5fr_70px_60px_1fr_auto] gap-4 px-5 py-3 items-center hover:bg-zinc-950/20 transition-colors">
                         <div>
                           {isRenaming ? (
                             <div className="flex items-center gap-2">
@@ -634,8 +744,8 @@ export default function Command() {
                             </div>
                           )}
                         </div>
-                        <div className="font-mono text-[10px] text-zinc-600">{msgCount}</div>
-                        <div className="font-mono text-[10px] text-zinc-600">{caseCount}</div>
+                        <div className="font-mono text-[10px] text-zinc-600">{channelActivity[ch.id] ?? 0}</div>
+                        <div className="font-mono text-[10px] text-zinc-600">{cases.filter(c => c.channel_id === ch.id).length}</div>
                         <div className="font-mono text-[10px] text-zinc-700 truncate">{ch.description ?? "—"}</div>
                         <div className="flex items-center gap-2">
                           {!ch.archived && (
@@ -678,7 +788,7 @@ export default function Command() {
 
             {caseCreateOpen && (
               <div className="mb-4 border border-zinc-800 bg-zinc-950 p-5 space-y-3">
-                <div className="font-mono text-[9px] tracking-[0.35em] text-zinc-600 mb-3">NEW CASE</div>
+                <div className="font-mono text-[9px] tracking-[0.35em] text-zinc-600 mb-2">NEW CASE</div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block font-mono text-[8px] tracking-[0.3em] text-zinc-700 mb-1">REF</label>
@@ -687,7 +797,7 @@ export default function Command() {
                       className="w-full bg-black border border-zinc-800 focus:border-zinc-600 font-mono text-[10px] text-zinc-300 px-3 py-2 outline-none placeholder-zinc-800 transition-colors" />
                   </div>
                   <div>
-                    <label className="block font-mono text-[8px] tracking-[0.3em] text-zinc-700 mb-1">CASE NAME</label>
+                    <label className="block font-mono text-[8px] tracking-[0.3em] text-zinc-700 mb-1">NAME</label>
                     <input placeholder="OPERATION NAME" value={newCaseForm.name}
                       onChange={e => setNewCaseForm(f => ({ ...f, name: e.target.value }))}
                       className="w-full bg-black border border-zinc-800 focus:border-zinc-600 font-mono text-[10px] text-zinc-300 px-3 py-2 outline-none placeholder-zinc-800 transition-colors" />
@@ -732,35 +842,31 @@ export default function Command() {
             )}
 
             <div className="border border-zinc-900">
-              <div className="grid grid-cols-[80px_1fr_100px_70px_100px_1fr_auto] gap-3 px-5 py-2.5 border-b border-zinc-900 bg-zinc-950">
-                {["REF", "NAME", "STAGE", "PRIORITY", "CHANNEL", "DESCRIPTION", "ACTIONS"].map(h => (
+              <div className="grid grid-cols-[70px_1fr_110px_70px_90px_1fr_60px] gap-3 px-5 py-2.5 border-b border-zinc-900 bg-zinc-950">
+                {["REF", "NAME", "STAGE", "PRI", "CHANNEL", "DESCRIPTION", "ACT"].map(h => (
                   <div key={h} className="font-mono text-[9px] tracking-[0.25em] text-zinc-500">{h}</div>
                 ))}
               </div>
               {loading ? (
                 <div className="px-5 py-6 text-center font-mono text-[9px] tracking-[0.3em] text-zinc-700 animate-pulse">LOADING...</div>
               ) : cases.length === 0 ? (
-                <div className="px-5 py-6 text-center font-mono text-[9px] tracking-[0.3em] text-zinc-700">NO CASES — run the migration SQL to seed initial cases</div>
+                <div className="px-5 py-6 text-center font-mono text-[9px] tracking-[0.3em] text-zinc-700">
+                  NO CASES — run the migration SQL to seed initial data, or create one above
+                </div>
               ) : (
                 cases.map(c => (
-                  <div key={c.id} className="grid grid-cols-[80px_1fr_100px_70px_100px_1fr_auto] gap-3 px-5 py-3 border-b border-zinc-900/30 items-center hover:bg-zinc-950/20 transition-colors">
+                  <div key={c.id} className="grid grid-cols-[70px_1fr_110px_70px_90px_1fr_60px] gap-3 px-5 py-3 border-b border-zinc-900/30 last:border-0 items-center hover:bg-zinc-950/20 transition-colors">
                     <div className="font-mono text-[9px] tracking-widest text-zinc-500">{c.ref}</div>
                     <div className="font-mono text-[10px] tracking-[0.06em] text-zinc-300 truncate">{c.name}</div>
                     <div>
-                      <select
-                        value={c.stage}
-                        onChange={e => updateCaseField(c.id, { stage: e.target.value })}
-                        className={`bg-black border border-zinc-800 font-mono text-[9px] px-2 py-0.5 outline-none ${stageStyle[c.stage] ?? "text-zinc-400"}`}
-                      >
+                      <select value={c.stage} onChange={e => updateCaseField(c.id, { stage: e.target.value })}
+                        className={`bg-black border border-zinc-800 font-mono text-[9px] px-2 py-0.5 outline-none max-w-full ${stageStyle[c.stage] ?? "text-zinc-400"}`}>
                         {STAGES.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
                     </div>
                     <div>
-                      <select
-                        value={c.priority}
-                        onChange={e => updateCaseField(c.id, { priority: e.target.value })}
-                        className={`bg-black border border-zinc-800 font-mono text-[9px] px-2 py-0.5 outline-none ${c.priority === "HIGH" ? "text-red-400" : "text-zinc-500"}`}
-                      >
+                      <select value={c.priority} onChange={e => updateCaseField(c.id, { priority: e.target.value })}
+                        className={`bg-black border border-zinc-800 font-mono text-[9px] px-2 py-0.5 outline-none ${c.priority === "HIGH" ? "text-red-400" : "text-zinc-500"}`}>
                         <option value="HIGH">HIGH</option>
                         <option value="NORMAL">NORMAL</option>
                       </select>
@@ -770,10 +876,8 @@ export default function Command() {
                     </div>
                     <div className="font-mono text-[9px] text-zinc-700 truncate">{c.description ?? "—"}</div>
                     <div>
-                      <button
-                        onClick={() => deleteCase(c.id, c.ref)}
-                        className="font-mono text-[9px] text-zinc-700 hover:text-red-400 border border-zinc-900 hover:border-red-900/30 px-2 py-0.5 transition-colors"
-                      >
+                      <button onClick={() => deleteCase(c.id, c.ref)}
+                        className="font-mono text-[9px] text-zinc-700 hover:text-red-400 border border-zinc-900 hover:border-red-900/30 px-2 py-0.5 transition-colors">
                         DEL
                       </button>
                     </div>
