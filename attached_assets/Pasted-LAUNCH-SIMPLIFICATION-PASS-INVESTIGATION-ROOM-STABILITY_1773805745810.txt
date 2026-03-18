@@ -1,0 +1,77 @@
+LAUNCH SIMPLIFICATION PASS — INVESTIGATION ROOM STABILITY LOCK
+
+Do NOT redesign the site.
+Do NOT change the visual identity.
+Do NOT weaken the homepage.
+Do NOT add new features.
+
+MAIN GOAL
+Stabilize the launch by making:
+
+- Investigation Room = clean operational workspace
+- Command Console = the ONLY admin/control surface
+
+No broken or unreliable controls should remain in the Investigation Room.
+
+==================================================
+INVESTIGATION ROOM — KEEP ONLY CORE
+==================================================
+
+Keep ONLY:
+- channel switching
+- message feed
+- message send
+- COMMAND button/link
+- Sage Terminal
+- passive room status / active cases display (read-only)
+
+==================================================
+REMOVE / DISABLE FROM INVESTIGATION ROOM
+==================================================
+
+Remove or disable ANY control that is not 100% reliable:
+
+- channel rename icons
+- channel archive/remove (×)
+- inline admin or destructive controls
+- case create/delete controls in the sidebar if not fully working
+- hover-based controls that are inconsistent
+
+If a control is removed, do NOT leave empty space or dead UI.
+
+==================================================
+COMMAND CONSOLE — SINGLE SOURCE OF CONTROL
+==================================================
+
+All admin functionality must live here:
+
+- identity editing
+- operator management
+- role/account control
+- channel creation / rename / archive
+- case creation / edit / delete
+- all destructive actions
+
+==================================================
+RULE
+==================================================
+
+If a control does not work perfectly → REMOVE IT from Investigation Room.
+
+Do NOT leave:
+- dead buttons
+- partially working controls
+- UI that implies functionality that isn’t reliable
+
+==================================================
+FINAL VERIFICATION (REQUIRED)
+==================================================
+
+Before finishing, confirm:
+
+- Investigation Room has ZERO broken controls
+- No rename/archive/case controls remain in the room
+- Command Console still fully manages channels and cases
+- UI is clean, minimal, and stable for launch
+
+Report exactly what was removed or disabled.

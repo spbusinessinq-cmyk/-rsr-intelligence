@@ -124,8 +124,6 @@ const stageStyle: Record<string, string> = {
   READY:      "text-emerald-300",
 };
 
-const STAGES = ["NEW", "BUILDING", "REVIEW", "MONITORING", "READY"];
-
 /* ── Helpers ────────────────────────────────────────────────────────── */
 
 function fmtTime(iso: string): string {
@@ -702,38 +700,10 @@ export default function InvestigationRoom() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
 
-  /* ── Channel admin state ── */
-  const [channelCreateOpen, setChannelCreateOpen] = useState(false);
-  const [channelNewName, setChannelNewName] = useState("");
-  const [renamingCh, setRenamingCh] = useState<string | null>(null);
-  const [renameVal, setRenameVal] = useState("");
-  const [archiveEnabled, setArchiveEnabled] = useState(false); // true only when archived column confirmed present
-
-  /* ── Case state ── */
+  /* ── Case state (read-only display) ── */
   const [cases, setCases] = useState<Case[]>([]);
-  const [selectedCaseRef, setSelectedCaseRef] = useState<string | null>(null);
-  const [newCaseOpen, setNewCaseOpen] = useState(false);
-  const [newCaseForm, setNewCaseForm] = useState({ ref: "", name: "", stage: "NEW", priority: "NORMAL", channel_id: "" });
-  const [attachCaseOpen, setAttachCaseOpen] = useState(false);
-  const [attachCaseId,   setAttachCaseId]   = useState("");
-  const [newCaseError,   setNewCaseError]   = useState<string | null>(null);
-  const [caseOpError,    setCaseOpError]    = useState<string | null>(null);
-  const [chError,        setChError]        = useState<string | null>(null);
 
   const activeChannelData = channels.find(c => c.id === activeChannel);
-
-  /* ── Auto-clear transient errors ── */
-  useEffect(() => {
-    if (!caseOpError) return;
-    const t = setTimeout(() => setCaseOpError(null), 6000);
-    return () => clearTimeout(t);
-  }, [caseOpError]);
-
-  useEffect(() => {
-    if (!chError) return;
-    const t = setTimeout(() => setChError(null), 6000);
-    return () => clearTimeout(t);
-  }, [chError]);
 
   /* ── Load channels from DB (resilient to missing archived column) ── */
   const loadChannels = useCallback(async () => {
@@ -744,50 +714,26 @@ export default function InvestigationRoom() {
       .eq("archived", false)
       .order("created_at", { ascending: true });
     if (error) {
-      // archived column missing — fall back to unfiltered query, disable the archive button
+      // archived column missing — fall back to unfiltered query
       if (error.message.includes("archived") || error.message.includes("column") || error.code === "42703") {
         const { data: allData } = await supabase
           .from("room_channels")
           .select("*")
           .order("created_at", { ascending: true });
         setChannels(allData && allData.length > 0 ? (allData as Channel[]) : DEFAULT_CHANNELS);
-        setArchiveEnabled(false);
-        // show a brief schema hint in the error panel
-        setChError("SCHEMA INCOMPLETE — run supabase-setup.sql then reload to enable channel archive");
-      } else {
-        setChError("CHANNEL LOAD FAILED: " + error.message);
       }
       return;
     }
-    setArchiveEnabled(true); // archived column confirmed present
     setChannels(data && data.length > 0 ? (data as Channel[]) : DEFAULT_CHANNELS);
   }, [configured]);
 
-  /* ── Translate raw Supabase errors into branded messages ── */
-  function dbErr(raw: string, prefix: string): string {
-    if (raw.includes("does not exist") || raw.includes("relation") || raw.includes("42P01"))
-      return prefix + " — TABLE MISSING. Run supabase-setup.sql in your Supabase project.";
-    if (raw.includes("column") || raw.includes("42703"))
-      return prefix + " — SCHEMA INCOMPLETE. Run supabase-setup.sql to apply all migrations.";
-    if (raw.includes("policy") || raw.includes("row-level") || raw.includes("42501") || raw.includes("permission"))
-      return prefix + " — PERMISSION DENIED. Admin role required.";
-    if (raw.includes("duplicate") || raw.includes("unique") || raw.includes("23505"))
-      return prefix + " — DUPLICATE ENTRY. That reference already exists.";
-    return prefix + ": " + raw;
-  }
-
-  /* ── Load cases from DB ── */
+  /* ── Load cases from DB (read-only) ── */
   const loadCases = useCallback(async () => {
     if (!configured) { setCases(STATIC_CASES); return; }
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("investigation_cases")
       .select("*")
       .order("created_at", { ascending: true });
-    if (error) {
-      console.error("[loadCases] Supabase error:", error.code, error.message, error.details, error.hint);
-      setCaseOpError(`CASE LOAD FAILED [${error.code ?? "?"}]: ${error.message}`);
-      return;
-    }
     setCases((data ?? []) as Case[]);
   }, [configured]);
 
@@ -795,126 +741,6 @@ export default function InvestigationRoom() {
     loadChannels();
     loadCases();
   }, [loadChannels, loadCases]);
-
-  /* ── Channel ops (admin) ── */
-  async function createChannel() {
-    const slug = channelNewName.trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
-    if (!slug) return;
-    const { error } = await supabase.from("room_channels").insert({ id: slug, slug, name: slug, description: null });
-    if (error) { setChError(dbErr(error.message, "CHANNEL CREATE FAILED")); return; }
-    setChannelCreateOpen(false); setChannelNewName("");
-    await loadChannels();
-  }
-
-  async function archiveChannel(id: string) {
-    const { error } = await supabase.from("room_channels").update({ archived: true }).eq("id", id);
-    if (error) {
-      console.error("[archiveChannel] Supabase error:", error.code, error.message, error.details, error.hint);
-      setChError(`ARCHIVE FAILED [${error.code ?? "?"}]: ${error.message}`);
-      return;
-    }
-    if (activeChannel === id) setActiveChannel(channels.find(c => c.id !== id && !c.archived)?.id ?? "general");
-    await loadChannels();
-  }
-
-  async function renameChannel(id: string) {
-    if (!renameVal.trim()) return;
-    const { error } = await supabase.from("room_channels").update({ name: renameVal.trim() }).eq("id", id);
-    if (error) { setChError(dbErr(error.message, "RENAME FAILED")); return; }
-    setRenamingCh(null);
-    await loadChannels();
-  }
-
-  /* ── Case ops (admin) ── */
-  async function createCase() {
-    const ref  = newCaseForm.ref.trim().toUpperCase();
-    const name = newCaseForm.name.trim().toUpperCase();
-    setNewCaseError(null);
-    if (!ref)  { setNewCaseError("REF is required (e.g. F-021)"); return; }
-    if (!name) { setNewCaseError("CASE NAME is required"); return; }
-    // Attempt 1: full payload (without created_by which may be absent in older schemas)
-    const { error: e1 } = await supabase.from("investigation_cases").insert({
-      ref, name,
-      stage:      newCaseForm.stage,
-      priority:   newCaseForm.priority,
-      channel_id: newCaseForm.channel_id || null,
-    });
-
-    if (e1) {
-      // If it's a column/schema error, retry with only the guaranteed-core columns
-      const isColumnErr = e1.code === "42703" || e1.message.includes("column") || e1.message.includes("Could not find");
-      if (isColumnErr) {
-        console.warn("[createCase] column error on full payload, retrying with core fields:", e1.message);
-        const { error: e2 } = await supabase.from("investigation_cases").insert({
-          ref, name,
-          stage:    newCaseForm.stage,
-          priority: newCaseForm.priority,
-        });
-        if (e2) {
-          console.error("[createCase] retry failed:", e2.code, e2.message, e2.details, e2.hint);
-          setNewCaseError(`CREATE FAILED [${e2.code ?? "?"}]: ${e2.message}`);
-          return;
-        }
-        // Retry succeeded
-        setNewCaseOpen(false);
-        setNewCaseForm({ ref: "", name: "", stage: "NEW", priority: "NORMAL", channel_id: "" });
-        await loadCases();
-        return;
-      }
-      // Non-column error (policy, duplicate, etc) — show raw
-      console.error("[createCase] Supabase error:", e1.code, e1.message, e1.details, e1.hint);
-      setNewCaseError(`CREATE FAILED [${e1.code ?? "?"}]: ${e1.message}`);
-      return;
-    }
-
-    setNewCaseOpen(false);
-    setNewCaseForm({ ref: "", name: "", stage: "NEW", priority: "NORMAL", channel_id: "" });
-    await loadCases();
-  }
-
-  async function updateCaseStage(id: string, stage: string) {
-    const { error } = await supabase.from("investigation_cases").update({ stage }).eq("id", id);
-    if (!error) await loadCases();
-    else {
-      console.error("[updateCaseStage]", error.code, error.message);
-      setCaseOpError(`STAGE UPDATE FAILED [${error.code ?? "?"}]: ${error.message}`);
-    }
-  }
-
-  async function updateCasePriority(id: string, priority: string) {
-    const { error } = await supabase.from("investigation_cases").update({ priority }).eq("id", id);
-    if (!error) await loadCases();
-    else {
-      console.error("[updateCasePriority]", error.code, error.message);
-      setCaseOpError(`PRIORITY UPDATE FAILED [${error.code ?? "?"}]: ${error.message}`);
-    }
-  }
-
-  async function deleteCase(id: string) {
-    const { error } = await supabase.from("investigation_cases").delete().eq("id", id);
-    if (error) {
-      console.error("[deleteCase]", error.code, error.message);
-      setCaseOpError(`DELETE FAILED [${error.code ?? "?"}]: ${error.message}`);
-      return;
-    }
-    setSelectedCaseRef(null);
-    await loadCases();
-  }
-
-  async function attachCaseToChannel() {
-    if (!attachCaseId) return;
-    const { error } = await supabase.from("investigation_cases")
-      .update({ channel_id: activeChannel })
-      .eq("id", attachCaseId);
-    if (error) {
-      console.error("[attachCaseToChannel]", error.code, error.message);
-      setCaseOpError(`ATTACH FAILED [${error.code ?? "?"}]: ${error.message}`);
-      return;
-    }
-    setAttachCaseOpen(false);
-    setAttachCaseId("");
-    await loadCases();
-  }
 
   /* ── Message ops ── */
   async function deleteMessage(id: string) {
@@ -962,8 +788,6 @@ export default function InvestigationRoom() {
     setLoading(true);
     setMessages([]);
     loadMessages();
-    setAttachCaseOpen(false);
-    setAttachCaseId("");
   }, [loadMessages]);
 
   /* ── Realtime subscription ── */
@@ -1023,16 +847,6 @@ export default function InvestigationRoom() {
     composerRef.current?.focus();
   }
 
-  /* ── Case click: switch to linked channel ── */
-  function handleCaseClick(c: Case) {
-    if (selectedCaseRef === c.ref) {
-      setSelectedCaseRef(null);
-    } else {
-      setSelectedCaseRef(c.ref);
-      if (c.channel_id) setActiveChannel(c.channel_id);
-    }
-  }
-
   const pinnedMessages  = messages.filter(m => m.pinned);
   const regularMessages = messages;
 
@@ -1072,105 +886,32 @@ export default function InvestigationRoom() {
             </div>
           )}
 
-          {/* Channels header + create button */}
-          <div className="flex items-center justify-between px-4 py-2 border-b border-zinc-900/40">
+          {/* Channels header */}
+          <div className="px-4 py-2 border-b border-zinc-900/40">
             <div className="font-mono text-[8px] tracking-[0.35em] text-zinc-700">CHANNELS</div>
-            {isAdmin && configured && (
-              <button
-                onClick={() => { setChannelCreateOpen(v => !v); setChannelNewName(""); }}
-                title="New channel"
-                className="font-mono text-sm leading-none text-zinc-600 hover:text-emerald-500 transition-colors w-5 h-5 flex items-center justify-center"
-              >
-                +
-              </button>
-            )}
           </div>
-
-          {/* Channel create inline */}
-          {channelCreateOpen && isAdmin && (
-            <div className="px-4 py-3 border-b border-zinc-900/40 bg-zinc-950/40">
-              <input
-                value={channelNewName}
-                onChange={e => setChannelNewName(e.target.value)}
-                onKeyDown={e => { if (e.key === "Enter") createChannel(); if (e.key === "Escape") setChannelCreateOpen(false); }}
-                placeholder="channel-name"
-                autoFocus
-                className="w-full bg-black border border-zinc-700 focus:border-zinc-500 font-mono text-[10px] text-zinc-300 px-2 py-1.5 outline-none placeholder-zinc-800 transition-colors"
-              />
-              <div className="flex gap-3 mt-2">
-                <button onClick={createChannel} className="font-mono text-[9px] tracking-[0.2em] text-emerald-600 hover:text-emerald-400 transition-colors">CREATE</button>
-                <button onClick={() => setChannelCreateOpen(false)} className="font-mono text-[9px] text-zinc-600 hover:text-zinc-400 transition-colors">CANCEL</button>
-              </div>
-            </div>
-          )}
-
-          {/* Channel error */}
-          {chError && (
-            <div className="mx-4 mt-2 border border-red-900/40 bg-red-950/10 px-2 py-1.5 flex items-start justify-between gap-2">
-              <div className="font-mono text-[9px] tracking-[0.1em] text-red-400 leading-relaxed">{chError}</div>
-              <button onClick={() => setChError(null)} className="font-mono text-[9px] text-red-700 hover:text-red-400 shrink-0 mt-0.5">✕</button>
-            </div>
-          )}
 
           {/* Channel list */}
           <div className="flex-1 py-1">
             {channels.map(ch => {
-              const isActive   = ch.id === activeChannel;
-              const isRenaming = renamingCh === ch.id;
+              const isActive    = ch.id === activeChannel;
               const linkedCases = cases.filter(c => c.channel_id === ch.id).length;
               return (
-                <div key={ch.id} className={`group relative ${isActive ? "bg-zinc-900/60" : ""}`}>
-                  {isRenaming ? (
-                    <div className="px-4 py-2">
-                      <input
-                        value={renameVal}
-                        onChange={e => setRenameVal(e.target.value)}
-                        onKeyDown={e => { if (e.key === "Enter") renameChannel(ch.id); if (e.key === "Escape") setRenamingCh(null); }}
-                        autoFocus
-                        className="w-full bg-black border border-zinc-700 font-mono text-[10px] text-zinc-300 px-2 py-1 outline-none"
-                      />
-                      <div className="flex gap-3 mt-1.5">
-                        <button onClick={() => renameChannel(ch.id)} className="font-mono text-[9px] tracking-[0.15em] text-emerald-600 hover:text-emerald-400 transition-colors">SAVE</button>
-                        <button onClick={() => setRenamingCh(null)} className="font-mono text-[9px] text-zinc-600">CANCEL</button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => setActiveChannel(ch.id)}
-                      onKeyDown={e => e.key === "Enter" && setActiveChannel(ch.id)}
-                      className={`w-full text-left px-4 py-2.5 transition-colors cursor-pointer ${isActive ? "text-zinc-200" : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-950"}`}
-                    >
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-mono text-[9px] tracking-[0.1em] text-zinc-700">#</span>
-                        <span className="font-mono text-[10px] tracking-[0.05em] flex-1 truncate">{ch.name}</span>
-                        {linkedCases > 0 && (
-                          <span className="font-mono text-[7px] text-zinc-700 shrink-0">{linkedCases}</span>
-                        )}
-                        {isAdmin && configured && (
-                          <div className="flex items-center gap-0.5 shrink-0 opacity-30 group-hover:opacity-100 transition-opacity">
-                            <button
-                              onClick={e => { e.stopPropagation(); setRenamingCh(ch.id); setRenameVal(ch.name); }}
-                              title="Rename channel"
-                              className="font-mono text-[9px] text-zinc-500 hover:text-zinc-200 w-5 h-5 flex items-center justify-center hover:bg-zinc-800 transition-colors"
-                            >
-                              ✎
-                            </button>
-                            {archiveEnabled && (
-                              <button
-                                onClick={e => { e.stopPropagation(); archiveChannel(ch.id); }}
-                                title="Archive channel"
-                                className="font-mono text-[9px] text-zinc-500 hover:text-red-400 w-5 h-5 flex items-center justify-center hover:bg-zinc-800 transition-colors"
-                              >
-                                ×
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
+                <div
+                  key={ch.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setActiveChannel(ch.id)}
+                  onKeyDown={e => e.key === "Enter" && setActiveChannel(ch.id)}
+                  className={`w-full text-left px-4 py-2.5 transition-colors cursor-pointer ${isActive ? "bg-zinc-900/60 text-zinc-200" : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-950"}`}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-mono text-[9px] tracking-[0.1em] text-zinc-700">#</span>
+                    <span className="font-mono text-[10px] tracking-[0.05em] flex-1 truncate">{ch.name}</span>
+                    {linkedCases > 0 && (
+                      <span className="font-mono text-[7px] text-zinc-700 shrink-0">{linkedCases}</span>
+                    )}
+                  </div>
                 </div>
               );
             })}
@@ -1234,82 +975,22 @@ export default function InvestigationRoom() {
             </div>
           </div>
 
-          {/* Investigation context bar — workspace cases */}
+          {/* Investigation context bar — workspace cases (read-only) */}
           {(() => {
-            const linked   = cases.filter(c => c.channel_id === activeChannel);
-            const unlinked = isAdmin ? cases.filter(c => !c.channel_id) : [];
-            if (!isAdmin && linked.length === 0) return null;
+            const linked = cases.filter(c => c.channel_id === activeChannel);
+            if (linked.length === 0) return null;
             return (
-              <>
-                <div className="border-b border-zinc-900/60 px-5 py-2 flex items-center gap-3 bg-zinc-950/20 flex-wrap shrink-0">
-                  <span className="font-mono text-[8px] tracking-[0.3em] text-zinc-700 shrink-0">WORKSPACE</span>
-                  {linked.length === 0 ? (
-                    <span className="font-mono text-[9px] text-zinc-800">No cases linked to this channel</span>
-                  ) : linked.map(c => (
-                    <button
-                      key={c.ref}
-                      onClick={() => setSelectedCaseRef(selectedCaseRef === c.ref ? null : c.ref)}
-                      className={`font-mono text-[9px] tracking-[0.06em] border px-2 py-0.5 transition-colors ${
-                        selectedCaseRef === c.ref
-                          ? "border-emerald-900/40 text-emerald-600 bg-emerald-950/20"
-                          : "border-zinc-900 text-zinc-600 hover:border-emerald-900/30 hover:text-emerald-600"
-                      }`}
-                    >
-                      {c.ref} · {c.name}
-                    </button>
-                  ))}
-                  {isAdmin && configured && (
-                    <div className="flex items-center gap-2 ml-auto">
-                      <button
-                        onClick={() => setNewCaseOpen(true)}
-                        className="font-mono text-[8px] tracking-[0.2em] text-zinc-700 hover:text-emerald-500 border border-zinc-900 hover:border-emerald-900/30 px-2 py-0.5 transition-colors"
-                      >
-                        + NEW CASE
-                      </button>
-                      {unlinked.length > 0 && (
-                        <button
-                          onClick={() => { setAttachCaseOpen(v => !v); setAttachCaseId(""); }}
-                          className={`font-mono text-[8px] tracking-[0.2em] border px-2 py-0.5 transition-colors ${
-                            attachCaseOpen
-                              ? "text-emerald-600 border-emerald-900/50"
-                              : "text-zinc-700 border-zinc-900 hover:text-emerald-500 hover:border-emerald-900/30"
-                          }`}
-                        >
-                          ATTACH ▾
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-                {attachCaseOpen && isAdmin && configured && (
-                  <div className="border-b border-zinc-900/60 px-5 py-2.5 flex items-center gap-3 bg-zinc-950/40 shrink-0">
-                    <span className="font-mono text-[8px] tracking-[0.25em] text-zinc-700 shrink-0">ATTACH TO CHANNEL:</span>
-                    <select
-                      value={attachCaseId}
-                      onChange={e => setAttachCaseId(e.target.value)}
-                      className="bg-black border border-zinc-800 focus:border-zinc-600 font-mono text-[9px] text-zinc-400 px-2 py-1 outline-none flex-1 max-w-xs transition-colors"
-                    >
-                      <option value="">— select existing case —</option>
-                      {unlinked.map(c => (
-                        <option key={c.id} value={c.id}>{c.ref} · {c.name} [{c.stage}]</option>
-                      ))}
-                    </select>
-                    <button
-                      onClick={attachCaseToChannel}
-                      disabled={!attachCaseId}
-                      className="font-mono text-[8px] tracking-[0.2em] text-emerald-700 hover:text-emerald-500 border border-emerald-900/30 hover:border-emerald-800/40 px-3 py-1 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                    >
-                      ATTACH
-                    </button>
-                    <button
-                      onClick={() => { setAttachCaseOpen(false); setAttachCaseId(""); }}
-                      className="font-mono text-[9px] text-zinc-700 hover:text-zinc-400 transition-colors"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                )}
-              </>
+              <div className="border-b border-zinc-900/60 px-5 py-2 flex items-center gap-3 bg-zinc-950/20 flex-wrap shrink-0">
+                <span className="font-mono text-[8px] tracking-[0.3em] text-zinc-700 shrink-0">WORKSPACE</span>
+                {linked.map(c => (
+                  <span
+                    key={c.ref}
+                    className="font-mono text-[9px] tracking-[0.06em] border border-zinc-900 px-2 py-0.5 text-zinc-600"
+                  >
+                    {c.ref} · {c.name}
+                  </span>
+                ))}
+              </div>
             );
           })()}
 
@@ -1428,134 +1109,29 @@ export default function InvestigationRoom() {
             </div>
           </div>
 
-          {/* Active cases */}
+          {/* Active cases — read-only display */}
           <div className="border-b border-zinc-900 p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-600">ACTIVE CASES</div>
-              {isAdmin && configured && (
-                <button
-                  onClick={() => setNewCaseOpen(v => !v)}
-                  title="New case"
-                  className="font-mono text-sm leading-none text-zinc-600 hover:text-emerald-500 transition-colors"
-                >
-                  +
-                </button>
-              )}
-            </div>
-
-            {/* New case form */}
-            {newCaseOpen && isAdmin && (
-              <div className="mb-3 border border-zinc-800 bg-zinc-950 p-3 space-y-2">
-                <div className="font-mono text-[8px] tracking-[0.3em] text-zinc-600 mb-2">NEW CASE</div>
-                <input placeholder="REF — e.g. F-021" value={newCaseForm.ref}
-                  onChange={e => setNewCaseForm(f => ({ ...f, ref: e.target.value }))}
-                  className="w-full bg-black border border-zinc-800 focus:border-zinc-600 font-mono text-[10px] text-zinc-300 px-2 py-1.5 outline-none placeholder-zinc-800 transition-colors" />
-                <input placeholder="CASE NAME" value={newCaseForm.name}
-                  onChange={e => setNewCaseForm(f => ({ ...f, name: e.target.value }))}
-                  className="w-full bg-black border border-zinc-800 focus:border-zinc-600 font-mono text-[10px] text-zinc-300 px-2 py-1.5 outline-none placeholder-zinc-800 transition-colors" />
-                <div className="flex gap-2">
-                  <select value={newCaseForm.stage} onChange={e => setNewCaseForm(f => ({ ...f, stage: e.target.value }))}
-                    className="flex-1 bg-black border border-zinc-800 font-mono text-[10px] text-zinc-400 px-2 py-1.5 outline-none">
-                    {STAGES.map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                  <select value={newCaseForm.priority} onChange={e => setNewCaseForm(f => ({ ...f, priority: e.target.value }))}
-                    className="flex-1 bg-black border border-zinc-800 font-mono text-[10px] text-zinc-400 px-2 py-1.5 outline-none">
-                    <option value="HIGH">HIGH</option>
-                    <option value="NORMAL">NORMAL</option>
-                  </select>
-                </div>
-                <select value={newCaseForm.channel_id} onChange={e => setNewCaseForm(f => ({ ...f, channel_id: e.target.value }))}
-                  className="w-full bg-black border border-zinc-800 font-mono text-[10px] text-zinc-400 px-2 py-1.5 outline-none">
-                  <option value="">— NO CHANNEL —</option>
-                  {channels.map(ch => <option key={ch.id} value={ch.id}>{ch.name}</option>)}
-                </select>
-                {newCaseError && (
-                  <div className="border border-red-900/40 bg-red-950/10 px-2 py-1.5">
-                    <div className="font-mono text-[9px] tracking-[0.15em] text-red-400 leading-relaxed">{newCaseError}</div>
-                  </div>
-                )}
-                <div className="flex gap-2 pt-1">
-                  <button onClick={createCase} className="font-mono text-[9px] tracking-[0.2em] text-emerald-600 hover:text-emerald-400 border border-emerald-900/30 px-2 py-0.5 transition-colors">CREATE</button>
-                  <button onClick={() => { setNewCaseOpen(false); setNewCaseError(null); }} className="font-mono text-[9px] text-zinc-600 hover:text-zinc-400 transition-colors">CANCEL</button>
-                </div>
-              </div>
-            )}
-
-            {caseOpError && (
-              <div className="mb-2 border border-red-900/40 bg-red-950/10 px-2 py-1.5 flex items-start justify-between gap-2">
-                <div className="font-mono text-[9px] tracking-[0.1em] text-red-400 leading-relaxed">{caseOpError}</div>
-                <button onClick={() => setCaseOpError(null)} className="font-mono text-[9px] text-red-700 hover:text-red-400 shrink-0 mt-0.5">✕</button>
-              </div>
-            )}
-
+            <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-600 mb-3">ACTIVE CASES</div>
             <div className="space-y-1">
               {cases.length === 0 ? (
                 <div className="font-mono text-[9px] tracking-[0.2em] text-zinc-800">NO CASES</div>
               ) : (
                 cases.map(c => {
-                  const isSelected = selectedCaseRef === c.ref;
-                  const isLinked   = c.channel_id === activeChannel;
+                  const isLinked = c.channel_id === activeChannel;
                   return (
-                    <div key={c.ref}>
-                      <div
-                        onClick={() => handleCaseClick(c)}
-                        className={`flex items-center gap-2 cursor-pointer py-1.5 px-1 -mx-1 rounded-sm transition-colors ${
-                          isSelected ? "bg-zinc-900/40" : "hover:bg-zinc-900/20"
-                        }`}
+                    <div key={c.ref} className="flex items-center gap-2 py-1.5">
+                      <Link
+                        href={c.ref.startsWith("F") ? `/files/${c.ref}` : `/dossiers/${c.ref}`}
+                        className="font-mono text-[9px] tracking-[0.1em] text-zinc-600 hover:text-emerald-500 transition-colors shrink-0"
                       >
-                        <Link
-                          href={c.ref.startsWith("F") ? `/files/${c.ref}` : `/dossiers/${c.ref}`}
-                          onClick={e => e.stopPropagation()}
-                          className="font-mono text-[9px] tracking-[0.1em] text-zinc-600 hover:text-emerald-500 transition-colors shrink-0"
-                        >
-                          {c.ref}
-                        </Link>
-                        <span className={`font-mono text-[9px] tracking-[0.04em] truncate flex-1 ${isLinked ? "text-emerald-700/80" : "text-zinc-600"}`}>
-                          {c.name}
-                        </span>
-                        <span className={`font-mono text-[9px] tracking-[0.1em] shrink-0 ${stageStyle[c.stage] ?? "text-zinc-600"}`}>
-                          {c.stage}
-                        </span>
-                      </div>
-
-                      {/* Admin inline controls for selected case */}
-                      {isSelected && isAdmin && (
-                        <div className="mt-1.5 mb-2 pl-1 space-y-1.5">
-                          <div className="flex flex-wrap gap-1">
-                            {STAGES.map(s => (
-                              <button
-                                key={s}
-                                onClick={() => updateCaseStage(c.id, s)}
-                                className={`font-mono text-[9px] tracking-[0.08em] border px-2 py-0.5 transition-colors ${
-                                  c.stage === s
-                                    ? `${stageStyle[s]} border-current/20`
-                                    : "text-zinc-600 border-zinc-800 hover:text-zinc-300 hover:border-zinc-700"
-                                }`}
-                              >
-                                {s}
-                              </button>
-                            ))}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => updateCasePriority(c.id, c.priority === "HIGH" ? "NORMAL" : "HIGH")}
-                              className={`font-mono text-[9px] tracking-[0.08em] border px-2 py-0.5 transition-colors ${
-                                c.priority === "HIGH"
-                                  ? "text-red-400 border-red-500/25 bg-red-950/10"
-                                  : "text-zinc-500 border-zinc-800 hover:text-zinc-300 hover:border-zinc-700"
-                              }`}
-                            >
-                              {c.priority}
-                            </button>
-                            <button
-                              onClick={() => deleteCase(c.id)}
-                              className="font-mono text-[9px] tracking-[0.08em] text-zinc-600 hover:text-red-400 border border-zinc-900 hover:border-red-900/40 px-2 py-0.5 transition-colors ml-auto"
-                            >
-                              DELETE
-                            </button>
-                          </div>
-                        </div>
-                      )}
+                        {c.ref}
+                      </Link>
+                      <span className={`font-mono text-[9px] tracking-[0.04em] truncate flex-1 ${isLinked ? "text-emerald-700/80" : "text-zinc-600"}`}>
+                        {c.name}
+                      </span>
+                      <span className={`font-mono text-[9px] tracking-[0.1em] shrink-0 ${stageStyle[c.stage] ?? "text-zinc-600"}`}>
+                        {c.stage}
+                      </span>
                     </div>
                   );
                 })
