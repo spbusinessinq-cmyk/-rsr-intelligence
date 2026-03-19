@@ -198,4 +198,4 @@ export const onRequestOptions = async () =>
     },
   });
 
-export default onRequestPost;
+export { onRequestPost };

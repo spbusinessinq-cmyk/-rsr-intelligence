@@ -130,21 +130,33 @@ The app uses **hash-based routing** via a custom `useHashLocation` hook (`src/li
 ### API Routing
 In development, Vite proxies `/api/*` → `http://localhost:8080` (api-server) automatically via the proxy in `vite.config.ts`.
 
-In **production (EdgeOne single deployment)**, `/api/news` and `/api/sage` are served by EdgeOne Node Functions defined in `cloud-functions/api/`. No separate api-server is needed. Frontend calls use `` `${import.meta.env.VITE_API_BASE_URL ?? ""}/api/...` `` — when `VITE_API_BASE_URL` is unset (production), it resolves to the relative same-origin `/api/...`.
+In **production (EdgeOne single deployment)**, all `/api/*` routes are served by EdgeOne Node Functions defined in `node-functions/api/`. No separate api-server is needed. Frontend calls use `` `${import.meta.env.VITE_API_BASE_URL ?? ""}/api/...` `` — when `VITE_API_BASE_URL` is unset (production), it resolves to the relative same-origin `/api/...`.
 
 ### EdgeOne Single Deployment Setup
 
 **Repository structure:**
 ```
-cloud-functions/
+node-functions/
   api/
-    news.js       → serves GET /api/news  (GDELT live news)
-    sage.js       → serves POST /api/sage (SAGE AI terminal)
+    news.js                      → GET  /api/news
+    sage.js                      → POST /api/sage
+    status.js                    → GET  /api/status
+    investigation-status.js      → GET  /api/investigation-status
+    investigation-chat-status.js → GET  /api/investigation-chat-status
+    investigation-chat-recent.js → GET  /api/investigation-chat-recent
+    investigation-presence.js    → GET  /api/investigation-presence
+    investigation-admin.js       → GET  /api/investigation-admin
 artifacts/rsr-intelligence/
   src/            → React frontend source
   dist/public/    → Vite build output (EdgeOne serves this)
 edgeone.json      → build config (repo root)
 ```
+
+**EdgeOne directory convention:**
+- `node-functions/` — Node.js Cloud Functions (full Node.js, `process.env` available)
+- `edge-functions/` — Edge Functions (V8/Worker API, no `process.env`)
+- `functions/` — Edge Functions legacy alias
+All handlers use named exports (`export { onRequestGet }` / `export { onRequestPost }`).
 
 **EdgeOne project settings (configure in EdgeOne Pages console):**
 - **Root Directory**: `/` (repo root — leave blank or set to root)

@@ -23,4 +23,4 @@ const onRequestGet = async () => {
   });
 };
 
-export default onRequestGet;
+export { onRequestGet };
