@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import UTCClock from "./UTCClock";
+import BlackdogBadge from "./BlackdogBadge";
 import { useAuth } from "@/lib/auth";
 import { InboxPanel } from "@/components/InboxPanel";
 import { useInboxCount } from "@/components/useInboxCount";
@@ -69,8 +70,9 @@ export default function Layout({ children }: LayoutProps) {
             </div>
           </Link>
 
-          {/* Right side: clock + nav + inbox */}
+          {/* Right side: blackdog badge + clock + nav + inbox */}
           <div className="flex items-center gap-3">
+            <BlackdogBadge />
             <UTCClock />
             <nav className="flex gap-1 font-mono text-[11px] tracking-[0.3em]">
               {navLinks.map((link) => {

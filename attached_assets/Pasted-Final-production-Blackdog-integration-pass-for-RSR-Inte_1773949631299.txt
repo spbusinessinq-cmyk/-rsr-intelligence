@@ -1,0 +1,101 @@
+Final production + Blackdog integration pass for RSR Intelligence.
+
+GOAL
+This is the final Intel pass before deployment.
+Do not add unrelated features.
+Do not redesign the app.
+Do not move folders again unless required by actual runtime evidence.
+This pass must do two things only:
+
+1. Verify and finalize Intel production API routing
+2. Add the “PROTECTED BY BLACKDOG SECURITY” header badge using BLACKDOG as the source of truth
+
+PART 1 — PRODUCTION API VERIFICATION
+
+REQUIRED LIVE ROUTES TO VERIFY
+- /api/status
+- /api/investigation-status
+- /api/investigation-chat-status
+- /api/investigation-chat-recent
+- /api/investigation-presence
+- /api/investigation-admin
+- /api/news
+- /api/sage
+
+TASKS
+1. Inspect the current production routing/runtime setup exactly as it exists now.
+2. Verify the production function directory is correct for this project.
+3. Verify export style is correct for the runtime actually being used.
+4. Verify node-functions/api vs any old cloud-functions/api layout and keep only the correct one.
+5. Run or simulate a production-safe verification for each route above.
+6. Return a simple table for each route:
+   - route
+   - runtime directory used
+   - export type used
+   - production status: LIVE / FAILING / UNKNOWN
+   - reason
+7. If anything is wrong, make only the minimum required fix.
+8. If a fix is made, rebuild if needed and prepare for push.
+9. Do not say “checkpoint will auto commit later” without also clearly stating whether I still need to manually git push.
+
+PART 2 — BLACKDOG HEADER BADGE
+
+GOAL
+Add a visible but clean header badge in RSR Intelligence that reads:
+
+PROTECTED BY BLACKDOG SECURITY
+
+Under it, show the live Intel connection state from BLACKDOG as the single source of truth.
+
+SOURCE OF TRUTH
+BLACKDOG endpoint:
+https://rsr-blackdog.edgeone.app/api/network-status
+
+Use:
+services.intel.status
+services.intel.latency
+
+RULES
+- Intel must not determine its own connection state
+- Do not use local fallback monitoring logic
+- BLACKDOG is the only truth source for this badge
+- Poll on load and every 60 seconds
+- Keep styling aligned with current Intel header and design language
+- Put it in the header top-right area, clearly visible but not oversized
+
+STATUS MAPPING
+- ok → CONNECTED (green)
+- degraded → DEGRADED (yellow)
+- down → OFFLINE (red)
+- fetch failure → UNKNOWN — BLACKDOG UNREACHABLE
+
+DISPLAY
+Show:
+- PROTECTED BY BLACKDOG SECURITY
+- status line underneath
+- latency if available
+
+TECHNICAL
+- Create a dedicated component if appropriate
+- Keep logic isolated and clean
+- No self-checking fallback
+- No fake metrics
+
+RETURN
+I want one final report with:
+
+1. Files changed
+2. Exact folder/runtime used for Intel production APIs
+3. Exact export format used
+4. Route-by-route production status for all required routes
+5. Where the Blackdog badge fetch logic lives
+6. Confirmation Intel badge now reads from BLACKDOG only
+7. Whether I must now run:
+   git add .
+   git commit -m "final intel production and blackdog badge"
+   git push origin main
+
+IMPORTANT
+- No extra features
+- No vague language
+- Final truth only
