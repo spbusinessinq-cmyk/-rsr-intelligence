@@ -1,0 +1,92 @@
+Build and expose real Investigation Room operational endpoints so BLACKDOG can ingest actual room telemetry.
+
+GOAL
+Make the Investigation Room provide real protected/unprotected endpoints for:
+- room status
+- recent messages
+- presence/users in room
+- moderation/admin queue
+
+These endpoints must return honest live data only. No synthetic values.
+
+REQUIRED ENDPOINTS
+
+1. GET /api/investigation-status
+Keep existing behavior, but ensure it remains stable and production-safe.
+
+2. GET /api/investigation-chat-status
+Return high-level room/chat status:
+{
+  ok,
+  status,
+  room: {
+    reachable,
+    authRequired,
+    roomId or slug if available
+  },
+  metrics: {
+    usersOnline,
+    recentMessageCount,
+    moderationPending
+  },
+  timestamp
+}
+
+3. GET /api/investigation-chat-recent
+Return recent message metadata only, production-safe:
+{
+  ok,
+  status,
+  messages: [
+    {
+      id,
+      author or alias,
+      preview,
+      createdAt
+    }
+  ],
+  timestamp
+}
+Do not leak secrets or private tokens. Respect auth and permissions.
+
+4. GET /api/investigation-presence
+Return:
+{
+  ok,
+  status,
+  usersOnline,
+  users: [
+    { id or alias, role if safe, presentAt }
+  ],
+  timestamp
+}
+If full user list is not safe, return counts only and explain why in status.
+
+5. GET /api/investigation-admin
+Return moderation/admin queue summary:
+{
+  ok,
+  status,
+  moderationPending,
+  flagsOpen,
+  notes
+  timestamp
+}
+Do not expose sensitive moderation content unless already safe in current app permissions.
+
+RULES
+- Use real live room data only
+- Preserve auth safety
+- If auth is required, return honest protected-state response instead of fake empty data
+- No made-up metrics
+- No placeholders
+- These endpoints must be production-safe
+- Reuse existing room/auth/session logic where possible
+- Keep response format consistent
+
+RETURN
+- files changed
+- which endpoints are fully live
+- which endpoints require auth/session
+- sample response shape for each
+- any endpoint intentionally count-only for safety
