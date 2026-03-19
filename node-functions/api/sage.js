@@ -107,7 +107,7 @@ GENERAL GUIDANCE:
 - When the user provides fragments (names, dates, locations, claims), help them build those into an investigation skeleton using RSR cross-references and structured next steps.
 `;
 
-export const onRequestPost = async ({ request, env }) => {
+const onRequestPost = async ({ request, env }) => {
   let body;
   try {
     body = await request.json();

@@ -60,7 +60,7 @@ async function fetchGdelt(query) {
   }
 }
 
-export const onRequestGet = async () => {
+const onRequestGet = async () => {
   try {
     const all      = [];
     const seenUrl   = new Set();
