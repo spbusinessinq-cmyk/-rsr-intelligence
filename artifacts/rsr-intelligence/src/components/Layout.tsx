@@ -54,17 +54,17 @@ export default function Layout({ children }: LayoutProps) {
         <header className="flex flex-col md:flex-row md:items-center justify-between border-b border-zinc-900 pb-5 gap-4">
 
           {/* Brand — logo is the dominant system emblem */}
-          <Link href="/" className="flex items-center gap-5 group">
+          <Link href="/" className="flex items-center gap-4 group shrink-0">
             <img
               src="/logo.png"
               alt="RSR Intelligence Network"
-              className="h-20 w-auto object-contain opacity-70 group-hover:opacity-100 transition-opacity duration-300"
+              className="h-16 w-auto object-contain opacity-70 group-hover:opacity-100 transition-opacity duration-300"
             />
             <div className="flex flex-col gap-1">
-              <div className="font-mono text-[11px] tracking-[0.45em] text-emerald-400 leading-none">
+              <div className="font-mono text-[11px] tracking-[0.35em] text-emerald-400 leading-none whitespace-nowrap">
                 RSR INTELLIGENCE NETWORK
               </div>
-              <div className="font-mono text-[10px] tracking-[0.35em] text-zinc-700 uppercase">
+              <div className="font-mono text-[10px] tracking-[0.28em] text-zinc-700 uppercase whitespace-nowrap">
                 INDEPENDENT ANALYSIS SYSTEM
               </div>
             </div>
@@ -74,7 +74,7 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex items-center gap-3">
             <BlackdogBadge />
             <UTCClock />
-            <nav className="flex gap-1 font-mono text-[11px] tracking-[0.3em]">
+            <nav className="flex gap-1 font-mono text-[12px] tracking-[0.25em]">
               {navLinks.map((link) => {
                 const isActive =
                   link.path === "/"
@@ -88,7 +88,7 @@ export default function Layout({ children }: LayoutProps) {
                     className={`px-3 py-2 border transition-all duration-150 whitespace-nowrap ${
                       isActive
                         ? "border-emerald-500/40 text-emerald-300 bg-emerald-500/5"
-                        : "border-transparent text-zinc-600 hover:text-zinc-200 hover:border-zinc-800"
+                        : "border-transparent text-zinc-500 hover:text-zinc-100 hover:border-zinc-800"
                     }`}
                   >
                     {link.name}
@@ -109,7 +109,7 @@ export default function Layout({ children }: LayoutProps) {
                   title="Open inbox"
                   aria-label="Open notifications inbox"
                 >
-                  <div className="font-mono text-[10px] tracking-[0.25em] text-zinc-600 group-hover:text-zinc-300 border border-zinc-900 group-hover:border-zinc-700 px-3 py-2 transition-all duration-150 whitespace-nowrap">
+                  <div className="font-mono text-[11px] tracking-[0.22em] text-zinc-500 group-hover:text-zinc-200 border border-zinc-900 group-hover:border-zinc-700 px-3 py-2 transition-all duration-150 whitespace-nowrap">
                     INBOX
                   </div>
                   {inboxUnread > 0 && (
@@ -124,7 +124,7 @@ export default function Layout({ children }: LayoutProps) {
                   disabled={signingOut}
                   title="Sign out"
                   aria-label="Sign out"
-                  className="font-mono text-[10px] tracking-[0.25em] text-zinc-700 hover:text-red-400 border border-transparent hover:border-red-900/50 px-3 py-2 transition-all duration-150 whitespace-nowrap disabled:opacity-40 ml-1"
+                  className="font-mono text-[11px] tracking-[0.22em] text-zinc-600 hover:text-red-400 border border-transparent hover:border-red-900/50 px-3 py-2 transition-all duration-150 whitespace-nowrap disabled:opacity-40 ml-1"
                 >
                   {signingOut ? "..." : "SIGN OUT"}
                 </button>

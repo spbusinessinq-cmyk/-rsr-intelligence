@@ -1,0 +1,139 @@
+Final UI + Production Readability + Blackdog Visibility Pass
+
+GOAL
+Do NOT change structure.
+Do NOT move files.
+Do NOT touch working APIs.
+
+This pass is ONLY for:
+1. Fixing readability (text too small)
+2. Making the Blackdog badge clearly visible and “command-level”
+3. Handling the current UNKNOWN state properly
+4. Making the UI feel like a real intelligence terminal
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PART 1 — GLOBAL TEXT SCALING FIX
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Problem: Text across the site is too small and hard to read.
+
+Tasks:
+
+1. Increase base font size globally:
+   html {
+     font-size: 16px → 18px minimum
+   }
+
+2. Increase key UI text:
+   - headers: +15–25%
+   - nav items: +10–15%
+   - body text: minimum 16px equivalent
+   - buttons: increase padding + font size
+
+3. Ensure:
+   - no text looks compressed
+   - spacing scales with font size
+   - line-height ~1.4–1.6
+
+4. Do NOT break layout.
+5. Do NOT cause overflow.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PART 2 — BLACKDOG BADGE VISIBILITY FIX
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Problem: Badge exists but is too subtle and not readable.
+
+Tasks:
+
+1. Increase badge prominence:
+   - slightly larger font
+   - stronger contrast
+   - clearer spacing from header items
+
+2. Structure:
+   [ PROTECTED BY BLACKDOG SECURITY ]
+   [ STATUS LINE ]
+
+3. Add:
+   - subtle glow on status dot
+   - small pulse animation for CONNECTED only
+   - bold label text
+
+4. Make sure it is clearly visible on load without overpowering UI
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PART 3 — UNKNOWN STATUS HANDLING (IMPORTANT)
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Current behavior is CORRECT:
+Dev environment cannot fetch edgeone.app (CORS).
+
+BUT the UI should communicate this better.
+
+Change display:
+
+Instead of:
+UNKNOWN — BLACKDOG UNREACHABLE
+
+Use:
+
+DEV MODE — BLACKDOG NOT ACCESSIBLE
+
+AND:
+- show a small subtext:
+  "Live status available in production deployment"
+
+DO NOT change logic.
+DO NOT add fallback.
+BLACKDOG remains the only source of truth.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PART 4 — PRODUCTION READINESS INDICATOR
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Add subtle logic:
+
+If window.location.hostname includes:
+- .edgeone.app
+- rsrintel.com
+
+Then:
+- show real status labels (CONNECTED / DEGRADED / etc)
+
+If localhost / replit:
+- show DEV MODE label
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PART 5 — TERMINAL FEEL POLISH
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Light polish only:
+
+- Slightly increase contrast on key text
+- Ensure headings feel sharp and readable
+- Buttons:
+  - increase padding
+  - slightly stronger hover state
+
+Optional:
+- subtle scanline or glow effect (very light, not cheesy)
+
+━━━━━━━━━━━━━━━━━━━━━━━
+RETURN
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Provide:
+
+1. Files modified
+2. Exact font scaling changes
+3. Badge styling updates
+4. Confirmation NO API logic was changed
+5. Confirmation Blackdog remains sole source of truth
+6. Whether I need to push again
+
+IMPORTANT
+- No redesign
+- No system changes
+- No new features
+- This is polish + clarity only
