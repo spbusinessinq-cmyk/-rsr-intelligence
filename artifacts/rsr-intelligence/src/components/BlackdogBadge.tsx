@@ -40,10 +40,11 @@ export default function BlackdogBadge() {
         const latency: number | undefined =
           typeof intel?.latency === "number" ? intel.latency : undefined;
 
+        const norm = raw.toLowerCase();
         const state: IntelState =
-          raw === "ok"       ? "ok"       :
-          raw === "degraded" ? "degraded" :
-          raw === "down"     ? "down"     :
+          norm === "ok" || norm === "online"   ? "ok"       :
+          norm === "degraded"                  ? "degraded" :
+          norm === "down" || norm === "offline" ? "down"     :
           "unreachable";
 
         setStatus({ state, latency });
