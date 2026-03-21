@@ -100,6 +100,18 @@ export default function SystemDetail({ params }: SystemDetailProps) {
                 </p>
               ))}
             </div>
+            {system.externalUrl && (
+              <div className="mt-6">
+                <a
+                  href={system.externalUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center border border-emerald-500/40 bg-emerald-500/5 px-5 py-2.5 text-emerald-400 font-mono text-[11px] tracking-[0.3em] hover:border-emerald-500/70 hover:bg-emerald-500/10 hover:text-emerald-300 transition-colors"
+                >
+                  VISIT {system.name} ↗
+                </a>
+              </div>
+            )}
           </div>
 
           {/* Operational command panel */}

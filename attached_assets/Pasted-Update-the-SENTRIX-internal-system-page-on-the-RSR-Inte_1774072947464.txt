@@ -1,0 +1,71 @@
+Update the SENTRIX internal system page on the RSR Intelligence Network site.
+
+The page is already correct overall, but it is missing one required element:
+
+ADD A BUTTON DIRECTLY BELOW THE MAIN DESCRIPTION TEXT BLOCK ON THE LEFT SIDE.
+
+This button must appear immediately under the two main SENTRIX description paragraphs in the System Overview section.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+BUTTON REQUIREMENTS
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Label:
+VISIT SENTRIX ↗
+
+URL:
+https://sentrix.live
+
+Behavior:
+- open in a true new browser tab
+- use target="_blank"
+- use rel="noopener noreferrer"
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PLACEMENT REQUIREMENTS
+━━━━━━━━━━━━━━━━━━━━━━━
+
+- Place the button directly BELOW the main description text block
+- Keep it on the LEFT content column
+- It should sit naturally under the paragraph copy before the next section begins
+- Do NOT place it in the right-side Operational Status panel
+- Do NOT place it at the very bottom of the page
+- Do NOT hide it inside Related Systems
+- Do NOT replace any existing navigation
+
+━━━━━━━━━━━━━━━━━━━━━━━
+STYLE REQUIREMENTS
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Match the RSR Intelligence Network visual system exactly:
+- dark background
+- thin border
+- compact button height
+- uppercase label styling
+- same spacing rhythm as the rest of the page
+- same hover language as existing buttons/CTAs
+- should feel like a native system action, not a random web button
+
+Use the existing button style family already present in the site.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+DO NOT CHANGE
+━━━━━━━━━━━━━━━━━━━━━━━
+
+- do not alter page layout
+- do not move SENTRIX sections
+- do not change typography
+- do not modify the status panel
+- do not alter the capabilities cards
+- do not change the current content
+
+Only add the missing VISIT SENTRIX ↗ button in the correct location under the description.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+SUCCESS CRITERIA
+━━━━━━━━━━━━━━━━━━━━━━━
+
+The update is correct only if:
+1. the SENTRIX page looks the same as it does now
+2. a VISIT SENTRIX ↗ button appears directly below the description paragraphs on the left
+3. clicking it opens https://sentrix.live in a new tab
