@@ -8,6 +8,7 @@ interface SystemDetailProps {
 }
 
 function statusStyle(status: string) {
+  if (status === "PRIMARY")    return "text-emerald-300 border-emerald-500/40 bg-emerald-500/10";
   if (status === "LIVE")       return "text-emerald-400 border-emerald-500/30 bg-emerald-500/8";
   if (status === "CORE")       return "text-cyan-400 border-cyan-500/30 bg-cyan-500/8";
   if (status === "RESTRICTED") return "text-red-400 border-red-500/30 bg-red-500/8";
@@ -16,6 +17,7 @@ function statusStyle(status: string) {
 }
 
 function StatusDot({ status }: { status: string }) {
+  if (status === "PRIMARY")    return <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />;
   if (status === "LIVE")       return <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />;
   if (status === "RESTRICTED") return <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />;
   if (status === "TRACKING")   return <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />;
@@ -282,6 +284,16 @@ export default function SystemDetail({ params }: SystemDetailProps) {
           >
             WORLD MONITOR
           </Link>
+          {system.externalUrl && (
+            <a
+              href={system.externalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="border border-emerald-500/40 bg-emerald-500/5 px-5 py-2.5 text-emerald-400 font-mono text-[11px] tracking-[0.3em] hover:border-emerald-500/70 hover:bg-emerald-500/10 hover:text-emerald-300 transition-colors ml-auto"
+            >
+              VISIT {system.name} ↗
+            </a>
+          )}
         </section>
 
       </div>

@@ -11,6 +11,7 @@ interface SystemCardProps {
 }
 
 function statusColor(status: string): string {
+  if (status === "PRIMARY")    return "text-emerald-300";
   if (status === "LIVE")       return "text-emerald-400";
   if (status === "CORE")       return "text-cyan-400";
   if (status === "RESTRICTED") return "text-red-400";
@@ -19,6 +20,7 @@ function statusColor(status: string): string {
 }
 
 function statusDot(status: string): string {
+  if (status === "PRIMARY")    return "bg-emerald-400 animate-pulse";
   if (status === "LIVE")       return "bg-emerald-400 animate-pulse";
   if (status === "CORE")       return "bg-cyan-400";
   if (status === "RESTRICTED") return "bg-red-400 animate-pulse";

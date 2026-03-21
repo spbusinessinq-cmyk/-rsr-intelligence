@@ -29,6 +29,7 @@ export interface SystemDetailData {
   layer: string;       // e.g. "SYNTHESIS LAYER" — architecture classification
   category: string;    // e.g. "ANALYTIC FRAMEWORK"
   tagline: string;     // 1-line operational descriptor for hero
+  externalUrl?: string; // optional external product URL — renders a secondary CTA on the detail page
   overview: {
     headline: string;
     body: string[];    // paragraphs
@@ -53,6 +54,50 @@ export function slugToSystemDetail(slug: string): SystemDetailData | null {
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const systemDetails: Record<string, SystemDetailData> = {
+
+  sentrix: {
+    slug: "sentrix",
+    name: "SENTRIX",
+    role: "Intelligence Analysis System",
+    status: "PRIMARY",
+    layer: "ANALYSIS LAYER",
+    category: "INTELLIGENCE ANALYSIS SYSTEM",
+    tagline: "Structured intelligence analysis, verification, and case-building environment.",
+    externalUrl: "https://sentrix.live",
+    overview: {
+      headline: "Structured intelligence analysis, verification, and case-building environment.",
+      body: [
+        "SENTRIX is an intelligence-first analysis system built to take raw user input and turn it into structured, decision-useful output. It sits between the user and the information they are trying to understand, then classifies, breaks down, verifies, assesses, and organizes that information before the user has to trust it.",
+        "Rather than behaving like a normal search engine or a generic chatbot shell, SENTRIX functions as a disciplined intelligence workspace. It is designed to receive claims, questions, articles, URLs, narratives, or raw material and process them through a structured reasoning workflow that emphasizes verification, source discipline, uncertainty handling, and long-term organization.",
+      ],
+    },
+    capabilities: [
+      { label: "FUNCTION 01", title: "Input Classification",       description: "Classifies user input by type so the system knows whether it is dealing with a factual question, a verifiable claim, a strategic assertion, or raw source material." },
+      { label: "FUNCTION 02", title: "Verification Workflow",      description: "Runs corroboration-oriented verification logic for factual claims and current-event questions, comparing confirming and contradicting evidence instead of relying on one shallow result path." },
+      { label: "FUNCTION 03", title: "Analytic Reasoning",         description: "Breaks broad claims into assumptions, scope, framing, and structural dependencies so the user gets disciplined analysis instead of shallow binary answers." },
+      { label: "FUNCTION 04", title: "Source Extraction",          description: "Extracts structure from URLs, pasted text, and long-form material, including title, source domain, author, date, body, core claims, framing, and direct versus implied statements." },
+      { label: "FUNCTION 05", title: "Sensitive-Claim Control",    description: "Applies stricter standards for sensitive personal claims involving medical, psychiatric, developmental, disability, addiction, or similar private-condition topics to avoid rumor-engine behavior." },
+      { label: "FUNCTION 06", title: "Case Workflow",              description: "Supports long-term investigation building through saved analyses, structured case files, bookmarks, Vault storage, and persistent working sessions." },
+    ],
+    missionApplications: [
+      { context: "Claim verification",         use: "Evaluates factual claims and current-event assertions through structured corroboration logic, surfacing confirming and contradicting evidence before returning a verdict." },
+      { context: "Source analysis",            use: "Ingests URLs, pasted articles, and long-form material to extract structured metadata, core claims, framing signals, and source positioning." },
+      { context: "Investigation building",     use: "Supports persistent case development through structured session management, Vault storage, and cross-referencing of prior analyses into active investigation files." },
+      { context: "Narrative assessment",       use: "Applies analytic reasoning to strategic assertions and media narratives, breaking framing, scope, and implied assumptions into discrete, evaluable components." },
+    ],
+    operationalStats: [
+      { label: "STATUS",           value: "PRIMARY",          color: "text-emerald-400" },
+      { label: "ANALYSIS ENGINE",  value: "SAGE",             color: "text-zinc-300" },
+      { label: "RISK LAYER",       value: "BLACKDOG",         color: "text-zinc-300" },
+      { label: "WORKFLOW",         value: "INVESTIGATIONS",   color: "text-zinc-300" },
+      { label: "INPUT MODES",      value: "4",                color: "text-zinc-300" },
+      { label: "CLASSIFICATION",   value: "MULTI-MODE",       color: "text-amber-400" },
+      { label: "STATE",            value: "ACTIVE",           color: "text-emerald-400" },
+    ],
+    relatedSystems: ["axion", "black-dog", "atlas"],
+    relatedFiles: [],
+    relatedDossiers: [],
+  },
 
   axion: {
     slug: "axion",

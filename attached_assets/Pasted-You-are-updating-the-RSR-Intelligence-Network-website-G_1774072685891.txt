@@ -1,0 +1,161 @@
+You are updating the RSR Intelligence Network website.
+
+GOAL:
+Add a new system called SENTRIX and make it behave exactly like the existing internal systems such as ATLAS and AXION.
+
+IMPORTANT ARCHITECTURE RULE:
+Do NOT make the homepage card open sentrix.live directly.
+
+The homepage/system-grid card for SENTRIX must behave exactly like the other systems:
+- clicking the card opens the internal SENTRIX system detail page inside the RSR Intelligence Network site
+- from that internal SENTRIX detail page, add a separate external button that opens https://sentrix.live in a new tab
+
+This must match the existing system flow already used by ATLAS, AXION, and the other internal systems.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+SYSTEM TO ADD
+━━━━━━━━━━━━━━━━━━━━━━━
+
+System name: SENTRIX
+Subtitle / category: INTELLIGENCE ANALYSIS SYSTEM
+Badge: PRIMARY
+
+Short card description:
+Structured intelligence environment for input analysis, verification, and reasoning.
+
+Sentrix classifies, breaks down, and evaluates raw information through multi-mode analysis systems, transforming claims, articles, and narratives into decision-ready intelligence.
+
+Built around Sage (analysis), BLACKDOG (risk + classification), and Investigations (case workflow).
+
+Card CTA:
+ENTER SYSTEM →
+
+Placement:
+- SENTRIX must be the FIRST card in the homepage systems grid
+- SENTRIX must be the FIRST card in the systems page grid
+
+━━━━━━━━━━━━━━━━━━━━━━━
+INTERNAL SENTRIX DETAIL PAGE
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Create a full internal system detail page for SENTRIX using the same design language and structure as the existing ATLAS detail page.
+
+It should feel like a real internal RSR system page and visually match the current system detail pages exactly.
+
+Required page sections:
+
+1. HERO / OVERVIEW SECTION
+Main headline:
+Structured intelligence analysis, verification, and case-building environment.
+
+Body copy:
+SENTRIX is an intelligence-first analysis system built to take raw user input and turn it into structured, decision-useful output. It sits between the user and the information they are trying to understand, then classifies, breaks down, verifies, assesses, and organizes that information before the user has to trust it.
+
+Rather than behaving like a normal search engine or a generic chatbot shell, SENTRIX functions as a disciplined intelligence workspace. It is designed to receive claims, questions, articles, URLs, narratives, or raw material and process them through a structured reasoning workflow that emphasizes verification, source discipline, uncertainty handling, and long-term organization.
+
+2. OPERATIONAL STATUS PANEL
+Use the same right-side stats/status panel style as ATLAS.
+
+Suggested values:
+STATUS — PRIMARY
+ANALYSIS ENGINE — SAGE
+RISK LAYER — BLACKDOG
+WORKFLOW — INVESTIGATIONS
+INPUT MODES — 4
+CLASSIFICATION — MULTI-MODE
+STATE — ACTIVE
+
+Related systems:
+SAGE
+BLACKDOG
+AXION
+
+3. CAPABILITIES / FUNCTIONS SECTION
+Use the same function-card layout style already used on ATLAS.
+
+Function 01
+INPUT CLASSIFICATION
+Classifies user input by type so the system knows whether it is dealing with a factual question, a verifiable claim, a strategic assertion, or raw source material.
+
+Function 02
+VERIFICATION WORKFLOW
+Runs corroboration-oriented verification logic for factual claims and current-event questions, comparing confirming and contradicting evidence instead of relying on one shallow result path.
+
+Function 03
+ANALYTIC REASONING
+Breaks broad claims into assumptions, scope, framing, and structural dependencies so the user gets disciplined analysis instead of shallow binary answers.
+
+Function 04
+SOURCE EXTRACTION
+Extracts structure from URLs, pasted text, and long-form material, including title, source domain, author, date, body, core claims, framing, and direct versus implied statements.
+
+Function 05
+SENSITIVE-CLAIM CONTROL
+Applies stricter standards for sensitive personal claims involving medical, psychiatric, developmental, disability, addiction, or similar private-condition topics to avoid rumor-engine behavior.
+
+Function 06
+CASE WORKFLOW
+Supports long-term investigation building through saved analyses, structured case files, bookmarks, Vault storage, and persistent working sessions.
+
+4. EXTERNAL ACCESS BUTTON
+On the internal SENTRIX detail page, add a clearly visible secondary button labeled:
+
+VISIT SENTRIX ↗
+
+This button must open:
+https://sentrix.live
+
+It must open in a true new tab using:
+target=\"_blank\"
+rel=\"noopener noreferrer\"
+
+Do NOT make the main internal navigation depend on this button.
+Do NOT replace ENTER SYSTEM with the external link.
+The external link should live on the internal SENTRIX detail page as a secondary action.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+UI / DESIGN RULES
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Match the existing RSR Intelligence Network system pages exactly:
+- dark background
+- thin borders
+- restrained glow
+- uppercase labels
+- compact status panel
+- same card sizing
+- same spacing rhythm
+- same typography scale
+- same page layout architecture as ATLAS
+
+Do not introduce a different visual language.
+Do not make SENTRIX feel like a separate product brand inside the RSR site.
+It must feel native to the RSR Intelligence Network.
+
+PRIMARY badge should match the existing badge family already used in the site.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+IMPLEMENTATION RULES
+━━━━━━━━━━━━━━━━━━━━━━━
+
+- Reuse the same system detail page component/pattern used by ATLAS and AXION
+- Reuse the same system card component used in the homepage and systems grids
+- Add SENTRIX to the systems data/config cleanly
+- Place SENTRIX first in ordering
+- Do not alter other systems except reordering them behind SENTRIX
+- Do not break responsiveness
+- Do not create a weird custom layout for SENTRIX
+
+━━━━━━━━━━━━━━━━━━━━━━━
+SUCCESS CRITERIA
+━━━━━━━━━━━━━━━━━━━━━━━
+
+The update is correct only if all of the following are true:
+
+1. SENTRIX appears as the first system card on the homepage
+2. SENTRIX appears as the first system card on the systems page
+3. Clicking SENTRIX from the grid opens an internal SENTRIX detail page inside the RSR site
+4. The internal SENTRIX page matches the ATLAS/AXION page structure
+5. The internal SENTRIX page includes a VISIT SENTRIX ↗ button
+6. VISIT SENTRIX ↗ opens https://sentrix.live in a new browser tab
+7. No other system behavior or layout is broken

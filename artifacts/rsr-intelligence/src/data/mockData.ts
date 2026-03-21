@@ -1,6 +1,6 @@
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type SystemStatus  = "LIVE" | "CORE" | "RESTRICTED" | "TRACKING";
+export type SystemStatus  = "LIVE" | "CORE" | "RESTRICTED" | "TRACKING" | "PRIMARY";
 export type FileStatus    = "ACTIVE" | "MONITORING" | "CLOSED";
 export type DossierStatus = "ACTIVE" | "MONITORING" | "CLOSED";
 export type RegionPosture = "STABLE" | "ELEVATED" | "CRITICAL";
@@ -62,6 +62,7 @@ export interface FeedItem {
 // ─── Systems ──────────────────────────────────────────────────────────────────
 
 export const systems: System[] = [
+  { name: "SENTRIX",    role: "Intelligence Analysis System", status: "PRIMARY",    items: 4,  description: "Structured intelligence environment for input analysis, verification, and reasoning. Classifies, breaks down, and evaluates raw information through multi-mode analysis systems, transforming claims, articles, and narratives into decision-ready intelligence." },
   { name: "AXION",      role: "Executive Briefs",  status: "LIVE",       items: 1,  description: "Daily synthesis, signal triage, and priority brief generation for decision-ready intelligence." },
   { name: "ATLAS",      role: "Entity Mapping",    status: "CORE",       items: 3,  description: "Entity profiles, ownership mapping, relationship graphs, and structured network analysis." },
   { name: "ORION",      role: "World Monitor",     status: "LIVE",       items: 8,  description: "Regional watch, global posture classification, and location-based signal aggregation." },
