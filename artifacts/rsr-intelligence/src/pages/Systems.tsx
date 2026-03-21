@@ -55,9 +55,9 @@ export default function Systems() {
           {/* Module grid */}
           <div className="xl:col-span-3">
             <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-700 mb-5">DEPLOYED MODULES</div>
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
               {systems.map((system) => (
-                <SystemCard key={system.name} {...system} large />
+                <SystemCard key={system.name} {...system} />
               ))}
             </div>
           </div>

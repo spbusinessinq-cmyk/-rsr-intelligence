@@ -29,6 +29,8 @@ export interface SystemDetailData {
   layer: string;       // e.g. "SYNTHESIS LAYER" — architecture classification
   category: string;    // e.g. "ANALYTIC FRAMEWORK"
   tagline: string;     // 1-line operational descriptor for hero
+  identity?: string;   // one-line identity shown under role in page header
+  doctrine?: string;   // highlighted principle line rendered after mission applications
   externalUrl?: string; // optional external product URL — renders a secondary CTA on the detail page
   overview: {
     headline: string;
@@ -63,6 +65,7 @@ const systemDetails: Record<string, SystemDetailData> = {
     layer: "ANALYSIS LAYER",
     category: "INTELLIGENCE ANALYSIS SYSTEM",
     tagline: "Structured intelligence analysis, verification, and case-building environment.",
+    identity: "Intelligence-first analysis and verification environment.",
     externalUrl: "https://sentrix.live",
     overview: {
       headline: "Structured intelligence analysis, verification, and case-building environment.",
@@ -99,6 +102,51 @@ const systemDetails: Record<string, SystemDetailData> = {
     relatedDossiers: [],
   },
 
+  sage: {
+    slug: "sage",
+    name: "SAGE",
+    role: "Analysis Engine",
+    status: "PRIMARY",
+    layer: "ANALYSIS LAYER",
+    category: "ANALYSIS ENGINE",
+    tagline: "Structured reasoning, verification, and analytic assessment engine.",
+    identity: "Structured reasoning and verification engine.",
+    doctrine: "SAGE does not generate noise. It structures judgment.",
+    overview: {
+      headline: "Structured reasoning, verification, and analytic assessment.",
+      body: [
+        "SAGE is the central analysis engine operating inside the RSR Intelligence Network. It classifies incoming material, selects the correct reasoning mode, evaluates evidence, surfaces uncertainty, and produces structured outputs that are more disciplined and reliable than raw information.",
+        "It is not a chatbot. It is an intelligence processor designed to reduce noise, test claims, and organize information into usable analysis.",
+      ],
+    },
+    capabilities: [
+      { label: "MODE 01", title: "Mode Classification",  description: "Determines the correct reasoning path for each input — factual question, verifiable claim, strategic assertion, or raw source material — before any analysis begins." },
+      { label: "MODE 02", title: "Fact Response",        description: "Handles basic known questions with direct, sourced answers. Applied when the input is a straightforward query with a high-confidence available answer." },
+      { label: "MODE 03", title: "Claim Verification",  description: "Checks factual claims through corroboration logic, comparing confirming and contradicting evidence rather than returning a single shallow result." },
+      { label: "MODE 04", title: "Analytic Assessment", description: "Breaks down complex or broad claims structurally — examining assumptions, scope, framing, and dependencies — to produce disciplined multi-part analysis." },
+      { label: "MODE 05", title: "Source Extraction",   description: "Processes articles, pasted text, and URLs into structured metadata: title, source, author, date, core claims, framing signals, and implied versus stated assertions." },
+      { label: "MODE 06", title: "Output Structuring",  description: "Formats every analysis into clean, labeled intelligence output with uncertainty signals, source confidence markers, and clear analytic conclusions." },
+    ],
+    missionApplications: [
+      { context: "Claim verification",    use: "Runs structured corroboration logic on factual claims and current-event assertions, surfacing confirming and contradicting evidence before returning an analytic verdict." },
+      { context: "Source analysis",       use: "Ingests URLs and long-form material to extract structured metadata, core claims, framing signals, and source positioning for further analytic use." },
+      { context: "Complex assessment",    use: "Applies structured reasoning to multi-layered questions, breaking framing, scope, and assumptions into discrete evaluable components." },
+      { context: "Intelligence output",   use: "Produces clean, labeled structured outputs with confidence markers for integration into AXION brief cycles and SENTRIX investigation files." },
+    ],
+    operationalStats: [
+      { label: "STATUS",                  value: "PRIMARY",        color: "text-emerald-400" },
+      { label: "ENGINE TYPE",             value: "ANALYSIS CORE",  color: "text-zinc-300" },
+      { label: "REASONING MODES",         value: "4",              color: "text-zinc-300" },
+      { label: "VERIFICATION STATE",      value: "ACTIVE",         color: "text-emerald-400" },
+      { label: "CLASSIFICATION SUPPORT",  value: "BLACKDOG",       color: "text-zinc-300" },
+      { label: "WORKFLOW",                value: "LIVE",           color: "text-emerald-400" },
+      { label: "OUTPUT",                  value: "STRUCTURED",     color: "text-zinc-300" },
+    ],
+    relatedSystems: ["sentrix", "black-dog", "axion"],
+    relatedFiles: [],
+    relatedDossiers: [],
+  },
+
   axion: {
     slug: "axion",
     name: "AXION",
@@ -107,6 +155,7 @@ const systemDetails: Record<string, SystemDetailData> = {
     layer: "SYNTHESIS LAYER",
     category: "INTELLIGENCE SYNTHESIS",
     tagline: "Converts distributed signal into decision-ready intelligence.",
+    identity: "Executive synthesis and intelligence briefing system.",
     overview: {
       headline: "Structured intelligence for decision-makers.",
       body: [
@@ -149,6 +198,7 @@ const systemDetails: Record<string, SystemDetailData> = {
     layer: "RELATIONAL LAYER",
     category: "NETWORK & ENTITY ANALYSIS",
     tagline: "Maps the hidden architecture of institutions, networks, and individuals.",
+    identity: "Entity mapping and relationship analysis system.",
     overview: {
       headline: "Structured mapping of power, ownership, and connection.",
       body: [
@@ -234,6 +284,7 @@ const systemDetails: Record<string, SystemDetailData> = {
     layer: "SENSITIVE LAYER",
     category: "ANOMALY & RESTRICTED REVIEW",
     tagline: "Handles anomalous signals, sensitive cases, and restricted source material.",
+    identity: "Risk classification and system protection layer.",
     overview: {
       headline: "Elevated handling for sensitive and anomalous intelligence.",
       body: [

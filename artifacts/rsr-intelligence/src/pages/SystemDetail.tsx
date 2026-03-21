@@ -74,6 +74,11 @@ export default function SystemDetail({ params }: SystemDetailProps) {
               <div className="font-mono text-[11px] tracking-[0.3em] text-emerald-400/70 uppercase">
                 {system.role}
               </div>
+              {system.identity && (
+                <div className="mt-2 font-mono text-[10px] tracking-[0.2em] text-zinc-600">
+                  {system.identity}
+                </div>
+              )}
             </div>
 
             <div className="font-mono text-sm text-zinc-500 max-w-md text-right hidden md:block leading-relaxed">
@@ -188,6 +193,16 @@ export default function SystemDetail({ params }: SystemDetailProps) {
             ))}
           </div>
         </section>
+
+        {/* ── DOCTRINE ──────────────────────────────────────────────────── */}
+        {system.doctrine && (
+          <section className="border-l-2 border-emerald-500/30 pl-6 py-1">
+            <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-700 mb-2">DOCTRINE</div>
+            <p className="font-mono text-sm text-zinc-400 leading-relaxed tracking-[0.05em]">
+              {system.doctrine}
+            </p>
+          </section>
+        )}
 
         {/* ── RELATED INTELLIGENCE ──────────────────────────────────────── */}
         {(system.relatedFiles.length > 0 || system.relatedDossiers.length > 0) && (

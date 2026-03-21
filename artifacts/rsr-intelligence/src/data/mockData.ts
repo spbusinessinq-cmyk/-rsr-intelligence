@@ -63,11 +63,12 @@ export interface FeedItem {
 
 export const systems: System[] = [
   { name: "SENTRIX",    role: "Intelligence Analysis System", status: "PRIMARY",    items: 4,  description: "Structured intelligence environment for input analysis, verification, and reasoning. Classifies, breaks down, and evaluates raw information through multi-mode analysis systems, transforming claims, articles, and narratives into decision-ready intelligence." },
-  { name: "AXION",      role: "Executive Briefs",  status: "LIVE",       items: 1,  description: "Daily synthesis, signal triage, and priority brief generation for decision-ready intelligence." },
-  { name: "ATLAS",      role: "Entity Mapping",    status: "CORE",       items: 3,  description: "Entity profiles, ownership mapping, relationship graphs, and structured network analysis." },
-  { name: "ORION",      role: "World Monitor",     status: "LIVE",       items: 8,  description: "Regional watch, global posture classification, and location-based signal aggregation." },
-  { name: "BLACK DOG",  role: "Restricted Review", status: "RESTRICTED", items: 2,  description: "Anomaly detection, restricted source handling, and sensitive case file management." },
-  { name: "WHITE WING", role: "Battlespace",       status: "TRACKING",   items: 5,  description: "Conflict lane monitoring, escalation markers, and tactical incident documentation." },
+  { name: "SAGE",       role: "Analysis Engine",              status: "PRIMARY",    items: 6,  description: "Structured reasoning, verification, and analytic assessment engine. Classifies input, evaluates claims, breaks down assumptions, and produces structured intelligence outputs designed for clarity, accuracy, and decision usefulness." },
+  { name: "AXION",      role: "Executive Briefs",             status: "LIVE",       items: 1,  description: "Daily synthesis, signal triage, and priority brief generation for decision-ready intelligence." },
+  { name: "ATLAS",      role: "Entity Mapping",               status: "CORE",       items: 3,  description: "Entity profiles, ownership mapping, relationship graphs, and structured network analysis." },
+  { name: "BLACK DOG",  role: "Restricted Review",            status: "RESTRICTED", items: 2,  description: "Anomaly detection, restricted source handling, and sensitive case file management." },
+  { name: "ORION",      role: "World Monitor",                status: "LIVE",       items: 8,  description: "Regional watch, global posture classification, and location-based signal aggregation." },
+  { name: "WHITE WING", role: "Battlespace",                  status: "TRACKING",   items: 5,  description: "Conflict lane monitoring, escalation markers, and tactical incident documentation." },
 ];
 
 // ─── Files ────────────────────────────────────────────────────────────────────

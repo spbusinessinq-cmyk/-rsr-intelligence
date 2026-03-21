@@ -1,0 +1,222 @@
+You are updating the RSR Intelligence Network website.
+
+This is the FINAL STRUCTURE + POLISH PASS.
+
+IMPORTANT:
+Do NOT redesign the site.
+Do NOT change colors, typography, or overall visual identity.
+The current design is correct.
+
+We are ONLY:
+1. Improving the SYSTEMS PAGE layout
+2. Adding SAGE as a core system
+3. Refining system structure and consistency
+
+━━━━━━━━━━━━━━━━━━━━━━━
+SYSTEM ORDER (LOCK THIS)
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Final system order must be:
+
+1. SENTRIX
+2. SAGE
+3. AXION
+4. ATLAS
+5. BLACKDOG
+6. ORION (or remaining systems)
+
+Apply this order to:
+- Systems page
+- Homepage system grid
+
+━━━━━━━━━━━━━━━━━━━━━━━
+SYSTEMS PAGE LAYOUT IMPROVEMENT (CRITICAL)
+━━━━━━━━━━━━━━━━━━━━━━━
+
+The current system cards are too large and spaced out.
+
+We need a tighter, more controlled layout.
+
+MAKE THESE CHANGES:
+
+1. REDUCE CARD SIZE
+- Slightly reduce height of each system card
+- Reduce vertical padding inside cards
+- Keep readability, but remove excess empty space
+
+2. GRID STRUCTURE
+- Use a clean multi-column layout
+- Desktop: 3 cards per row
+- Tablet: 2 per row
+- Mobile: 1 per row
+
+3. ALIGNMENT
+- All cards must align perfectly in a grid
+- Equal spacing horizontally and vertically
+- No floating or uneven gaps
+
+4. VISUAL FEEL
+The goal is:
+- tighter
+- more dense
+- more “command interface”
+- less “marketing page”
+
+5. KEEP EVERYTHING ELSE
+- DO NOT change card style
+- DO NOT change fonts
+- DO NOT change colors
+- DO NOT change borders or glow
+
+Only adjust:
+- spacing
+- size
+- grid behavior
+
+━━━━━━━━━━━━━━━━━━━━━━━
+SYSTEM CARD STRUCTURE (KEEP CONSISTENT)
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Each card must have:
+
+- System name
+- Subtitle
+- Badge (PRIMARY / CORE / LIVE)
+- Description
+- Active items
+- ENTER SYSTEM →
+
+Spacing must be tighter but still readable.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+ADD NEW SYSTEM: SAGE
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Add SAGE as the SECOND system (right after SENTRIX)
+
+System name: SAGE
+Subtitle: ANALYSIS ENGINE
+Badge: PRIMARY
+
+Description:
+Structured reasoning, verification, and analytic assessment engine.
+
+SAGE classifies input, evaluates claims, breaks down assumptions, and produces structured intelligence outputs designed for clarity, accuracy, and decision usefulness.
+
+CTA:
+ENTER SYSTEM →
+
+━━━━━━━━━━━━━━━━━━━━━━━
+CREATE SAGE SYSTEM PAGE
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Use EXACT same layout as SENTRIX / ATLAS pages.
+
+Do NOT create a new design.
+
+SECTION: OVERVIEW
+
+Headline:
+Structured reasoning, verification, and analytic assessment.
+
+Body:
+SAGE is the central analysis engine operating inside the RSR Intelligence Network. It classifies incoming material, selects the correct reasoning mode, evaluates evidence, surfaces uncertainty, and produces structured outputs that are more disciplined and reliable than raw information.
+
+It is not a chatbot. It is an intelligence processor designed to reduce noise, test claims, and organize information into usable analysis.
+
+SECTION: STATUS PANEL
+
+STATUS — PRIMARY
+ENGINE TYPE — ANALYSIS CORE
+REASONING MODES — 4
+VERIFICATION STATE — ACTIVE
+CLASSIFICATION SUPPORT — BLACKDOG
+WORKFLOW — LIVE
+OUTPUT — STRUCTURED
+
+Related systems:
+SENTRIX
+BLACKDOG
+AXION
+
+SECTION: FUNCTIONS
+
+MODE CLASSIFICATION
+Determines correct reasoning path.
+
+FACT RESPONSE
+Handles basic known questions.
+
+CLAIM VERIFICATION
+Checks factual claims with corroboration.
+
+ANALYTIC ASSESSMENT
+Breaks down complex claims structurally.
+
+SOURCE EXTRACTION
+Processes articles and URLs.
+
+OUTPUT STRUCTURING
+Formats clean intelligence output.
+
+SECTION: DOCTRINE
+
+Add line:
+SAGE does not generate noise. It structures judgment.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+GLOBAL POLISH (DO THIS EVERYWHERE)
+━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Add ONE-LINE IDENTITY under system titles
+
+SENTRIX:
+Intelligence-first analysis and verification environment.
+
+SAGE:
+Structured reasoning and verification engine.
+
+AXION:
+Executive synthesis and intelligence briefing system.
+
+ATLAS:
+Entity mapping and relationship analysis system.
+
+BLACKDOG:
+Risk classification and system protection layer.
+
+Match typography exactly.
+
+---
+
+2. Make ALL "Related Systems" clickable
+
+They must route internally like system cards.
+
+---
+
+3. Button logic consistency
+
+- ENTER SYSTEM → internal
+- VISIT (external) → new tab only
+
+---
+
+4. DO NOT TOUCH:
+
+- colors
+- fonts
+- overall layout style
+- animations
+
+━━━━━━━━━━━━━━━━━━━━━━━
+SUCCESS CRITERIA
+━━━━━━━━━━━━━━━━━━━━━━━
+
+- Systems page feels tighter and more controlled
+- Cards are smaller and aligned cleanly
+- 3-per-row layout on desktop
+- SENTRIX is first
+- SAGE is second
+- No visual identity changes
+- Site feels more like a real system, less like a landing page
