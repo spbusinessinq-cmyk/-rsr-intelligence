@@ -1,0 +1,104 @@
+Add two new system/program cards to the RSR Intelligence Network site and fix the SAGE API availability issue in the chat room.
+
+DO NOT redesign the site.
+DO NOT change the visual identity.
+DO NOT weaken the homepage.
+MATCH the existing RSR intelligence aesthetic exactly.
+
+MAIN GOALS
+1. Add RSR Contract Tracker to the site
+2. Add WARSTATE to the site
+3. Fix “SAGE API unavailable” in the chat room / Investigation Room
+
+==================================================
+1. ADD NEW SYSTEM / PROGRAM: RSR CONTRACT TRACKER
+==================================================
+
+Create a new system/program entry for:
+
+Title:
+RSR Contract Tracker
+
+Description:
+RSR Contract Tracker is a live public-money intelligence tool that tracks U.S. government contract awards, obligation flows, agencies, vendors, and procurement activity from January 20, 2025 to the present using real USAspending.gov data. It is built to help users follow federal spending, inspect contract records, review award details, and monitor how public money is moving across agencies and recipients in a clear investigative interface.
+
+Short / harder program-card version:
+RSR Contract Tracker is a live contract intelligence platform built to track federal awards, obligations, vendors, and agency spending activity in real time. Powered by USAspending.gov data, it lets users search records, inspect award details, and follow how public money moves across government contracts from January 20, 2025 to the present.
+
+Requirements:
+- Add it anywhere the site currently lists systems/programs/tools/modules
+- Add a dedicated detail page if the current architecture supports detail pages for systems
+- Keep naming consistent with the rest of the site
+- If the site uses a status badge, use a fitting one like LIVE or ACTIVE
+- If there is a system overview block, include:
+  - data source: USAspending.gov
+  - date range: January 20, 2025 to present
+  - function: contract awards, obligations, vendors, agencies, procurement activity
+- If there is a launch / enter button pattern, hook it into the current system structure without breaking routing
+
+==================================================
+2. ADD NEW SYSTEM / MODULE: WARSTATE
+==================================================
+
+Create a new system/module entry for:
+
+Title:
+WARSTATE
+
+Description:
+WARSTATE is a battlefield and conflict monitoring module for the site. It gives users a clean command-style interface to track major global conflict theaters like Iran, Ukraine, Gaza, Lebanon, Syria, Yemen, Sudan, Myanmar, Eastern DRC, and Taiwan. Each theater includes a status summary, confidence/posture, executive overview, force ledger, priority indicators, source stack, and stress/comparison bars. It also has a built-in report system that lets the user generate a locked snapshot of the selected theater and export it as PDF, TXT, or JSON, plus print or copy the brief. The overall purpose of WARSTATE is to function as an internal-style intelligence dashboard for quickly reviewing battlefield conditions and producing readable conflict reports.
+
+Requirements:
+- Add WARSTATE to the systems/modules list
+- Add a dedicated detail page / entry page if supported by the current site structure
+- Keep the tone internal, command-style, intelligence-focused
+- If a shorter card description is needed, compress the above without losing meaning
+- Preserve the feel of a hardened battlefield intelligence dashboard
+- Use the same typography, spacing, borders, and panel language as the current site
+
+==================================================
+3. FIX SAGE API UNAVAILABLE IN CHAT ROOM
+==================================================
+
+There is currently a “SAGE API unavailable” issue showing inside the chat room / Investigation Room.
+
+Tasks:
+- Diagnose why the frontend is showing “SAGE API unavailable”
+- Verify that the production route /api/sage is actually live and returning valid JSON
+- Verify cloud-functions/api/sage.js exists and is exported correctly for EdgeOne
+- Verify the frontend is calling the correct same-origin production route
+- Verify any required environment variables are present
+- Add robust error handling so the UI does not just die with a dead unavailable state
+- If the backend fails, return structured JSON with a readable error
+- Restore normal SAGE request/response behavior in production
+
+Requirements:
+- Do not redesign the SAGE terminal UI
+- Do not break existing chat room behavior
+- Keep the current terminal-style interaction
+- Confirm the final live route works
+
+==================================================
+4. SAFETY / NON-NEGOTIABLES
+==================================================
+
+- Do not remove or overwrite existing working systems
+- Do not break homepage layout
+- Do not break auth
+- Do not break EdgeOne deployment structure
+- Do not hardcode localhost or dev-only URLs into production code
+- Keep same-origin API behavior in production
+
+==================================================
+5. FINAL OUTPUT REQUIRED
+==================================================
+
+When done, report:
+
+1. Exactly which files were added or changed
+2. Where RSR Contract Tracker was added
+3. Where WARSTATE was added
+4. Root cause of “SAGE API unavailable”
+5. Confirmation that /api/sage works in production
+6. Confirmation that the site still builds cleanly
+7. Confirmation that no existing working routes were broken

@@ -361,6 +361,92 @@ const systemDetails: Record<string, SystemDetailData> = {
     relatedDossiers: ["D-007", "D-011"],
   },
 
+  "rsr-contract-tracker": {
+    slug: "rsr-contract-tracker",
+    name: "RSR CONTRACT TRACKER",
+    role: "Contract Intelligence",
+    status: "TRACKING",
+    layer: "PROCUREMENT LAYER",
+    category: "CONTRACT INTELLIGENCE",
+    tagline: "Defense and government contract monitoring, award tracking, and procurement irregularity detection.",
+    identity: "Procurement intelligence and contract award monitoring system.",
+    overview: {
+      headline: "Structured monitoring of defense and government contract awards.",
+      body: [
+        "RSR CONTRACT TRACKER is the network's dedicated procurement intelligence layer. It ingests, structures, and cross-references defense and government contract award data to surface concentration risk, award irregularities, and contractor relationships that do not appear clearly in public disclosure alone.",
+        "The system maintains a live registry of tracked contracts, cross-referenced against RSR entity dossiers, lobbying records, and procurement investigation files. Irregularity flags are escalated to BLACK DOG for restricted review and linked to relevant ATLAS entity profiles for relationship mapping.",
+      ],
+    },
+    capabilities: [
+      { label: "FUNCTION 01", title: "Award Monitoring",           description: "Tracks defense and government contract awards across monitored procurement domains, logging value, counterparty, and award timeline." },
+      { label: "FUNCTION 02", title: "Irregularity Detection",     description: "Flags anomalous award patterns including sole-source concentration, rapid recompete cycles, and above-threshold modifications without competitive justification." },
+      { label: "FUNCTION 03", title: "Entity Cross-Reference",     description: "Cross-references award recipients against RSR dossier records, lobbying disclosures, and corporate registry data to surface hidden relationships." },
+      { label: "FUNCTION 04", title: "Concentration Risk Scoring", description: "Scores contractor concentration across agencies and program types, identifying overexposed vendors and single-source dependency in critical contract lanes." },
+      { label: "FUNCTION 05", title: "Subcontractor Mapping",      description: "Maps subcontractor and teaming relationships beneath prime awards to identify beneficial ownership overlap and undisclosed associated-entity structures." },
+      { label: "FUNCTION 06", title: "Procurement File Linkage",   description: "Links active contracts to open RSR procurement investigation files, enabling analysts to surface new awards touching entities already under review." },
+    ],
+    missionApplications: [
+      { context: "Defense procurement oversight",  use: "Monitors active DOD and allied-nation defense contract awards, flagging irregularities for escalation to BLACK DOG restricted review." },
+      { context: "Contractor entity review",       use: "Cross-references award recipients against ATLAS entity profiles and RSR dossier records to surface undisclosed relationships." },
+      { context: "Procurement investigation",      use: "Links active contracts to open RSR files, providing analysts with a real-time view of new award activity touching entities under investigation." },
+      { context: "Concentration risk assessment",  use: "Produces structured concentration risk scores across agency and program-type dimensions for integration into AXION brief cycles." },
+    ],
+    operationalStats: [
+      { label: "STATUS",              value: "TRACKING",           color: "text-amber-400" },
+      { label: "ACTIVE CONTRACTS",    value: "12 MONITORED",       color: "text-zinc-300" },
+      { label: "IRREGULARITY FLAGS",  value: "4 OPEN",             color: "text-amber-400" },
+      { label: "LINKED FILES",        value: "F-001 / F-005 / F-009", color: "text-zinc-300" },
+      { label: "REVIEW CYCLE",        value: "CONTINUOUS",         color: "text-emerald-400" },
+      { label: "ESCALATION QUEUE",    value: "2 PENDING",          color: "text-amber-400" },
+    ],
+    relatedSystems: ["atlas", "black-dog", "axion"],
+    relatedFiles: ["F-001", "F-005", "F-009", "F-012"],
+    relatedDossiers: ["D-001", "D-005", "D-007"],
+  },
+
+  warstate: {
+    slug: "warstate",
+    name: "WARSTATE",
+    role: "Conflict Risk Assessment",
+    status: "LIVE",
+    layer: "THREAT ASSESSMENT LAYER",
+    category: "CONFLICT RISK & WAR-STATE MONITORING",
+    tagline: "Global conflict risk classification, war-state monitoring, and escalation threshold tracking.",
+    identity: "Conflict risk classification and interstate threat posture system.",
+    overview: {
+      headline: "Structured conflict risk assessment and war-state monitoring.",
+      body: [
+        "WARSTATE is the RSR network's primary conflict risk classification engine. It maintains a continuously updated threat posture model across monitored conflict zones, tracking interstate threat signals, mobilization indicators, escalation thresholds, and war-state transition markers.",
+        "Unlike WHITE WING's tactical incident documentation layer, WARSTATE operates at the strategic threat assessment level — evaluating whether conditions in a given region are trending toward, entering, or sustaining active war-state conditions. Its classifications feed directly into ORION's regional posture model and AXION brief cycles for conflict-affected regions.",
+      ],
+    },
+    capabilities: [
+      { label: "FUNCTION 01", title: "War-State Classification",    description: "Classifies monitored regions against a structured war-state taxonomy: STABLE / ELEVATED / CONFLICT THRESHOLD / ACTIVE / CONTESTED." },
+      { label: "FUNCTION 02", title: "Escalation Threshold Tracking",description: "Tracks crossing of predefined escalation thresholds — mobilization, territorial incursion, economic blockade, kinetic strike — across monitored conflict pairs." },
+      { label: "FUNCTION 03", title: "Mobilization Signal Monitoring",description: "Monitors open and structured source material for troop movement, reserve activation, and military logistics signals indicating conflict preparation." },
+      { label: "FUNCTION 04", title: "Interstate Threat Posture",   description: "Assesses bilateral and multilateral threat posture between monitored state actors, tracking diplomatic breakdown, public threat signaling, and force repositioning." },
+      { label: "FUNCTION 05", title: "Conflict Duration Modeling",  description: "Applies duration and intensity modeling to active conflicts, generating structured assessments of likely trajectory and turning-point indicators." },
+      { label: "FUNCTION 06", title: "Risk Feed Integration",       description: "Integrates conflict risk outputs into ORION regional posture updates and AXION brief cycles for near-real-time strategic context." },
+    ],
+    missionApplications: [
+      { context: "Strategic conflict assessment",  use: "Provides decision-makers with structured war-state classifications and escalation trajectory assessments across monitored conflict zones." },
+      { context: "Regional posture integration",   use: "Feeds classified conflict risk outputs into ORION's regional posture model, enabling synchronized multi-domain threat assessment." },
+      { context: "Escalation threshold briefing",  use: "Generates structured briefing outputs for AXION when monitored conflict pairs cross predefined escalation thresholds." },
+      { context: "Mobilization assessment",        use: "Evaluates mobilization signals across monitored military establishments, assessing preparation-to-conflict timeline probabilities." },
+    ],
+    operationalStats: [
+      { label: "STATUS",               value: "LIVE",               color: "text-emerald-400" },
+      { label: "MONITORED ZONES",      value: "9 ACTIVE",           color: "text-zinc-300" },
+      { label: "WAR-STATE ACTIVE",     value: "3 ZONES",            color: "text-red-400" },
+      { label: "ESCALATION WATCH",     value: "2 THRESHOLD",        color: "text-amber-400" },
+      { label: "POSTURE FEED",         value: "ORION / AXION",      color: "text-zinc-300" },
+      { label: "REVIEW CYCLE",         value: "CONTINUOUS",         color: "text-emerald-400" },
+    ],
+    relatedSystems: ["orion", "white-wing", "axion"],
+    relatedFiles: ["F-010", "F-014"],
+    relatedDossiers: ["D-013", "D-014"],
+  },
+
 };
 
 export default systemDetails;

@@ -68,7 +68,9 @@ export const systems: System[] = [
   { name: "ATLAS",      role: "Entity Mapping",               status: "CORE",       items: 3,  description: "Entity profiles, ownership mapping, relationship graphs, and structured network analysis." },
   { name: "BLACK DOG",  role: "Restricted Review",            status: "RESTRICTED", items: 2,  description: "Anomaly detection, restricted source handling, and sensitive case file management." },
   { name: "ORION",      role: "World Monitor",                status: "LIVE",       items: 8,  description: "Regional watch, global posture classification, and location-based signal aggregation." },
-  { name: "WHITE WING", role: "Battlespace",                  status: "TRACKING",   items: 5,  description: "Conflict lane monitoring, escalation markers, and tactical incident documentation." },
+  { name: "WHITE WING",          role: "Battlespace",                  status: "TRACKING",   items: 5,  description: "Conflict lane monitoring, escalation markers, and tactical incident documentation." },
+  { name: "RSR CONTRACT TRACKER", role: "Contract Intelligence",        status: "TRACKING",   items: 12, description: "Defense and government contract monitoring. Tracks active awards, flags procurement irregularities, cross-references entities against award databases, and surfaces contractor concentration risk." },
+  { name: "WARSTATE",             role: "Conflict Risk Assessment",     status: "LIVE",       items: 9,  description: "Global conflict risk classification and war-state monitoring. Tracks active hostilities, escalation thresholds, interstate threat postures, and mobilization signals across monitored conflict zones." },
 ];
 
 // ─── Files ────────────────────────────────────────────────────────────────────
