@@ -107,44 +107,67 @@ GENERAL GUIDANCE:
 - When the user provides fragments (names, dates, locations, claims), help them build those into an investigation skeleton using RSR cross-references and structured next steps.
 `;
 
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin":  "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+const jsonResponse = (body, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+  });
+
+// ── GET /api/sage — health check ─────────────────────────────────────────────
+const onRequestGet = async () =>
+  jsonResponse({ status: "ok", message: "Sage live" });
+
+// ── OPTIONS /api/sage — CORS preflight ───────────────────────────────────────
+const onRequestOptions = async () =>
+  new Response(null, { status: 204, headers: CORS_HEADERS });
+
+// ── POST /api/sage — main query handler ──────────────────────────────────────
 const onRequestPost = async ({ request, env }) => {
   let body;
   try {
     body = await request.json();
   } catch {
-    return new Response(JSON.stringify({ error: "Invalid JSON body." }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
+    return jsonResponse({ error: "Invalid JSON body." }, 400);
   }
 
-  const { query, action } = body ?? {};
+  const { query, action, health } = body ?? {};
+
+  // Lightweight health probe via POST body
+  if (health === true || query === "_health") {
+    return jsonResponse({ status: "ok", message: "Sage live" });
+  }
 
   if (!query || typeof query !== "string") {
-    return new Response(JSON.stringify({ error: "Query required." }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
+    return jsonResponse({ error: "Query required." }, 400);
   }
 
-  const apiKey = (env && env.AI_INTEGRATIONS_OPENAI_API_KEY) || process.env.AI_INTEGRATIONS_OPENAI_API_KEY;
+  // ── Resolve API credentials ───────────────────────────────────────────────
+  // Priority 1: Replit AI Integrations proxy (dev + Replit-hosted environments)
+  // Priority 2: Direct OpenAI key (EdgeOne production — set OPENAI_API_KEY in EdgeOne console)
+  const apiKey =
+    (env && env.AI_INTEGRATIONS_OPENAI_API_KEY) ||
+    process.env.AI_INTEGRATIONS_OPENAI_API_KEY ||
+    (env && env.OPENAI_API_KEY) ||
+    process.env.OPENAI_API_KEY;
+
   const baseURL =
     (env && env.AI_INTEGRATIONS_OPENAI_BASE_URL) ||
     process.env.AI_INTEGRATIONS_OPENAI_BASE_URL ||
     "https://api.openai.com/v1";
 
   if (!apiKey) {
-    return new Response(JSON.stringify({ error: "SAGE OFFLINE — API key not configured." }), {
-      status: 503,
-      headers: { "Content-Type": "application/json" },
-    });
+    return jsonResponse({ error: "SAGE OFFLINE — API key not configured." }, 503);
   }
 
-  // Build mode-aware user prompt
+  // ── Build mode-aware prompt ───────────────────────────────────────────────
   const modeLabel = action && action !== "query" ? action.toUpperCase() : null;
-  const userPrompt = modeLabel
-    ? `[MODE: ${modeLabel}]\n${query}`
-    : query;
+  const userPrompt = modeLabel ? `[MODE: ${modeLabel}]\n${query}` : query;
 
   try {
     const openaiRes = await fetch(`${baseURL}/chat/completions`, {
@@ -166,36 +189,16 @@ const onRequestPost = async ({ request, env }) => {
 
     if (!openaiRes.ok) {
       const errText = await openaiRes.text().catch(() => "upstream error");
-      return new Response(JSON.stringify({ error: "SAGE QUERY FAILED: " + errText }), {
-        status: 502,
-        headers: { "Content-Type": "application/json" },
-      });
+      return jsonResponse({ error: "SAGE QUERY FAILED: " + errText }, 502);
     }
 
     const data = await openaiRes.json();
     const response = data.choices?.[0]?.message?.content ?? "NO RESPONSE GENERATED.";
-
-    return new Response(JSON.stringify({ response }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return jsonResponse({ response });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Unknown error";
-    return new Response(JSON.stringify({ error: "SAGE QUERY FAILED: " + msg }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return jsonResponse({ error: "SAGE QUERY FAILED: " + msg }, 500);
   }
 };
 
-export const onRequestOptions = async () =>
-  new Response(null, {
-    status: 204,
-    headers: {
-      "Access-Control-Allow-Origin":  "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-    },
-  });
-
-export { onRequestPost };
+export { onRequestGet, onRequestPost, onRequestOptions };

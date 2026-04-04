@@ -1,0 +1,191 @@
+FINAL FAST PASS — EdgeOne production Sage route + Contract Tracker URL hookup
+
+
+
+Do NOT redesign anything.
+
+Do NOT change visual identity.
+
+Do NOT touch unrelated systems.
+
+
+
+MAIN GOAL
+
+1. make sure SAGE API is live in EdgeOne production
+
+2. wire the Contract Tracker URL correctly
+
+3. keep frontend behavior intact
+
+
+
+TASKS
+
+
+
+==================================================
+
+1. VERIFY / FIX SAGE EDGEONE PRODUCTION ROUTE
+
+==================================================
+
+
+
+Check:
+
+- cloud-functions/api/sage.js exists
+
+
+
+If missing:
+
+- copy the working logic from the development API server version of Sage
+
+- preserve request/response behavior
+
+
+
+Requirements:
+
+- correct EdgeOne Node Function export format:
+
+  export default async (req, res) => {}
+
+
+
+- route must work at:
+
+  /api/sage
+
+
+
+- must safely handle request method and JSON body
+
+
+
+- environment variables must be supported from EdgeOne:
+
+  - AI_INTEGRATIONS_OPENAI_API_KEY
+
+  - OPENAI_API_KEY
+
+
+
+- if neither key exists, return valid JSON error instead of crashing
+
+
+
+Add a temporary reliability test response path:
+
+- if route is hit with a simple health/test request, return:
+
+  {
+
+    "status": "ok",
+
+    "message": "Sage live"
+
+  }
+
+
+
+Confirm:
+
+- production route responds correctly
+
+- no frontend change required for the route to work
+
+
+
+==================================================
+
+2. HOOK UP CONTRACT TRACKER URL
+
+==================================================
+
+
+
+Find the Contract Tracker module/card/button/link in the frontend.
+
+
+
+Requirements:
+
+- wire it to the correct live URL
+
+- use the intended production URL only
+
+- preserve current UI and styling
+
+- do not break navigation
+
+- if it opens in a new tab currently, preserve that behavior
+
+- if URL is stored in config/constants, update it there cleanly
+
+
+
+==================================================
+
+3. DO NOT BREAK EXISTING SYSTEMS
+
+==================================================
+
+
+
+Confirm these still remain intact:
+
+- /api/news
+
+- /api/status
+
+- /api/investigation-status
+
+- existing same-origin API pattern
+
+- current homepage and dashboard visuals
+
+
+
+==================================================
+
+4. FINAL VERIFICATION
+
+==================================================
+
+
+
+Before finishing, explicitly verify and report:
+
+
+
+- PASS/FAIL for:
+
+  - /api/sage
+
+  - Contract Tracker URL hookup
+
+  - /api/news
+
+  - /api/status
+
+  - /api/investigation-status
+
+
+
+- list exact files changed
+
+- confirm whether push/redeploy is ready
+
+
+
+OUTPUT FORMAT
+
+- short summary
+
+- exact files changed
+
+- verification results
+
+- “READY TO PUSH” if clean
