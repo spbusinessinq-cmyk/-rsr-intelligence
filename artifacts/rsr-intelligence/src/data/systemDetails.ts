@@ -31,7 +31,8 @@ export interface SystemDetailData {
   tagline: string;     // 1-line operational descriptor for hero
   identity?: string;   // one-line identity shown under role in page header
   doctrine?: string;   // highlighted principle line rendered after mission applications
-  externalUrl?: string; // optional external product URL — renders a secondary CTA on the detail page
+  externalUrl?: string;      // optional external product URL — renders a secondary CTA on the detail page
+  externalUrlLabel?: string; // optional override for the CTA button text (defaults to "VISIT {name}")
   overview: {
     headline: string;
     body: string[];    // paragraphs
@@ -370,6 +371,8 @@ const systemDetails: Record<string, SystemDetailData> = {
     category: "CONTRACT INTELLIGENCE",
     tagline: "Defense and government contract monitoring, award tracking, and procurement irregularity detection.",
     identity: "Procurement intelligence and contract award monitoring system.",
+    externalUrl: "https://rsr-contract-tracker1.edgeone.app",
+    externalUrlLabel: "LAUNCH CONTRACT TRACKER",
     overview: {
       headline: "Structured monitoring of defense and government contract awards.",
       body: [

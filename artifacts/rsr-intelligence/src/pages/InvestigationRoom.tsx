@@ -39,16 +39,6 @@ interface Case {
   description: string | null;
 }
 
-type SageAction = "brief" | "summarize" | "factcheck" | "trace" | "query";
-
-interface SageEntry {
-  id: string;
-  action: SageAction;
-  query: string;
-  response: string | null;
-  loading: boolean;
-  error?: string;
-}
 
 /* ── Static fallbacks ───────────────────────────────────────────────── */
 
@@ -153,48 +143,6 @@ function roleBadge(role: string | null) {
   return map[role] ?? "text-zinc-600 border-zinc-800";
 }
 
-/* ── SAGE shared logic ──────────────────────────────────────────────── */
-
-const QUICK_BRIEFS = [
-  { label: "QUICK BRIEF",  action: "brief" as SageAction, query: "Provide the current priority intelligence brief for RSR analysts. Include the top 3 active developments, regional posture changes, and which files/dossiers require immediate attention." },
-  { label: "MIDDLE EAST",  action: "brief" as SageAction, query: "Brief on current Middle East posture, energy watch status, and all RSR records relevant to the region." },
-  { label: "EU INFLUENCE", action: "brief" as SageAction, query: "Brief on the European Union influence operation tracking — F-003, F-017, D-006, and current status." },
-  { label: "N. AMERICA",   action: "brief" as SageAction, query: "Brief on North America case activity — F-001, D-001, F-019, D-010, and current procurement watch posture." },
-];
-
-const ACTION_OPTS: { value: SageAction; label: string }[] = [
-  { value: "query",     label: "QUERY" },
-  { value: "brief",     label: "BRIEF" },
-  { value: "summarize", label: "SUMMARIZE" },
-  { value: "factcheck", label: "FACT CHECK" },
-  { value: "trace",     label: "TRACE" },
-];
-
-async function runSageQuery(
-  query: string,
-  action: SageAction,
-  onStart: (entry: SageEntry) => void,
-  onDone: (id: string, response: string | null, error?: string) => void,
-) {
-  const id = crypto.randomUUID();
-  onStart({ id, action, query, response: null, loading: true });
-  try {
-    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL ?? ""}/api/sage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query, action }),
-    });
-    if (!res.ok) {
-      const errData = await res.json().catch(() => ({ error: "Request failed" }));
-      onDone(id, null, errData.error ?? "SAGE QUERY FAILED");
-      return;
-    }
-    const data = await res.json();
-    onDone(id, data.response ?? "NO RESPONSE.", undefined);
-  } catch (err) {
-    onDone(id, null, err instanceof Error ? err.message : "NETWORK ERROR");
-  }
-}
 
 /* ── Message Row ────────────────────────────────────────────────────── */
 
@@ -332,285 +280,6 @@ function MessageRow({
   );
 }
 
-/* ── SAGE Entry display ─────────────────────────────────────────────── */
-
-function SageEntryView({ e }: { e: SageEntry }) {
-  return (
-    <div className="p-4 space-y-2.5 border-b border-zinc-900/50 last:border-0">
-      <div className="flex items-start gap-2">
-        <span className="font-mono text-[10px] tracking-[0.2em] text-zinc-600 shrink-0 mt-0.5 min-w-[60px]">
-          {e.action.toUpperCase()} »
-        </span>
-        <span className="font-mono text-[11px] text-zinc-500 leading-relaxed">{e.query}</span>
-      </div>
-      {e.loading ? (
-        <div className="font-mono text-[11px] text-emerald-700 animate-pulse pl-[68px]">
-          SAGE processing...
-        </div>
-      ) : e.error ? (
-        <div className="font-mono text-[11px] text-red-500 pl-[68px] leading-relaxed">{e.error}</div>
-      ) : (
-        <div className="font-mono text-[11px] text-[#9ebf9e] leading-relaxed pl-[68px] whitespace-pre-wrap">
-          {e.response}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ── SAGE Modal (expanded workspace) ───────────────────────────────── */
-
-function SageModal({ onClose }: { onClose: () => void }) {
-  const [entries, setEntries] = useState<SageEntry[]>([]);
-  const [inputVal, setInputVal] = useState("");
-  const [selectedAction, setSelectedAction] = useState<SageAction>("query");
-  const [online, setOnline] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const t = setTimeout(() => setOnline(true), 600);
-    return () => clearTimeout(t);
-  }, []);
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [entries]);
-
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) { if (e.key === "Escape") onClose(); }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
-
-  function addEntry(entry: SageEntry) { setEntries(prev => [...prev, entry]); setInputVal(""); }
-  function updateEntry(id: string, response: string | null, error?: string) {
-    setEntries(prev => prev.map(e => e.id === id ? { ...e, loading: false, response, error } : e));
-  }
-  function handleQuery(query: string, action: SageAction) {
-    if (!query.trim() || !online) return;
-    runSageQuery(query, action, addEntry, updateEntry);
-  }
-  function submit() { handleQuery(inputVal.trim(), selectedAction); }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.85)" }}>
-      <div className="bg-black border border-zinc-800 w-full max-w-4xl mx-6 flex flex-col" style={{ height: "85vh" }}>
-        <div className="border-b border-zinc-800 px-6 py-4 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-4">
-            <div className="font-mono text-xs tracking-[0.4em] text-zinc-400">SAGE TERMINAL</div>
-            <span className={`font-mono text-[10px] tracking-widest flex items-center gap-1.5 ${online ? "text-emerald-500" : "text-zinc-700"}`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${online ? "bg-emerald-500 animate-pulse" : "bg-zinc-700 animate-pulse"}`} />
-              {online ? "ONLINE — RSR DATA LOADED" : "INITIALIZING..."}
-            </span>
-          </div>
-          <div className="flex items-center gap-4">
-            {entries.length > 0 && (
-              <button onClick={() => setEntries([])} className="font-mono text-[10px] tracking-[0.25em] text-zinc-700 hover:text-zinc-400 transition-colors">CLR</button>
-            )}
-            <button onClick={onClose} className="font-mono text-[10px] tracking-[0.3em] text-zinc-600 hover:text-zinc-300 border border-zinc-800 hover:border-zinc-600 px-3 py-1.5 transition-colors">CLOSE ✕</button>
-          </div>
-        </div>
-
-        <div className="border-b border-zinc-900 px-6 py-3 flex gap-2 shrink-0 flex-wrap">
-          <span className="font-mono text-[10px] tracking-[0.3em] text-zinc-700 mr-2 flex items-center">QUICK:</span>
-          {QUICK_BRIEFS.map(b => (
-            <button key={b.label} disabled={!online} onClick={() => handleQuery(b.query, b.action)}
-              className="font-mono text-[10px] tracking-[0.2em] border border-zinc-800 text-zinc-500 hover:text-emerald-400 hover:border-emerald-900/40 px-3 py-1.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
-              {b.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex-1 overflow-y-auto">
-          {entries.length === 0 ? (
-            <div className="p-6 space-y-2 font-mono">
-              <div className="text-zinc-600 text-[11px]">&gt; SAGE // RSR STRATEGIC ANALYSIS ENGINE</div>
-              <div className="text-zinc-800 text-[11px]">&gt; CONTEXT: 20 files · 14 dossiers · 5 systems · 6 regions · 10 active signals</div>
-              <div className="text-zinc-800 text-[11px]">&gt; ────────────────────────────────────────────────</div>
-              {online ? (
-                <div className="text-emerald-700 text-[11px] animate-pulse">&gt; READY. Submit a query or use a quick action above.</div>
-              ) : (
-                <div className="text-zinc-800 text-[11px] animate-pulse">&gt; Loading knowledge base...</div>
-              )}
-              <div className="mt-6 pt-4 border-t border-zinc-900 space-y-1">
-                <div className="text-zinc-800 text-[11px]">Example queries:</div>
-                {[
-                  "Summarize F-001 Operation Clearwater",
-                  "Trace connections between D-004 Meridian Capital and F-006",
-                  "Fact check: is D-010 linked to foreign-interest lobbying?",
-                  "What is the current posture for Eastern Europe?",
-                ].map(q => (
-                  <button key={q} disabled={!online} onClick={() => handleQuery(q, "query")}
-                    className="block text-left font-mono text-[11px] text-zinc-700 hover:text-[#9ebf9e] transition-colors disabled:opacity-30 py-0.5">
-                    &gt; {q}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div>
-              {entries.map(e => <SageEntryView key={e.id} e={e} />)}
-              <div ref={bottomRef} className="py-2" />
-            </div>
-          )}
-        </div>
-
-        <div className="border-t border-zinc-800 shrink-0">
-          <div className="border-b border-zinc-900 px-6 py-2 flex gap-2 flex-wrap">
-            {ACTION_OPTS.map(a => (
-              <button key={a.value} onClick={() => setSelectedAction(a.value)}
-                className={`font-mono text-[10px] tracking-[0.2em] border px-2.5 py-1 transition-colors ${
-                  selectedAction === a.value ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/5" : "text-zinc-600 border-zinc-800 hover:text-zinc-400 hover:border-zinc-700"
-                }`}>
-                {a.label}
-              </button>
-            ))}
-          </div>
-          <div className="px-6 py-4 flex items-end gap-4">
-            <div className="flex-1 border border-zinc-700 focus-within:border-zinc-500 transition-colors">
-              <textarea value={inputVal} onChange={e => setInputVal(e.target.value)}
-                onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } }}
-                disabled={!online}
-                placeholder={online ? `[${selectedAction.toUpperCase()}] Query SAGE... (Enter to send, Shift+Enter for newline)` : "Initializing..."}
-                rows={3}
-                className="w-full bg-black text-[#9ebf9e] font-mono text-[13px] tracking-[0.02em] px-4 py-3 resize-none outline-none placeholder-zinc-800 disabled:opacity-50" />
-              <div className="border-t border-zinc-900 px-4 py-2 flex items-center justify-between">
-                <span className="font-mono text-[10px] tracking-[0.2em] text-zinc-700">{inputVal.length} chars</span>
-                <span className="font-mono text-[10px] tracking-[0.2em] text-zinc-800">Shift+Enter for newline · Esc to close</span>
-              </div>
-            </div>
-            <button disabled={!online || !inputVal.trim()} onClick={submit}
-              className="shrink-0 font-mono text-[11px] tracking-[0.3em] border border-zinc-700 text-zinc-400 hover:text-emerald-400 hover:border-emerald-700/40 px-5 py-4 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
-              SEND →
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ── SAGE Sidebar Terminal (compact) ────────────────────────────────── */
-
-function SageTerminal({ onExpand }: { onExpand: () => void }) {
-  const [entries, setEntries] = useState<SageEntry[]>([]);
-  const [inputVal, setInputVal] = useState("");
-  const [selectedAction, setSelectedAction] = useState<SageAction>("query");
-  const [online, setOnline] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const t = setTimeout(() => setOnline(true), 1200);
-    return () => clearTimeout(t);
-  }, []);
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [entries]);
-
-  function addEntry(entry: SageEntry) { setEntries(prev => [...prev, entry]); setInputVal(""); }
-  function updateEntry(id: string, response: string | null, error?: string) {
-    setEntries(prev => prev.map(e => e.id === id ? { ...e, loading: false, response, error } : e));
-  }
-  function handleQuery(query: string, action: SageAction) {
-    if (!query.trim() || !online) return;
-    runSageQuery(query, action, addEntry, updateEntry);
-  }
-  function submit() { handleQuery(inputVal.trim(), selectedAction); }
-  const hasEntries = entries.length > 0;
-
-  return (
-    <div className="p-4 flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="font-mono text-[11px] tracking-[0.35em] text-zinc-500">SAGE</div>
-          <span className={`font-mono text-[9px] tracking-widest flex items-center gap-1 ${online ? "text-emerald-600" : "text-zinc-700"}`}>
-            <span className={`w-1 h-1 rounded-full ${online ? "bg-emerald-500 animate-pulse" : "bg-zinc-700 animate-pulse"}`} />
-            {online ? "ONLINE" : "INIT"}
-          </span>
-        </div>
-        <button onClick={onExpand} className="font-mono text-[9px] tracking-[0.2em] text-zinc-600 hover:text-emerald-400 border border-zinc-800 hover:border-emerald-900/40 px-2 py-1 transition-colors">
-          EXPAND ↗
-        </button>
-      </div>
-
-      <div className="grid grid-cols-2 gap-1">
-        {QUICK_BRIEFS.map(b => (
-          <button key={b.label} disabled={!online} onClick={() => handleQuery(b.query, b.action)}
-            className="font-mono text-[9px] tracking-[0.15em] border border-zinc-800 text-zinc-600 hover:text-emerald-400 hover:border-emerald-900/40 px-2 py-1.5 transition-colors text-left disabled:opacity-30 disabled:cursor-not-allowed">
-            {b.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="border border-zinc-900 bg-zinc-950/50 min-h-[160px] max-h-[260px] overflow-y-auto">
-        {!hasEntries ? (
-          <div className="p-3 space-y-1 font-mono">
-            <div className="text-[10px] text-zinc-700">&gt; SAGE // RSR STRATEGIC ANALYSIS ENGINE</div>
-            <div className="text-[10px] text-zinc-800">&gt; 20 files · 14 dossiers · 5 systems · 6 regions</div>
-            {online ? (
-              <div className="text-[10px] text-emerald-700 animate-pulse">&gt; READY — use EXPAND ↗ for full workspace</div>
-            ) : (
-              <div className="text-[10px] text-zinc-800 animate-pulse">&gt; Initializing...</div>
-            )}
-          </div>
-        ) : (
-          <div>
-            {entries.map(e => (
-              <div key={e.id} className="p-3 border-b border-zinc-900/50 last:border-0 space-y-2">
-                <div className="flex items-start gap-2">
-                  <span className="font-mono text-[9px] tracking-[0.15em] text-zinc-700 shrink-0">{e.action.toUpperCase()} »</span>
-                  <span className="font-mono text-[10px] text-zinc-500 leading-relaxed">{e.query}</span>
-                </div>
-                {e.loading ? (
-                  <div className="font-mono text-[10px] text-emerald-700 animate-pulse pl-2">Processing...</div>
-                ) : e.error ? (
-                  <div className="font-mono text-[10px] text-red-500 pl-2 leading-relaxed">{e.error}</div>
-                ) : (
-                  <div className="font-mono text-[11px] text-[#9ebf9e] leading-relaxed pl-2 whitespace-pre-wrap">{e.response}</div>
-                )}
-              </div>
-            ))}
-            <div ref={bottomRef} />
-          </div>
-        )}
-      </div>
-
-      <div className="flex gap-1 flex-wrap">
-        {ACTION_OPTS.map(a => (
-          <button key={a.value} onClick={() => setSelectedAction(a.value)}
-            className={`font-mono text-[9px] tracking-[0.15em] border px-1.5 py-0.5 transition-colors ${
-              selectedAction === a.value ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/5" : "text-zinc-700 border-zinc-800 hover:text-zinc-400 hover:border-zinc-700"
-            }`}>
-            {a.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="border border-zinc-800 focus-within:border-zinc-600 transition-colors">
-        <textarea value={inputVal} onChange={e => setInputVal(e.target.value)}
-          onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } }}
-          disabled={!online}
-          placeholder={online ? "Query... (Enter to send)" : "Initializing..."}
-          rows={2}
-          className="w-full bg-black text-[#9ebf9e] font-mono text-[11px] tracking-[0.03em] px-3 py-2.5 resize-none outline-none placeholder-zinc-800 disabled:opacity-50" />
-        <div className="border-t border-zinc-900 px-3 py-1.5 flex items-center justify-between">
-          <span className="font-mono text-[9px] tracking-[0.15em] text-zinc-800">{inputVal.length}/500</span>
-          <button disabled={!online || !inputVal.trim()} onClick={submit}
-            className="font-mono text-[10px] tracking-[0.2em] text-zinc-600 hover:text-emerald-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
-            SEND →
-          </button>
-        </div>
-      </div>
-
-      {hasEntries && (
-        <button onClick={() => setEntries([])} className="font-mono text-[9px] tracking-[0.15em] text-zinc-800 hover:text-zinc-600 text-left transition-colors">
-          CLR TERMINAL
-        </button>
-      )}
-    </div>
-  );
-}
 
 /* ── Analyst Roster ─────────────────────────────────────────────────── */
 
@@ -709,7 +378,6 @@ export default function InvestigationRoom() {
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
   const [msgOpError, setMsgOpError] = useState<string | null>(null);
-  const [sageOpen, setSageOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
 
@@ -930,8 +598,6 @@ export default function InvestigationRoom() {
 
   return (
     <Layout>
-      {sageOpen && <SageModal onClose={() => setSageOpen(false)} />}
-
       <div className="-my-10 -mx-6 flex" style={{ height: "calc(100vh - 3.25rem)" }}>
 
         {/* ── LEFT — Channel selector ─────────────────────────────── */}
@@ -1233,9 +899,6 @@ export default function InvestigationRoom() {
 
           {/* Analyst roster */}
           <AnalystRoster configured={configured} user={user} />
-
-          {/* SAGE Terminal */}
-          <SageTerminal onExpand={() => setSageOpen(true)} />
 
         </div>
       </div>

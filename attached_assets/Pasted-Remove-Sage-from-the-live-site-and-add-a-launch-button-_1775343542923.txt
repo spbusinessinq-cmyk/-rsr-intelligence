@@ -1,0 +1,103 @@
+Remove Sage from the live site and add a launch button on the Contract Tracker system page.
+
+
+
+Do NOT redesign the site.
+
+Do NOT change the visual identity.
+
+Do NOT alter unrelated systems.
+
+
+
+MAIN GOAL
+
+1. Remove Sage UI/access from the site because it should no longer be exposed or callable.
+
+2. Add a clear button on the Contract Tracker page that opens the live Contract Tracker app.
+
+
+
+CONTRACT TRACKER TARGET URL
+
+https://rsr-contract-tracker1.edgeone.app
+
+
+
+TASKS
+
+
+
+1. REMOVE SAGE FROM UI
+
+- Remove Sage buttons, panels, terminals, launch actions, and visible references from the live frontend where appropriate.
+
+- Remove any “Sage API not available” messaging from the UI.
+
+- If a page currently reserves space for Sage, collapse that space cleanly without redesigning the rest of the layout.
+
+- Do not break navigation or page structure.
+
+
+
+2. DISABLE SAGE CALLS
+
+- Remove or disable frontend calls to /api/sage so the live site no longer attempts to use it.
+
+- Prevent console noise or visible errors caused by missing Sage.
+
+- If needed, leave backend files untouched, but the frontend must not call Sage anymore.
+
+
+
+3. CONTRACT TRACKER BUTTON
+
+- On the Contract Tracker system page, add a visible button such as:
+
+  - OPEN CONTRACT TRACKER
+
+  - LAUNCH CONTRACT TRACKER
+
+- Button should open:
+
+  https://rsr-contract-tracker1.edgeone.app
+
+- Open in a new tab.
+
+- Keep styling consistent with the current site aesthetic.
+
+
+
+4. PAGE TARGET
+
+- Find the Contract Tracker page/card/system entry in the RSR Intelligence site.
+
+- Add the button in the correct detail page and, if appropriate, also from the system card action area.
+
+- Do not change copy outside what is necessary.
+
+
+
+5. VERIFY
+
+Before finishing, verify:
+
+- no Sage UI remains where users can interact with it
+
+- no frontend /api/sage calls remain
+
+- Contract Tracker page has working launch button
+
+- button opens the exact URL in a new tab
+
+- no other systems were changed
+
+
+
+OUTPUT
+
+- list exact files changed
+
+- confirm Sage was removed from frontend exposure
+
+- confirm Contract Tracker button works
