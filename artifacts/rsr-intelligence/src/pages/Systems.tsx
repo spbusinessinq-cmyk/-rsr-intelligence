@@ -100,6 +100,104 @@ export default function Systems() {
           </div>
         </div>
 
+        {/* ── PUBLIC NETWORK ─────────────────────────────────────────────── */}
+        <section className="border-t border-zinc-900 pt-10">
+          <div className="font-mono text-[10px] tracking-[0.45em] text-emerald-400 mb-4 flex items-center gap-2">
+            <span className="w-1 h-1 bg-emerald-400" />
+            PUBLIC NETWORK
+          </div>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 border-b border-zinc-900 pb-8">
+            <h2 className="text-2xl md:text-3xl font-semibold text-white tracking-tight">
+              RSR PUBLIC PROPERTIES
+            </h2>
+            <div className="font-mono text-[10px] tracking-[0.3em] text-zinc-600 shrink-0">
+              EXTERNAL DESTINATIONS — OPEN IN NEW TAB
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-4">
+
+            {/* INDEX Data Network */}
+            <div className="border border-zinc-800 bg-zinc-950 flex flex-col group hover:border-zinc-700 transition-colors">
+              <div className="px-5 pt-5 pb-4 flex-1 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="font-mono text-[9px] tracking-[0.35em] text-zinc-600">DATA NETWORK</div>
+                  <span className="font-mono text-[8px] tracking-[0.25em] border border-emerald-500/30 text-emerald-600 px-2 py-0.5">LIVE</span>
+                </div>
+                <div className="font-mono text-[13px] tracking-[0.2em] text-zinc-200 font-semibold leading-snug">
+                  INDEX DATA<br />NETWORK
+                </div>
+                <p className="font-mono text-[10px] text-zinc-600 leading-relaxed">
+                  INDEX Data Network is the public-facing data systems division of the RSR Intelligence Network. It ingests open signals, structures them into datasets, and organizes them into a transparent, trackable index — forming the foundation behind RSR's intelligence and analysis.
+                </p>
+              </div>
+              <div className="border-t border-zinc-900 px-5 py-3">
+                <a
+                  href="https://rsrindexnet-vtwuwhk6r5.edgeone.app"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-mono text-[10px] tracking-[0.3em] text-emerald-500 hover:text-emerald-300 flex items-center gap-2 group-hover:gap-3 transition-all"
+                >
+                  OPEN INDEX NETWORK ↗
+                </a>
+              </div>
+            </div>
+
+            {/* RSR Press Core */}
+            <div className="border border-zinc-800 bg-zinc-950 flex flex-col group hover:border-zinc-700 transition-colors">
+              <div className="px-5 pt-5 pb-4 flex-1 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="font-mono text-[9px] tracking-[0.35em] text-zinc-600">PRESS & COMMS</div>
+                  <span className="font-mono text-[8px] tracking-[0.25em] border border-emerald-500/30 text-emerald-600 px-2 py-0.5">LIVE</span>
+                </div>
+                <div className="font-mono text-[13px] tracking-[0.2em] text-zinc-200 font-semibold leading-snug">
+                  RSR PRESS<br />CORE
+                </div>
+                <p className="font-mono text-[10px] text-zinc-600 leading-relaxed">
+                  RSR Press Core is the public press and communications arm of the RSR Intelligence Network, built to publish official reporting, structured releases, and outward-facing narrative products for the public.
+                </p>
+              </div>
+              <div className="border-t border-zinc-900 px-5 py-3">
+                <a
+                  href="https://rsrpresscore-qauboowan0.edgeone.app"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-mono text-[10px] tracking-[0.3em] text-emerald-500 hover:text-emerald-300 flex items-center gap-2 group-hover:gap-3 transition-all"
+                >
+                  OPEN PRESS CORE ↗
+                </a>
+              </div>
+            </div>
+
+            {/* Black Dog Cyber Security */}
+            <div className="border border-zinc-800 bg-zinc-950 flex flex-col group hover:border-zinc-700 transition-colors">
+              <div className="px-5 pt-5 pb-4 flex-1 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="font-mono text-[9px] tracking-[0.35em] text-zinc-600">CYBER SECURITY</div>
+                  <span className="font-mono text-[8px] tracking-[0.25em] border border-emerald-500/30 text-emerald-600 px-2 py-0.5">LIVE</span>
+                </div>
+                <div className="font-mono text-[13px] tracking-[0.2em] text-zinc-200 font-semibold leading-snug">
+                  BLACK DOG<br />CYBER SECURITY
+                </div>
+                <p className="font-mono text-[10px] text-zinc-600 leading-relaxed">
+                  Black Dog Cyber Security is the public-facing security and cyber defense arm of the RSR Intelligence Network, focused on digital resilience, operational security, threat awareness, and defensive infrastructure.
+                </p>
+              </div>
+              <div className="border-t border-zinc-900 px-5 py-3">
+                <a
+                  href="https://rsr-blackdog.edgeone.app"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-mono text-[10px] tracking-[0.3em] text-emerald-500 hover:text-emerald-300 flex items-center gap-2 group-hover:gap-3 transition-all"
+                >
+                  OPEN BLACK DOG ↗
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
       </div>
     </Layout>
   );

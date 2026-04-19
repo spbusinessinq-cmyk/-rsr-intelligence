@@ -1,0 +1,96 @@
+Make one focused content + style pass to the RSR Intelligence site.
+
+DO NOT redesign the site.
+DO NOT alter the homepage structure.
+DO NOT touch auth, API routes, chat, signal room, command console, or backend logic.
+ONLY make the following changes.
+
+MAIN GOAL
+Add a public-facing linked systems section/page for the three main RSR public sites, and switch the site font to Orbitron.
+
+CHANGES REQUIRED
+
+1. ADD / UPDATE A SYSTEMS DESTINATION FOR PUBLIC SITES
+Create or update a section/page on the intel site that presents these public-facing RSR properties as external destinations.
+
+The three public sites are:
+
+- INDEX Data Network
+- RSR Press Core
+- Black Dog Cyber Security
+
+These must be displayed as clear cards / entries and each must:
+- include title
+- include short description
+- include external link
+- open in a NEW TAB
+- use safe external linking (`target="_blank"` and `rel="noreferrer"` or equivalent)
+
+If there is already a Systems page or linked-systems area, integrate them there cleanly.
+If not, create a dedicated clean section/page that fits the current aesthetic.
+
+2. CONTENT TO USE
+
+INDEX Data Network description:
+Short version:
+INDEX Data Network is the structured data layer of the RSR Intelligence Network, built to collect, organize, and map real-world signals into clear, trackable information.
+
+Expanded version:
+INDEX Data Network is the public-facing data systems division of the RSR Intelligence Network. It ingests open signals, structures them into datasets, and organizes them into a transparent, trackable index — forming the foundation behind RSR’s intelligence and analysis.
+
+Use the expanded version on the page/card unless space requires the shorter one.
+
+RSR Press Core description:
+RSR Press Core is the public press and communications arm of the RSR Intelligence Network, built to publish official reporting, structured releases, and outward-facing narrative products for the public.
+
+Black Dog Cyber Security description:
+Black Dog Cyber Security is the public-facing security and cyber defense arm of the RSR Intelligence Network, focused on digital resilience, operational security, threat awareness, and defensive infrastructure.
+
+3. EXTERNAL URLS
+Use these links exactly and wire them to open in a new tab:
+
+INDEX Data Network:
+https://rsrindexnet-vtwuwhk6r5.edgeone.app
+
+RSR Press Core:
+https://rsrpresscore-qauboowan0.edgeone.app
+
+Black Dog Cyber Security:
+[USE THE BLACK DOG URL ALREADY PRESENT IN THE project if available; if not found, leave a clearly marked placeholder href and note it in the final report instead of guessing]
+
+4. FONT CHANGE
+Switch the site font to Orbitron across the public-facing site.
+
+Requirements:
+- Orbitron should become the primary display/system font
+- preserve the current dark intelligence aesthetic
+- do not break spacing, layout, or button sizing
+- if needed, use sane fallbacks after Orbitron
+- ensure headings, nav, and system labels still look sharp and readable
+
+5. PRESERVE CURRENT STYLE
+Keep:
+- black / green intelligence aesthetic
+- current layout hierarchy
+- current interaction style
+- current branding language
+
+Do NOT:
+- redesign cards drastically
+- change routing architecture
+- alter API or auth logic
+- touch backend files
+
+6. FINAL VERIFICATION
+Before finishing:
+- verify all new external links open in a new tab
+- verify no broken imports
+- verify Orbitron is loading correctly
+- verify the site still builds cleanly
+- list exact files changed
+
+OUTPUT
+Return:
+- exact files changed
+- whether Black Dog URL was found or still needs to be filled
+- confirmation that build passes cleanly
