@@ -49,57 +49,6 @@ export default function Systems() {
           </div>
         </section>
 
-        {/* ── MAIN LAYOUT: modules + sidebar ────────────────────────────── */}
-        <div className="grid xl:grid-cols-4 gap-8 items-start">
-
-          {/* Module grid */}
-          <div className="xl:col-span-3">
-            <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-700 mb-5">DEPLOYED MODULES</div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {systems.map((system) => (
-                <SystemCard key={system.name} {...system} />
-              ))}
-            </div>
-          </div>
-
-          {/* Sidebar — diagnostics + system logs */}
-          <div className="xl:col-span-1 space-y-8 sticky top-6">
-
-            {/* Diagnostics */}
-            <div>
-              <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-600 mb-4 border-b border-zinc-900 pb-3">
-                DIAGNOSTICS
-              </div>
-              <div className="border border-zinc-900 bg-black divide-y divide-zinc-900">
-                {diagnostics.map(stat => (
-                  <div key={stat.label} className="flex justify-between items-center px-4 py-3 font-mono text-[11px] tracking-widest">
-                    <span className="text-zinc-700">{stat.label}</span>
-                    <span className={stat.color}>{stat.value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Architecture note */}
-            <div className="border border-zinc-900 p-4">
-              <div className="font-mono text-[10px] tracking-[0.3em] text-zinc-600 mb-3">ARCHITECTURE</div>
-              <p className="text-[11px] text-zinc-700 leading-relaxed font-mono">
-                Modular analytic stack. Each system operates independently with
-                shared signal routing. Expand any module for sub-layer access.
-              </p>
-            </div>
-
-            {/* System logs feed */}
-            <div>
-              <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-600 mb-4 border-b border-zinc-900 pb-3">
-                SYSTEM LOGS
-              </div>
-              <SignalFeed items={feedItems.slice(0, 4)} />
-            </div>
-
-          </div>
-        </div>
-
         {/* ── PUBLIC NETWORK ─────────────────────────────────────────────── */}
         <section className="border-t border-zinc-900 pt-10">
           <div className="font-mono text-[10px] tracking-[0.45em] text-emerald-400 mb-4 flex items-center gap-2">
@@ -185,7 +134,7 @@ export default function Systems() {
               </div>
               <div className="border-t border-zinc-900 px-5 py-3">
                 <a
-                  href="https://rsr-blackdog.edgeone.app"
+                  href="https://blackdogmain12.edgeone.app"
                   target="_blank"
                   rel="noreferrer"
                   className="font-mono text-[10px] tracking-[0.3em] text-emerald-500 hover:text-emerald-300 flex items-center gap-2 group-hover:gap-3 transition-all"
@@ -197,6 +146,57 @@ export default function Systems() {
 
           </div>
         </section>
+
+        {/* ── MAIN LAYOUT: modules + sidebar ────────────────────────────── */}
+        <div className="grid xl:grid-cols-4 gap-8 items-start">
+
+          {/* Module grid */}
+          <div className="xl:col-span-3">
+            <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-700 mb-5">DEPLOYED MODULES</div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {systems.map((system) => (
+                <SystemCard key={system.name} {...system} />
+              ))}
+            </div>
+          </div>
+
+          {/* Sidebar — diagnostics + system logs */}
+          <div className="xl:col-span-1 space-y-8 sticky top-6">
+
+            {/* Diagnostics */}
+            <div>
+              <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-600 mb-4 border-b border-zinc-900 pb-3">
+                DIAGNOSTICS
+              </div>
+              <div className="border border-zinc-900 bg-black divide-y divide-zinc-900">
+                {diagnostics.map(stat => (
+                  <div key={stat.label} className="flex justify-between items-center px-4 py-3 font-mono text-[11px] tracking-widest">
+                    <span className="text-zinc-700">{stat.label}</span>
+                    <span className={stat.color}>{stat.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Architecture note */}
+            <div className="border border-zinc-900 p-4">
+              <div className="font-mono text-[10px] tracking-[0.3em] text-zinc-600 mb-3">ARCHITECTURE</div>
+              <p className="text-[11px] text-zinc-700 leading-relaxed font-mono">
+                Modular analytic stack. Each system operates independently with
+                shared signal routing. Expand any module for sub-layer access.
+              </p>
+            </div>
+
+            {/* System logs feed */}
+            <div>
+              <div className="font-mono text-[10px] tracking-[0.4em] text-zinc-600 mb-4 border-b border-zinc-900 pb-3">
+                SYSTEM LOGS
+              </div>
+              <SignalFeed items={feedItems.slice(0, 4)} />
+            </div>
+
+          </div>
+        </div>
 
       </div>
     </Layout>

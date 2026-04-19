@@ -157,6 +157,35 @@ export default function Home() {
                 VIEW FILES
               </Link>
             </div>
+
+            {/* Public network jump-links */}
+            <div className="mt-5 flex flex-wrap items-center gap-1.5">
+              <span className="font-mono text-[9px] tracking-[0.35em] text-zinc-800 mr-1">PUBLIC ↓</span>
+              <a
+                href="https://rsrindexnet-vtwuwhk6r5.edgeone.app"
+                target="_blank"
+                rel="noreferrer"
+                className="font-mono text-[9px] tracking-[0.25em] border border-zinc-900 text-zinc-600 hover:text-emerald-400 hover:border-emerald-900/50 px-3 py-1.5 transition-colors"
+              >
+                INDEX DATA NETWORK ↗
+              </a>
+              <a
+                href="https://rsrpresscore-qauboowan0.edgeone.app"
+                target="_blank"
+                rel="noreferrer"
+                className="font-mono text-[9px] tracking-[0.25em] border border-zinc-900 text-zinc-600 hover:text-emerald-400 hover:border-emerald-900/50 px-3 py-1.5 transition-colors"
+              >
+                PRESS CORE ↗
+              </a>
+              <a
+                href="https://blackdogmain12.edgeone.app"
+                target="_blank"
+                rel="noreferrer"
+                className="font-mono text-[9px] tracking-[0.25em] border border-zinc-900 text-zinc-600 hover:text-emerald-400 hover:border-emerald-900/50 px-3 py-1.5 transition-colors"
+              >
+                BLACK DOG ↗
+              </a>
+            </div>
           </div>
 
           <div className="hidden lg:flex items-center justify-center shrink-0 pointer-events-none select-none">

@@ -1,0 +1,82 @@
+Make one focused layout/content pass to the RSR Intelligence site.
+
+DO NOT redesign the site.
+DO NOT alter auth, API routes, chat, command console, signal room, or backend logic.
+ONLY adjust the public properties placement + links + top-page access points.
+
+MAIN GOAL
+1. Fix the Black Dog card so it links to the actual Black Dog public website URL, not the app/internal route.
+2. Move the RSR Public Properties section higher on the Systems page so it appears ABOVE the sub-layer/core systems content.
+3. Add 3 small external-link buttons near the top of the main/home page for:
+   - INDEX Data Network
+   - RSR Press Core
+   - Black Dog Cyber Security
+
+REQUIREMENTS
+
+1. BLACK DOG LINK FIX
+- Find the current Black Dog public properties card link
+- Replace it so it opens the actual public Black Dog website URL
+- Do NOT link to the app/internal Black Dog route
+- Open in a new tab with safe external linking
+
+Use this Black Dog public URL:
+https://blackdogmain12.edgeone.app
+
+2. SYSTEMS PAGE REORDER
+On the Systems page:
+- Keep the existing “RSR PUBLIC PROPERTIES” section
+- Move it ABOVE the sub-layer/core systems section
+- It should appear as an upper public-facing destination layer before the deeper internal systems content
+- Preserve the current styling and spacing language
+
+3. MAIN / HOME PAGE TOP BUTTONS
+Add 3 small clean buttons/links near the top of the main page (hero/top area), styled to match the site:
+- INDEX DATA NETWORK
+- PRESS CORE
+- BLACK DOG
+
+Requirements:
+- subtle, sharp, intelligence aesthetic
+- small footprint
+- open in new tab
+- use safe external linking
+- should feel like public network jump-links, not giant CTA blocks
+- place them near the top area without breaking the current homepage structure
+
+Links:
+INDEX Data Network:
+https://rsrindexnet-vtwuwhk6r5.edgeone.app
+
+RSR Press Core:
+https://rsrpresscore-qauboowan0.edgeone.app
+
+Black Dog Cyber Security:
+https://blackdogmain12.edgeone.app
+
+4. KEEP CURRENT CONTENT
+Retain the current card text/content that was added for the public properties section.
+Do NOT rewrite copy unless needed for tiny formatting cleanup.
+
+5. PRESERVE STYLE
+Keep:
+- Orbitron
+- black / emerald / zinc palette
+- current spacing discipline
+- current layout hierarchy
+- current card aesthetic
+
+Do NOT:
+- redesign homepage
+- move major nav items
+- alter backend
+- touch auth/API/chat systems
+
+6. FINAL VERIFICATION
+Before finishing:
+- verify all 3 public links open in new tabs
+- verify Systems page now shows Public Properties above the sub-layer/core systems
+- verify Home page now has the 3 small buttons near the top
+- verify Black Dog uses the real public website URL
+- verify build passes
+- list exact files changed
