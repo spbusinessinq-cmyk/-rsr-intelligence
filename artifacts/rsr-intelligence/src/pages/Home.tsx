@@ -162,7 +162,7 @@ export default function Home() {
             <div className="mt-5 flex flex-wrap items-center gap-1.5">
               <span className="font-mono text-[9px] tracking-[0.35em] text-zinc-800 mr-1">PUBLIC ↓</span>
               <a
-                href="https://rsrindexnet-vtwuwhk6r5.edgeone.app"
+                href="https://rsrindexnet.edgeone.app/"
                 target="_blank"
                 rel="noreferrer"
                 className="font-mono text-[9px] tracking-[0.25em] border border-zinc-900 text-zinc-600 hover:text-emerald-400 hover:border-emerald-900/50 px-3 py-1.5 transition-colors"

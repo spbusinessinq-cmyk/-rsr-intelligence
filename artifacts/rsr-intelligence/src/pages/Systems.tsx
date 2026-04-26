@@ -82,7 +82,7 @@ export default function Systems() {
               </div>
               <div className="border-t border-zinc-900 px-5 py-3">
                 <a
-                  href="https://rsrindexnet-vtwuwhk6r5.edgeone.app"
+                  href="https://rsrindexnet.edgeone.app/"
                   target="_blank"
                   rel="noreferrer"
                   className="font-mono text-[10px] tracking-[0.3em] text-emerald-500 hover:text-emerald-300 flex items-center gap-2 group-hover:gap-3 transition-all"
