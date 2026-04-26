@@ -66,18 +66,18 @@ export default function Systems() {
 
           <div className="grid md:grid-cols-3 gap-4">
 
-            {/* INDEX Data Network */}
+            {/* Pacific Systems */}
             <div className="border border-zinc-800 bg-zinc-950 flex flex-col group hover:border-zinc-700 transition-colors">
               <div className="px-5 pt-5 pb-4 flex-1 space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="font-mono text-[9px] tracking-[0.35em] text-zinc-600">DATA NETWORK</div>
+                  <div className="font-mono text-[9px] tracking-[0.35em] text-zinc-600">DATA SYSTEMS</div>
                   <span className="font-mono text-[8px] tracking-[0.25em] border border-emerald-500/30 text-emerald-600 px-2 py-0.5">LIVE</span>
                 </div>
                 <div className="font-mono text-[13px] tracking-[0.2em] text-zinc-200 font-semibold leading-snug">
-                  INDEX DATA<br />NETWORK
+                  PACIFIC<br />SYSTEMS
                 </div>
                 <p className="font-mono text-[10px] text-zinc-600 leading-relaxed">
-                  INDEX Data Network is the public-facing data systems division of the RSR Intelligence Network. It ingests open signals, structures them into datasets, and organizes them into a transparent, trackable index — forming the foundation behind RSR's intelligence and analysis.
+                  Pacific Systems is the structured data division of the RSR Intelligence Network. It collects, organizes, and maps open-source signals into structured, searchable records that support the broader intelligence and analysis ecosystem.
                 </p>
               </div>
               <div className="border-t border-zinc-900 px-5 py-3">
@@ -87,7 +87,7 @@ export default function Systems() {
                   rel="noreferrer"
                   className="font-mono text-[10px] tracking-[0.3em] text-emerald-500 hover:text-emerald-300 flex items-center gap-2 group-hover:gap-3 transition-all"
                 >
-                  OPEN INDEX NETWORK ↗
+                  OPEN PACIFIC SYSTEMS ↗
                 </a>
               </div>
             </div>

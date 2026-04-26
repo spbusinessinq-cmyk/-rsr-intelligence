@@ -167,7 +167,7 @@ export default function Home() {
                 rel="noreferrer"
                 className="font-mono text-[9px] tracking-[0.25em] border border-zinc-900 text-zinc-600 hover:text-emerald-400 hover:border-emerald-900/50 px-3 py-1.5 transition-colors"
               >
-                INDEX DATA NETWORK ↗
+                PACIFIC SYSTEMS ↗
               </a>
               <a
                 href="https://rsrpresscore-qauboowan0.edgeone.app"
